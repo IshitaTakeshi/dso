@@ -237,8 +237,7 @@ int main( int argc, char** argv )
     ImageFolderReader* reader = new ImageFolderReader(source, calib, gammaCalib, vignette);
     reader->setGlobalCalibration();
 
-    if(setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0)
-    {
+    if(setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0) {
         printf(
           "ERROR: dont't have photometric calibation. "
           "Need to use commandline options mode=1 or mode=2 "
@@ -250,7 +249,7 @@ int main( int argc, char** argv )
     fullSystem->setGammaFunction(reader->getPhotometricGamma());
     fullSystem->linearizeOperation = (playbackSpeed==0);
 
-    IOWrap::PangolinDSOViewer* viewer = new IOWrap::PangolinDSOViewer(wG[0],hG[0], false);
+    IOWrap::PangolinDSOViewer* viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], false);
     fullSystem->outputWrapper.push_back(viewer);
 
     if(useSampleOutput) {
@@ -259,17 +258,8 @@ int main( int argc, char** argv )
 
     // to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
     std::thread runthread([&]() {
-        std::vector<int> idsToPlay;
-
-        std::vector<ImageAndExposure*> preloadedImages;
-
         for(int i=0; i < reader->getNumImages(); i+=1) {
             ImageAndExposure* img = reader->getImage(i);
-
-            if(playbackSpeed!=0) {
-                struct timeval tv_now;
-                gettimeofday(&tv_now, NULL);
-            }
 
             fullSystem->addActiveFrame(img, i);
 
@@ -294,8 +284,7 @@ int main( int argc, char** argv )
                 }
             }
 
-            if(fullSystem->isLost)
-            {
+            if(fullSystem->isLost) {
                 printf("LOST!!\n");
                 break;
             }
@@ -306,13 +295,11 @@ int main( int argc, char** argv )
         fullSystem->printResult("result.txt");
     });
 
-
     viewer->run();
 
     runthread.join();
 
-    for(IOWrap::Output3DWrapper* ow : fullSystem->outputWrapper)
-    {
+    for(IOWrap::Output3DWrapper* ow : fullSystem->outputWrapper) {
         ow->join();
         delete ow;
     }
