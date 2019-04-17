@@ -211,8 +211,7 @@ void PhotometricUndistorter::processFrame(T* image_in, float exposure_time,
     if(!valid || exposure_time <= 0
             || setting_photometricCalibration==0) // disable full photometric calibration.
     {
-        for(int i=0; i<wh; i++)
-        {
+        for(int i=0; i<wh; i++) {
             data[i] = factor*image_in[i];
         }
         output->exposure_time = exposure_time;

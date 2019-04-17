@@ -73,7 +73,6 @@ void exitThread()
 void parseArgument(char* arg,
                    std::string &vignette, std::string &gammaCalib,
                    std::string &source, std::string &calib,
-                   int &start, int &end, bool &reverse,
                    float &playbackSpeed, bool &useSampleOutput) {
     int option;
     float foption;
@@ -119,15 +118,6 @@ void parseArgument(char* arg,
         return;
     }
 
-    if(1==sscanf(arg,"reverse=%d",&option))
-    {
-        if(option==1)
-        {
-            reverse = true;
-            printf("REVERSE!\n");
-        }
-        return;
-    }
     if(1==sscanf(arg,"nogui=%d",&option))
     {
         if(option==1)
@@ -144,18 +134,6 @@ void parseArgument(char* arg,
             multiThreading = false;
             printf("NO MultiThreading!\n");
         }
-        return;
-    }
-    if(1==sscanf(arg,"start=%d",&option))
-    {
-        start = option;
-        printf("START AT %d!\n",start);
-        return;
-    }
-    if(1==sscanf(arg,"end=%d",&option))
-    {
-        end = option;
-        printf("END AT %d!\n",start);
         return;
     }
 
@@ -247,7 +225,6 @@ int main( int argc, char** argv )
     std::string gammaCalib = "";
     std::string source = "";
     std::string calib = "";
-    bool reverse = false;
     int end=100000;
     int start=0;
     float playbackSpeed = 0;
@@ -257,7 +234,7 @@ int main( int argc, char** argv )
     for(int i=1; i<argc; i++) {
         parseArgument(argv[i],
                       vignette, gammaCalib, source, calib,
-                      start, end, reverse, playbackSpeed, useSampleOutput);
+                      playbackSpeed, useSampleOutput);
     }
 
     std::cout << "vignette: " << vignette << std::endl;
@@ -280,20 +257,6 @@ int main( int argc, char** argv )
         exit(1);
     }
 
-    int lstart = start;
-    int lend = end;
-    int linc = 1;
-
-    if(reverse)
-    {
-        printf("REVERSE!!!!");
-        lstart=end-1;
-        if(lstart >= reader->getNumImages())
-            lstart = reader->getNumImages()-1;
-        lend = start;
-        linc = -1;
-    }
-
     FullSystem* fullSystem = new FullSystem();
     fullSystem->setGammaFunction(reader->getPhotometricGamma());
     fullSystem->linearizeOperation = (playbackSpeed==0);
@@ -305,16 +268,16 @@ int main( int argc, char** argv )
         fullSystem->outputWrapper.push_back(viewer);
     }
 
-    if(useSampleOutput)
+    if(useSampleOutput) {
         fullSystem->outputWrapper.push_back(new IOWrap::SampleOutputWrapper());
-
+    }
 
     // to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
     std::thread runthread([&]() {
         std::vector<int> idsToPlay;
         std::vector<double> timesToPlayAt;
-        for(int i=lstart; i>= 0 && i< reader->getNumImages()
-                && linc*i < linc*lend; i+=linc) {
+        for(int i=start; i>= 0 && i< reader->getNumImages()
+                && i < end; i+=1) {
             idsToPlay.push_back(i);
             if(timesToPlayAt.size() == 0) {
                 timesToPlayAt.push_back((double)0);
