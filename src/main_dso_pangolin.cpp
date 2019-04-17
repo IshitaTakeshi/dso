@@ -118,15 +118,6 @@ void parseArgument(char* arg,
         return;
     }
 
-    if(1==sscanf(arg,"nogui=%d",&option))
-    {
-        if(option==1)
-        {
-            disableAllDisplay = true;
-            printf("NO GUI!\n");
-        }
-        return;
-    }
     if(1==sscanf(arg,"nomt=%d",&option))
     {
         if(option==1)
@@ -259,12 +250,8 @@ int main( int argc, char** argv )
     fullSystem->setGammaFunction(reader->getPhotometricGamma());
     fullSystem->linearizeOperation = (playbackSpeed==0);
 
-    IOWrap::PangolinDSOViewer* viewer = 0;
-    if(!disableAllDisplay)
-    {
-        viewer = new IOWrap::PangolinDSOViewer(wG[0],hG[0], false);
-        fullSystem->outputWrapper.push_back(viewer);
-    }
+    IOWrap::PangolinDSOViewer* viewer = new IOWrap::PangolinDSOViewer(wG[0],hG[0], false);
+    fullSystem->outputWrapper.push_back(viewer);
 
     if(useSampleOutput) {
         fullSystem->outputWrapper.push_back(new IOWrap::SampleOutputWrapper());
@@ -320,8 +307,7 @@ int main( int argc, char** argv )
     });
 
 
-    if(viewer != 0)
-        viewer->run();
+    viewer->run();
 
     runthread.join();
 
