@@ -37,44 +37,30 @@
 #include "util/Undistort.h"
 
 
-namespace dso
-{
-
-
-
-
-
-
-
+namespace dso {
 
 PhotometricUndistorter::PhotometricUndistorter(
     std::string file,
     std::string noiseImage,
     std::string vignetteImage,
-    int w_, int h_)
-{
-    valid=false;
+    int w_, int h_) {
+    valid = false;
     vignetteMap=0;
     vignetteMapInv=0;
     w = w_;
     h = h_;
     output = new ImageAndExposure(w,h);
-    if(file=="" || vignetteImage=="")
-    {
+    if(file=="" || vignetteImage=="") {
         printf("NO PHOTOMETRIC Calibration!\n");
     }
-
 
     // read G.
     std::ifstream f(file.c_str());
     printf("Reading Photometric Calibration from file %s\n",file.c_str());
-    if (!f.good())
-    {
+    if (!f.good()) {
         printf("PhotometricUndistorter: Could not open file!\n");
         return;
     }
-
-
 
     {
         std::string line;
@@ -82,8 +68,6 @@ PhotometricUndistorter::PhotometricUndistorter(
         std::istringstream l1i( line );
         std::vector<float> Gvec = std::vector<float>( std::istream_iterator<float>
                                   (l1i), std::istream_iterator<float>() );
-
-
 
         GDepth = Gvec.size();
 
@@ -487,10 +471,8 @@ void Undistort::applyBlurNoise(float* img) const
     float* noiseMapY=new float[numnoise];
     float* blutTmp=new float[w*h];
 
-    if(benchmark_varBlurNoise>0)
-    {
-        for(int i=0; i<numnoise; i++)
-        {
+    if(benchmark_varBlurNoise>0) {
+        for(int i=0; i<numnoise; i++) {
             noiseMapX[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
             noiseMapY[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
         }
@@ -498,17 +480,19 @@ void Undistort::applyBlurNoise(float* img) const
 
 
     float gaussMap[1000];
-    for(int i=0; i<1000; i++)
+    for(int i=0; i<1000; i++) {
         gaussMap[i] = expf((float)(-i*i/(100.0*100.0)));
+    }
 
     // x-blur.
-    for(int y=0; y<h; y++)
-        for(int x=0; x<w; x++)
-        {
-            float xBlur = getInterpolatedElement11BiCub(noiseMapX,
-                          4+(x/(float)w)*benchmark_noiseGridsize,
-                          4+(y/(float)h)*benchmark_noiseGridsize,
-                          benchmark_noiseGridsize+8 );
+    for(int y=0; y<h; y++) {
+        for(int x=0; x<w; x++) {
+            float xBlur = getInterpolatedElement11BiCub(
+                noiseMapX,
+                4+(x/(float)w)*benchmark_noiseGridsize,
+                4+(y/(float)h)*benchmark_noiseGridsize,
+                benchmark_noiseGridsize+8
+            );
 
             if(xBlur < 0.01) xBlur=0.01;
 
@@ -516,10 +500,9 @@ void Undistort::applyBlurNoise(float* img) const
             int kernelSize = 1 + (int)(1.0f+xBlur*1.5);
             float sumW=0;
             float sumCW=0;
-            for(int dx=0; dx <= kernelSize; dx++)
-            {
+            for(int dx=0; dx <= kernelSize; dx++) {
                 int gmid = 100.0f*dx/xBlur + 0.5f;
-                if(gmid > 900 ) gmid = 900;
+                if(gmid > 900) gmid = 900;
                 float gw = gaussMap[gmid];
 
                 if(x+dx>0 && x+dx<w)
@@ -537,9 +520,10 @@ void Undistort::applyBlurNoise(float* img) const
 
             blutTmp[x+y*this->w] = sumCW / sumW;
         }
+    }
 
     // y-blur.
-    for(int x=0; x<w; x++)
+    for(int x=0; x<w; x++) {
         for(int y=0; y<h; y++)
         {
             float yBlur = getInterpolatedElement11BiCub(noiseMapY,
@@ -552,14 +536,12 @@ void Undistort::applyBlurNoise(float* img) const
             int kernelSize = 1 + (int)(0.9f+yBlur*2.5);
             float sumW=0;
             float sumCW=0;
-            for(int dy=0; dy <= kernelSize; dy++)
-            {
+            for(int dy=0; dy <= kernelSize; dy++) {
                 int gmid = 100.0f*dy/yBlur + 0.5f;
                 if(gmid > 900 ) gmid = 900;
                 float gw = gaussMap[gmid];
 
-                if(y+dy>0 && y+dy<h)
-                {
+                if(y+dy>0 && y+dy<h) {
                     sumW += gw;
                     sumCW += gw * blutTmp[x+(y+dy)*this->w];
                 }
@@ -572,8 +554,7 @@ void Undistort::applyBlurNoise(float* img) const
             }
             img[x+y*this->w] = sumCW / sumW;
         }
-
-
+    }
 
     delete[] noiseMapX;
     delete[] noiseMapY;
@@ -604,8 +585,7 @@ void Undistort::makeRoundingResistant(float* remapX, float* remapY) {
 }
 
 void Undistort::readFromFile(const char* configFileName, int nPars,
-                             std::string prefix)
-{
+                             std::string prefix) {
     photometricUndist=0;
     valid = false;
 
@@ -651,15 +631,14 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
                  prefix.c_str());
 
         if(std::sscanf(l1.c_str(), buf,
-                       &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3], &parsOrg[4],
-                       &parsOrg[5], &parsOrg[6], &parsOrg[7]) == 8 &&
-                std::sscanf(l2.c_str(), "%d %d", &wOrg, &hOrg) == 2)
-        {
+                       &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3],
+                       &parsOrg[4], &parsOrg[5], &parsOrg[6], &parsOrg[7]) == 8 &&
+                       std::sscanf(l2.c_str(), "%d %d", &wOrg, &hOrg) == 2) {
             printf("Input resolution: %d %d\n",wOrg, hOrg);
             printf("In: %s%f %f %f %f %f %f %f %f\n",
                    prefix.c_str(),
-                   parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3], parsOrg[4], parsOrg[5],
-                   parsOrg[6], parsOrg[7]);
+                   parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3],
+                   parsOrg[4], parsOrg[5], parsOrg[6], parsOrg[7]);
         } else {
             printf("Failed to read camera calibration (invalid format?)\nCalibration file: %s\n",
                    configFileName);
@@ -672,10 +651,7 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         return;
     }
 
-
-
-    if(parsOrg[2] < 1 && parsOrg[3] < 1)
-    {
+    if(parsOrg[2] < 1 && parsOrg[3] < 1) {
         printf("\n\nFound fx=%f, fy=%f, cx=%f, cy=%f.\n I'm assuming this is the \"relative\" calibration file format,"
                "and will rescale this by image width / height to fx=%f, fy=%f, cx=%f, cy=%f.\n\n",
                parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3],
@@ -693,8 +669,6 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         parsOrg[3] = parsOrg[3] * hOrg - 0.5;
     }
 
-
-
     if(std::sscanf(l3.c_str(), "%f %f %f %f %f", &outputCalibration[0],
                         &outputCalibration[1], &outputCalibration[2], &outputCalibration[3],
                         &outputCalibration[4]) == 5) {
@@ -706,6 +680,10 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         infile.close();
         return;
     }
+
+    // TODO
+    // make w and h constant in the cleass
+    // separate file io to another function or class
 
     // l4
     if(std::sscanf(l4.c_str(), "%d %d", &w, &h) == 2) {
@@ -761,8 +739,7 @@ UndistortFOV::~UndistortFOV()
 }
 
 void UndistortFOV::distortCoordinates(float* in_x, float* in_y, float* out_x,
-                                      float* out_y, int n) const
-{
+                                      float* out_y, int n) const {
     float dist = parsOrg[4];
     float d2t = 2.0f * tan(dist / 2.0f);
 
