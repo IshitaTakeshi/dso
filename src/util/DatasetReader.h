@@ -148,7 +148,7 @@ public:
 
 
         undistort = Undistort::getUndistorterForFile(
-            calibFile, gammaFile, vignetteFile);
+                        calibFile, gammaFile, vignetteFile);
 
 
         widthOrg = undistort->getOriginalSize()[0];
