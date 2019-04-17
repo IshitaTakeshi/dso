@@ -95,6 +95,8 @@ public:
         return valid;
     };
 
+    void makeRoundingResistant(float* remapX, float* remapY);
+
     template<typename T>
     ImageAndExposure* undistort(const MinimalImage<T>* image_raw, float exposure=0,
                                 double timestamp=0, float factor=1) const;

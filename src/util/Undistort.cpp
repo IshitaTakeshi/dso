@@ -579,6 +579,30 @@ void Undistort::applyBlurNoise(float* img) const
     delete[] noiseMapY;
 }
 
+// TODO take w and h as args or make them cost members
+void Undistort::makeRoundingResistant(float* remapX, float* remapY) {
+    for(int y=0; y<h; y++) {
+        for(int x=0; x<w; x++) {
+            // make rounding resistant.
+            float ix = remapX[y*w+x];
+            float iy = remapY[y*w+x];
+
+            if(ix == 0) ix = 0.001;
+            if(iy == 0) iy = 0.001;
+            if(ix == wOrg-1) ix = wOrg-1.001;
+            if(iy == hOrg-1) ix = hOrg-1.001;
+
+            if(ix > 0 && iy > 0 && ix < wOrg-1 && iy < hOrg-1) {
+                remapX[y*w+x] = ix;
+                remapY[y*w+x] = iy;
+            } else {
+                remapX[y*w+x] = -1;
+                remapY[y*w+x] = -1;
+            }
+        }
+    }
+}
+
 void Undistort::readFromFile(const char* configFileName, int nPars,
                              std::string prefix)
 {
@@ -715,27 +739,7 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
     }
 
     distortCoordinates(remapX, remapY, remapX, remapY, h*w);
-
-    for(int y=0; y<h; y++) {
-        for(int x=0; x<w; x++) {
-            // make rounding resistant.
-            float ix = remapX[y*w+x];
-            float iy = remapY[y*w+x];
-
-            if(ix == 0) ix = 0.001;
-            if(iy == 0) iy = 0.001;
-            if(ix == wOrg-1) ix = wOrg-1.001;
-            if(iy == hOrg-1) ix = hOrg-1.001;
-
-            if(ix > 0 && iy > 0 && ix < wOrg-1 && iy < hOrg-1) {
-                remapX[y*w+x] = ix;
-                remapY[y*w+x] = iy;
-            } else {
-                remapX[y*w+x] = -1;
-                remapY[y*w+x] = -1;
-            }
-        }
-    }
+    makeRoundingResistant(remapX, remapY);
 
     valid = true;
 
