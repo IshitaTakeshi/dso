@@ -68,64 +68,14 @@ FullSystem::FullSystem()
 {
 
     int retstat =0;
-    if(setting_logStuff)
-    {
-
-        retstat += system("rm -rf logs");
-        retstat += system("mkdir logs");
-
-        retstat += system("rm -rf mats");
-        retstat += system("mkdir mats");
-
-        calibLog = new std::ofstream();
-        calibLog->open("logs/calibLog.txt", std::ios::trunc | std::ios::out);
-        calibLog->precision(12);
-
-        numsLog = new std::ofstream();
-        numsLog->open("logs/numsLog.txt", std::ios::trunc | std::ios::out);
-        numsLog->precision(10);
-
-        coarseTrackingLog = new std::ofstream();
-        coarseTrackingLog->open("logs/coarseTrackingLog.txt",
-                                std::ios::trunc | std::ios::out);
-        coarseTrackingLog->precision(10);
-
-        eigenAllLog = new std::ofstream();
-        eigenAllLog->open("logs/eigenAllLog.txt", std::ios::trunc | std::ios::out);
-        eigenAllLog->precision(10);
-
-        eigenPLog = new std::ofstream();
-        eigenPLog->open("logs/eigenPLog.txt", std::ios::trunc | std::ios::out);
-        eigenPLog->precision(10);
-
-        eigenALog = new std::ofstream();
-        eigenALog->open("logs/eigenALog.txt", std::ios::trunc | std::ios::out);
-        eigenALog->precision(10);
-
-        DiagonalLog = new std::ofstream();
-        DiagonalLog->open("logs/diagonal.txt", std::ios::trunc | std::ios::out);
-        DiagonalLog->precision(10);
-
-        variancesLog = new std::ofstream();
-        variancesLog->open("logs/variancesLog.txt", std::ios::trunc | std::ios::out);
-        variancesLog->precision(10);
-
-
-        nullspacesLog = new std::ofstream();
-        nullspacesLog->open("logs/nullspacesLog.txt", std::ios::trunc | std::ios::out);
-        nullspacesLog->precision(10);
-    }
-    else
-    {
-        nullspacesLog=0;
-        variancesLog=0;
-        DiagonalLog=0;
-        eigenALog=0;
-        eigenPLog=0;
-        eigenAllLog=0;
-        numsLog=0;
-        calibLog=0;
-    }
+    nullspacesLog=0;
+    variancesLog=0;
+    DiagonalLog=0;
+    eigenALog=0;
+    eigenPLog=0;
+    eigenAllLog=0;
+    numsLog=0;
+    calibLog=0;
 
     assert(retstat!=293847);
 
@@ -179,29 +129,6 @@ FullSystem::FullSystem()
 FullSystem::~FullSystem()
 {
     blockUntilMappingIsFinished();
-
-    if(setting_logStuff)
-    {
-        calibLog->close();
-        delete calibLog;
-        numsLog->close();
-        delete numsLog;
-        coarseTrackingLog->close();
-        delete coarseTrackingLog;
-        //errorsLog->close(); delete errorsLog;
-        eigenAllLog->close();
-        delete eigenAllLog;
-        eigenPLog->close();
-        delete eigenPLog;
-        eigenALog->close();
-        delete eigenALog;
-        DiagonalLog->close();
-        delete DiagonalLog;
-        variancesLog->close();
-        delete variancesLog;
-        nullspacesLog->close();
-        delete nullspacesLog;
-    }
 
     delete[] selectionMap;
 
@@ -512,21 +439,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
     if(!setting_debugout_runquiet)
         printf("Coarse Tracker tracked ab = %f %f (exp %f). Res %f!\n", aff_g2l.a,
                aff_g2l.b, fh->ab_exposure, achievedRes[0]);
-
-
-
-    if(setting_logStuff)
-    {
-        (*coarseTrackingLog) << std::setprecision(16)
-                             << fh->shell->id << " "
-                             << fh->shell->timestamp << " "
-                             << fh->ab_exposure << " "
-                             << fh->shell->camToWorld.log().transpose() << " "
-                             << aff_g2l.a << " "
-                             << aff_g2l.b << " "
-                             << achievedRes[0] << " "
-                             << tryIterations << "\n";
-    }
 
 
     return Vec4(achievedRes[0], flowVecs[0], flowVecs[1], flowVecs[2]);
@@ -1464,9 +1376,6 @@ void FullSystem::printLogLine()
                frameHessians.back()->shell->id - frameHessians.front()->shell->id,
                (int)frameHessians.size());
 
-
-    if(!setting_logStuff) return;
-
     if(numsLog != 0)
     {
         (*numsLog) << allKeyFramesHistory.back()->id << " "  <<
@@ -1496,7 +1405,6 @@ void FullSystem::printLogLine()
 
 void FullSystem::printEigenValLine()
 {
-    if(!setting_logStuff) return;
     if(ef->lastHS.rows() < 12) return;
 
 
@@ -1591,9 +1499,6 @@ void FullSystem::printEigenValLine()
 
 void FullSystem::printFrameLifetimes()
 {
-    if(!setting_logStuff) return;
-
-
     boost::unique_lock<boost::mutex> lock(trackMutex);
 
     std::ofstream* lg = new std::ofstream();

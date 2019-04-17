@@ -124,6 +124,7 @@ int   setting_minGoodResForMarg=4;
 // 1 = apply inv. response.
 // 2 = apply inv. response & remove V.
 int setting_photometricCalibration = 2;
+
 bool setting_useExposure = true;
 float setting_affineOptModeA =
     1e12; //-1: fix. >=0: optimize (with prior, if > 0).
@@ -202,7 +203,6 @@ bool debugSaveImages = false;
 bool multiThreading = true;
 bool disableAllDisplay = false;
 bool setting_onlyLogKFPoses = true;
-bool setting_logStuff = true;
 
 
 
