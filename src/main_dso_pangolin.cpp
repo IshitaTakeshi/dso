@@ -225,8 +225,6 @@ int main( int argc, char** argv )
     std::string gammaCalib = "";
     std::string source = "";
     std::string calib = "";
-    int end=100000;
-    int start=0;
     float playbackSpeed = 0;
     bool useSampleOutput = false;
 
@@ -275,43 +273,23 @@ int main( int argc, char** argv )
     // to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
     std::thread runthread([&]() {
         std::vector<int> idsToPlay;
-        std::vector<double> timesToPlayAt;
-        for(int i=start; i>= 0 && i< reader->getNumImages()
-                && i < end; i+=1) {
-            idsToPlay.push_back(i);
-            if(timesToPlayAt.size() == 0) {
-                timesToPlayAt.push_back((double)0);
-            } else {
-                double tsThis = reader->getTimestamp(idsToPlay[idsToPlay.size()-1]);
-                double tsPrev = reader->getTimestamp(idsToPlay[idsToPlay.size()-2]);
-                timesToPlayAt.push_back(timesToPlayAt.back() +  fabs(tsThis-tsPrev)/playbackSpeed);
-            }
-        }
 
         std::vector<ImageAndExposure*> preloadedImages;
 
-        for(int ii=0; ii<(int)idsToPlay.size(); ii++) {
-            int i = idsToPlay[ii];
+        for(int i=0; i < reader->getNumImages(); i+=1) {
+            ImageAndExposure* img = reader->getImage(i);
 
-            ImageAndExposure* img;
-            img = reader->getImage(i);
-
-            bool skipFrame=false;
-            if(playbackSpeed!=0)
-            {
+            if(playbackSpeed!=0) {
                 struct timeval tv_now;
                 gettimeofday(&tv_now, NULL);
-
             }
 
-            if(!skipFrame) {
-              fullSystem->addActiveFrame(img, i);
-            }
+            fullSystem->addActiveFrame(img, i);
 
             delete img;
 
             if(fullSystem->initFailed || setting_fullResetRequested) {
-                if(ii < 250 || setting_fullResetRequested) {
+                if(i < 250 || setting_fullResetRequested) {
                     printf("RESETTING!\n");
 
                     std::vector<IOWrap::Output3DWrapper*> wraps = fullSystem->outputWrapper;
