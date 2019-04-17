@@ -432,89 +432,38 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
     ImageAndExposure* result = new ImageAndExposure(w, h, timestamp);
     photometricUndist->output->copyMetaTo(*result);
 
-    if (!passthrough)
+    float* out_data = result->image;
+    float* in_data = photometricUndist->output->image;
+
+    float* noiseMapX=0;
+    float* noiseMapY=0;
+
+    for(int idx = w*h-1; idx>=0; idx--)
     {
-        float* out_data = result->image;
-        float* in_data = photometricUndist->output->image;
+        // get interp. values
+        float xx = remapX[idx];
+        float yy = remapY[idx];
 
-        float* noiseMapX=0;
-        float* noiseMapY=0;
-        if(benchmark_varNoise>0)
+        if(xx<0)
+            out_data[idx] = 0;
+        else
         {
-            int numnoise=(benchmark_noiseGridsize+8)*(benchmark_noiseGridsize+8);
-            noiseMapX=new float[numnoise];
-            noiseMapY=new float[numnoise];
-            memset(noiseMapX,0,sizeof(float)*numnoise);
-            memset(noiseMapY,0,sizeof(float)*numnoise);
+            // get integer and rational parts
+            int xxi = xx;
+            int yyi = yy;
+            xx -= xxi;
+            yy -= yyi;
+            float xxyy = xx*yy;
 
-            for(int i=0; i<numnoise; i++)
-            {
-                noiseMapX[i] =  2*benchmark_varNoise * (rand()/(float)RAND_MAX - 0.5f);
-                noiseMapY[i] =  2*benchmark_varNoise * (rand()/(float)RAND_MAX - 0.5f);
-            }
+            // get array base pointer
+            const float* src = in_data + xxi + yyi * wOrg;
+
+            // interpolate (bilinear)
+            out_data[idx] =  xxyy * src[1+wOrg]
+                             + (yy-xxyy) * src[wOrg]
+                             + (xx-xxyy) * src[1]
+                             + (1-xx-yy+xxyy) * src[0];
         }
-
-
-        for(int idx = w*h-1; idx>=0; idx--)
-        {
-            // get interp. values
-            float xx = remapX[idx];
-            float yy = remapY[idx];
-
-
-
-            if(benchmark_varNoise>0)
-            {
-                float deltax = getInterpolatedElement11BiCub(noiseMapX,
-                               4+(xx/(float)wOrg)*benchmark_noiseGridsize,
-                               4+(yy/(float)hOrg)*benchmark_noiseGridsize, benchmark_noiseGridsize+8 );
-                float deltay = getInterpolatedElement11BiCub(noiseMapY,
-                               4+(xx/(float)wOrg)*benchmark_noiseGridsize,
-                               4+(yy/(float)hOrg)*benchmark_noiseGridsize, benchmark_noiseGridsize+8 );
-                float x = idx%w + deltax;
-                float y = idx/w + deltay;
-                if(x < 0.01) x = 0.01;
-                if(y < 0.01) y = 0.01;
-                if(x > w-1.01) x = w-1.01;
-                if(y > h-1.01) y = h-1.01;
-
-                xx = getInterpolatedElement(remapX, x, y, w);
-                yy = getInterpolatedElement(remapY, x, y, w);
-            }
-
-
-            if(xx<0)
-                out_data[idx] = 0;
-            else
-            {
-                // get integer and rational parts
-                int xxi = xx;
-                int yyi = yy;
-                xx -= xxi;
-                yy -= yyi;
-                float xxyy = xx*yy;
-
-                // get array base pointer
-                const float* src = in_data + xxi + yyi * wOrg;
-
-                // interpolate (bilinear)
-                out_data[idx] =  xxyy * src[1+wOrg]
-                                 + (yy-xxyy) * src[wOrg]
-                                 + (xx-xxyy) * src[1]
-                                 + (1-xx-yy+xxyy) * src[0];
-            }
-        }
-
-        if(benchmark_varNoise>0)
-        {
-            delete[] noiseMapX;
-            delete[] noiseMapY;
-        }
-
-    }
-    else
-    {
-        memcpy(result->image, photometricUndist->output->image, sizeof(float)*w*h);
     }
 
     applyBlurNoise(result->image);
@@ -630,150 +579,11 @@ void Undistort::applyBlurNoise(float* img) const
     delete[] noiseMapY;
 }
 
-void Undistort::makeOptimalK_crop()
-{
-    printf("finding CROP optimal new model!\n");
-    K.setIdentity();
-
-    // 1. stretch the center lines as far as possible, to get initial coarse quess.
-    float* tgX = new float[100000];
-    float* tgY = new float[100000];
-    float minX = 0;
-    float maxX = 0;
-    float minY = 0;
-    float maxY = 0;
-
-    for(int x=0; x<100000; x++)
-    {
-        tgX[x] = (x-50000.0f) / 10000.0f;
-        tgY[x] = 0;
-    }
-    distortCoordinates(tgX, tgY,tgX, tgY,100000);
-    for(int x=0; x<100000; x++)
-    {
-        if(tgX[x] > 0 && tgX[x] < wOrg-1)
-        {
-            if(minX==0) minX = (x-50000.0f) / 10000.0f;
-            maxX = (x-50000.0f) / 10000.0f;
-        }
-    }
-    for(int y=0; y<100000; y++)
-    {
-        tgY[y] = (y-50000.0f) / 10000.0f;
-        tgX[y] = 0;
-    }
-    distortCoordinates(tgX, tgY,tgX, tgY,100000);
-    for(int y=0; y<100000; y++)
-    {
-        if(tgY[y] > 0 && tgY[y] < hOrg-1)
-        {
-            if(minY==0) minY = (y-50000.0f) / 10000.0f;
-            maxY = (y-50000.0f) / 10000.0f;
-        }
-    }
-    delete[] tgX;
-    delete[] tgY;
-
-    minX *= 1.01;
-    maxX *= 1.01;
-    minY *= 1.01;
-    maxY *= 1.01;
-
-
-
-    printf("initial range: x: %.4f - %.4f; y: %.4f - %.4f!\n", minX, maxX, minY,
-           maxY);
-
-
-
-    // 2. while there are invalid pixels at the border: shrink square at the side that has invalid pixels,
-    // if several to choose from, shrink the wider dimension.
-    bool oobLeft=true, oobRight=true, oobTop=true, oobBottom=true;
-    int iteration=0;
-    while(oobLeft || oobRight || oobTop || oobBottom)
-    {
-        oobLeft=oobRight=oobTop=oobBottom=false;
-        for(int y=0; y<h; y++)
-        {
-            remapX[y*2] = minX;
-            remapX[y*2+1] = maxX;
-            remapY[y*2] = remapY[y*2+1] = minY + (maxY-minY) * (float)y / ((float)h-1.0f);
-        }
-        distortCoordinates(remapX, remapY,remapX, remapY,2*h);
-        for(int y=0; y<h; y++)
-        {
-            if(!(remapX[2*y] > 0 && remapX[2*y] < wOrg-1))
-                oobLeft = true;
-            if(!(remapX[2*y+1] > 0 && remapX[2*y+1] < wOrg-1))
-                oobRight = true;
-        }
-
-
-
-        for(int x=0; x<w; x++)
-        {
-            remapY[x*2] = minY;
-            remapY[x*2+1] = maxY;
-            remapX[x*2] = remapX[x*2+1] = minX + (maxX-minX) * (float)x / ((float)w-1.0f);
-        }
-        distortCoordinates(remapX, remapY,remapX, remapY,2*w);
-
-
-        for(int x=0; x<w; x++)
-        {
-            if(!(remapY[2*x] > 0 && remapY[2*x] < hOrg-1))
-                oobTop = true;
-            if(!(remapY[2*x+1] > 0 && remapY[2*x+1] < hOrg-1))
-                oobBottom = true;
-        }
-
-
-        if((oobLeft || oobRight) && (oobTop || oobBottom))
-        {
-            if((maxX-minX) > (maxY-minY))
-                oobBottom = oobTop = false;	// only shrink left/right
-            else
-                oobLeft = oobRight = false; // only shrink top/bottom
-        }
-
-        if(oobLeft) minX *= 0.995;
-        if(oobRight) maxX *= 0.995;
-        if(oobTop) minY *= 0.995;
-        if(oobBottom) maxY *= 0.995;
-
-        iteration++;
-
-
-        printf("iteration %05d: range: x: %.4f - %.4f; y: %.4f - %.4f!\n", iteration,
-               minX, maxX, minY, maxY);
-        if(iteration > 500)
-        {
-            printf("FAILED TO COMPUTE GOOD CAMERA MATRIX - SOMETHING IS SERIOUSLY WRONG. ABORTING \n");
-            exit(1);
-        }
-    }
-
-    K(0,0) = ((float)w-1.0f)/(maxX-minX);
-    K(1,1) = ((float)h-1.0f)/(maxY-minY);
-    K(0,2) = -minX*K(0,0);
-    K(1,2) = -minY*K(1,1);
-
-}
-
-void Undistort::makeOptimalK_full()
-{
-    // todo
-    assert(false);
-}
-
 void Undistort::readFromFile(const char* configFileName, int nPars,
                              std::string prefix)
 {
     photometricUndist=0;
     valid = false;
-    passthrough=false;
-    remapX = 0;
-    remapY = 0;
 
     float outputCalibration[5];
 
@@ -783,12 +593,12 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
     std::ifstream infile(configFileName);
     assert(infile.good());
 
-    std::string l1,l2,l3,l4;
+    std::string l1, l2, l3, l4;
 
-    std::getline(infile,l1);
-    std::getline(infile,l2);
-    std::getline(infile,l3);
-    std::getline(infile,l4);
+    std::getline(infile, l1);
+    std::getline(infile, l2);
+    std::getline(infile, l3);
+    std::getline(infile, l4);
 
     // l1 & l2
     if(nPars == 5) // fov model
@@ -867,23 +677,7 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
 
 
 
-    // l3
-    if(l3 == "crop")
-    {
-        outputCalibration[0] = -1;
-        printf("Out: Rectify Crop\n");
-    }
-    else if(l3 == "full")
-    {
-        outputCalibration[0] = -2;
-        printf("Out: Rectify Full\n");
-    }
-    else if(l3 == "none")
-    {
-        outputCalibration[0] = -3;
-        printf("Out: No Rectification\n");
-    }
-    else if(std::sscanf(l3.c_str(), "%f %f %f %f %f", &outputCalibration[0],
+    if(std::sscanf(l3.c_str(), "%f %f %f %f %f", &outputCalibration[0],
                         &outputCalibration[1], &outputCalibration[2], &outputCalibration[3],
                         &outputCalibration[4]) == 5)
     {
@@ -891,33 +685,15 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
                outputCalibration[0], outputCalibration[1], outputCalibration[2],
                outputCalibration[3], outputCalibration[4]);
 
-    }
-    else
-    {
+    } else {
         printf("Out: Failed to Read Output pars... not rectifying.\n");
         infile.close();
         return;
     }
 
-
     // l4
     if(std::sscanf(l4.c_str(), "%d %d", &w, &h) == 2)
     {
-        if(benchmarkSetting_width != 0)
-        {
-            w = benchmarkSetting_width;
-            if(outputCalibration[0] == -3)
-                outputCalibration[0] =
-                    -1;  // crop instead of none, since probably resolution changed.
-        }
-        if(benchmarkSetting_height != 0)
-        {
-            h = benchmarkSetting_height;
-            if(outputCalibration[0] == -3)
-                outputCalibration[0] =
-                    -1;  // crop instead of none, since probably resolution changed.
-        }
-
         printf("Output resolution: %d %d\n",w, h);
     }
     else
@@ -929,50 +705,18 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
     remapX = new float[w*h];
     remapY = new float[w*h];
 
-    if(outputCalibration[0] == -1)
-        makeOptimalK_crop();
-    else if(outputCalibration[0] == -2)
-        makeOptimalK_full();
-    else if(outputCalibration[0] == -3)
+    if(outputCalibration[2] > 1 || outputCalibration[3] > 1)
     {
-        if(w != wOrg || h != hOrg)
-        {
-            printf("ERROR: rectification mode none requires input and output dimenstions to match!\n\n");
-            exit(1);
-        }
-        K.setIdentity();
-        K(0,0) = parsOrg[0];
-        K(1,1) = parsOrg[1];
-        K(0,2) = parsOrg[2];
-        K(1,2) = parsOrg[3];
-        passthrough = true;
-    }
-    else
-    {
-
-
-        if(outputCalibration[2] > 1 || outputCalibration[3] > 1)
-        {
-            printf("\n\n\nWARNING: given output calibration (%f %f %f %f) seems wrong. It needs to be relative to image width / height!\n\n\n",
-                   outputCalibration[0],outputCalibration[1],outputCalibration[2],
-                   outputCalibration[3]);
-        }
-
-
-        K.setIdentity();
-        K(0,0) = outputCalibration[0] * w;
-        K(1,1) = outputCalibration[1] * h;
-        K(0,2) = outputCalibration[2] * w - 0.5;
-        K(1,2) = outputCalibration[3] * h - 0.5;
+        printf("\n\n\nWARNING: given output calibration (%f %f %f %f) seems wrong. It needs to be relative to image width / height!\n\n\n",
+               outputCalibration[0],outputCalibration[1],outputCalibration[2],
+               outputCalibration[3]);
     }
 
-    if(benchmarkSetting_fxfyfac != 0)
-    {
-        K(0,0) = fmax(benchmarkSetting_fxfyfac, (float)K(0,0));
-        K(1,1) = fmax(benchmarkSetting_fxfyfac, (float)K(1,1));
-        passthrough = false; // cannot pass through when fx / fy have been overwritten.
-    }
-
+    K.setIdentity();
+    K(0,0) = outputCalibration[0] * w;
+    K(1,1) = outputCalibration[1] * h;
+    K(0,2) = outputCalibration[2] * w - 0.5;
+    K(1,2) = outputCalibration[3] * h - 0.5;
 
     for(int y=0; y<h; y++)
         for(int x=0; x<w; x++)
