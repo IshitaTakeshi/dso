@@ -215,7 +215,6 @@ void PhotometricUndistorter::processFrame(T* image_in, float exposure_time,
             data[i] = factor*image_in[i];
         }
         output->exposure_time = exposure_time;
-        output->timestamp = 0;
     }
     else
     {
@@ -231,7 +230,6 @@ void PhotometricUndistorter::processFrame(T* image_in, float exposure_time,
         }
 
         output->exposure_time = exposure_time;
-        output->timestamp = 0;
     }
 
 
@@ -412,7 +410,7 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
     }
 
     photometricUndist->processFrame<T>(image_raw->data, exposure, factor);
-    ImageAndExposure* result = new ImageAndExposure(w, h, timestamp);
+    ImageAndExposure* result = new ImageAndExposure(w, h);
     photometricUndist->output->copyMetaTo(*result);
 
     float* out_data = result->image;

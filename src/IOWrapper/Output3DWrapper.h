@@ -70,7 +70,6 @@ namespace IOWrap
  *      ->id = ID of that frame, starting with 0 for the very first frame.
  *
  *      ->incoming_id = ID passed into [addActiveFrame( ImageAndExposure* image, int id )].
- *	->timestamp = timestamp passed into [addActiveFrame( ImageAndExposure* image, int id )] as image.timestamp.
  *
  * [FrameHessian]
  *      ->immaturePoints: contains points that have not been "activated" (they do however have a depth initialization).

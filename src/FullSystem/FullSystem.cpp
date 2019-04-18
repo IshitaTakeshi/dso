@@ -29,16 +29,16 @@
  *      Author: engelj
  */
 
-#include "FullSystem/FullSystem.h"
-
 #include "stdio.h"
-#include "util/globalFuncs.h"
 #include <Eigen/LU>
 #include <algorithm>
-#include "IOWrapper/ImageDisplay.h"
-#include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
+
+#include "FullSystem/FullSystem.h"
+#include "IOWrapper/ImageDisplay.h"
+#include "util/globalFuncs.h"
+#include "util/globalCalib.h"
 #include "FullSystem/PixelSelector.h"
 #include "FullSystem/PixelSelector2.h"
 #include "FullSystem/ResidualProjections.h"
@@ -188,20 +188,6 @@ void FullSystem::printResult(std::string file)
     std::ofstream myfile;
     myfile.open (file.c_str());
     myfile << std::setprecision(15);
-
-    for(FrameShell* s : allFrameHistory)
-    {
-        if(!s->poseValid) continue;
-
-        if(setting_onlyLogKFPoses && s->marginalizedAt == s->id) continue;
-
-        myfile << s->timestamp <<
-               " " << s->camToWorld.translation().transpose()<<
-               " " << s->camToWorld.so3().unit_quaternion().x()<<
-               " " << s->camToWorld.so3().unit_quaternion().y()<<
-               " " << s->camToWorld.so3().unit_quaternion().z()<<
-               " " << s->camToWorld.so3().unit_quaternion().w() << "\n";
-    }
     myfile.close();
 }
 
@@ -809,11 +795,10 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
     // =========================== add into allFrameHistory =========================
     FrameHessian* fh = new FrameHessian();
     FrameShell* shell = new FrameShell();
-    shell->camToWorld =
-        SE3(); 		// no lock required, as fh is not used anywhere yet.
+    // no lock required, as fh is not used anywhere yet.
+    shell->camToWorld = SE3();
     shell->aff_g2l = AffLight(0,0);
     shell->marginalizedAt = shell->id = allFrameHistory.size();
-    shell->timestamp = image->timestamp;
     shell->incoming_id = id;
     fh->shell = shell;
     allFrameHistory.push_back(shell);
@@ -871,50 +856,32 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
         }
 
         bool needToMakeKF = false;
-        if(setting_keyframesPerSecond > 0)
-        {
-            needToMakeKF = allFrameHistory.size()== 1 ||
-                           (fh->shell->timestamp - allKeyFramesHistory.back()->timestamp) >
-                           0.95f/setting_keyframesPerSecond;
-        }
-        else
-        {
-            Vec2 refToFh=AffLight::fromToVecExposure(coarseTracker->lastRef->ab_exposure,
-                         fh->ab_exposure,
-                         coarseTracker->lastRef_aff_g2l, fh->shell->aff_g2l);
+        Vec2 refToFh=AffLight::fromToVecExposure(coarseTracker->lastRef->ab_exposure,
+                     fh->ab_exposure,
+                     coarseTracker->lastRef_aff_g2l, fh->shell->aff_g2l);
 
-            // BRIGHTNESS CHECK
-            needToMakeKF = allFrameHistory.size()== 1 ||
-                           setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
-                           (wG[0]+hG[0]) +
-                           setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
-                           (wG[0]+hG[0]) +
-                           setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
-                           (wG[0]+hG[0]) +
-                           setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((
-                                       float)refToFh[0])) > 1 ||
-                           2*coarseTracker->firstCoarseRMSE < tres[0];
+        // BRIGHTNESS CHECK
+        needToMakeKF = allFrameHistory.size()== 1 ||
+                       setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
+                       (wG[0]+hG[0]) +
+                       setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
+                       (wG[0]+hG[0]) +
+                       setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
+                       (wG[0]+hG[0]) +
+                       setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((
+                                   float)refToFh[0])) > 1 ||
+                       2*coarseTracker->firstCoarseRMSE < tres[0];
 
-        }
-
-
-
-
-        for(IOWrap::Output3DWrapper* ow : outputWrapper)
+        for(IOWrap::Output3DWrapper* ow : outputWrapper) {
             ow->publishCamPose(fh->shell, &Hcalib);
-
-
-
+        }
 
         lock.unlock();
         deliverTrackedFrame(fh, needToMakeKF);
         return;
     }
 }
-void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF)
-{
-
-
+void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
     if(linearizeOperation)
     {
         if(goStepByStep && lastRefStopID != coarseTracker->refFrameID)
