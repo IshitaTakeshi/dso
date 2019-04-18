@@ -886,6 +886,7 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
             makeKeyFrame(fh);
         } else {
             makeNonKeyFrame(fh);
+            delete fh;
         }
     } else {
         boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
@@ -938,6 +939,7 @@ void FullSystem::mappingLoop()
         {
             lock.unlock();
             makeNonKeyFrame(fh);
+            delete fh;
             lock.lock();
 
             if(needToKetchupMapping && unmappedTrackedFrames.size() > 0)
@@ -968,6 +970,7 @@ void FullSystem::mappingLoop()
             {
                 lock.unlock();
                 makeNonKeyFrame(fh);
+                delete fh;
                 lock.lock();
             }
         }
@@ -990,36 +993,24 @@ void FullSystem::blockUntilMappingIsFinished()
 void FullSystem::makeNonKeyFrame( FrameHessian* fh)
 {
     // needs to be set by mapping thread. no lock required since we are in mapping thread.
-    {
-        boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
-        assert(fh->shell->trackingRef != 0);
-        fh->shell->camToWorld = fh->shell->trackingRef->camToWorld *
-                                fh->shell->camToTrackingRef;
-        fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);
-    }
+    boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
+    assert(fh->shell->trackingRef != 0);
+    fh->shell->camToWorld = fh->shell->trackingRef->camToWorld *
+                            fh->shell->camToTrackingRef;
+    fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);
 
     traceNewCoarse(fh);
-    delete fh;
 }
 
 void FullSystem::makeKeyFrame( FrameHessian* fh)
 {
     // needs to be set by mapping thread
-    {
-        boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
-        assert(fh->shell->trackingRef != 0);
-        fh->shell->camToWorld = fh->shell->trackingRef->camToWorld *
-                                fh->shell->camToTrackingRef;
-        fh->setEvalPT_scaled(fh->shell->camToWorld.inverse(), fh->shell->aff_g2l);
-    }
-
-    traceNewCoarse(fh);
+    makeNonKeyFrame(fh);
 
     boost::unique_lock<boost::mutex> lock(mapMutex);
 
     // =========================== Flag Frames to be Marginalized. =========================
     flagFramesForMarginalization(fh);
-
 
     // =========================== add New Frame to Hessian Struct. =========================
     fh->idx = frameHessians.size();
@@ -1029,8 +1020,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     ef->insertFrame(fh, &Hcalib);
 
     setPrecalcValues();
-
-
 
     // =========================== add new residuals for old points =========================
     int numFwdResAdde=0;
@@ -1050,41 +1039,29 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
         }
     }
 
-
-
-
     // =========================== Activate Points (& flag for marginalization). =========================
     activatePointsMT();
     ef->makeIDX();
-
-
-
 
     // =========================== OPTIMIZE ALL =========================
 
     fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
     float rmse = optimize(setting_maxOptIterations);
 
-
-
-
-
     // =========================== Figure Out if INITIALIZATION FAILED =========================
-    if(allKeyFramesHistory.size() <= 4)
-    {
-        if(allKeyFramesHistory.size()==2 && rmse > 20*benchmark_initializerSlackFactor)
-        {
-            printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
+    if(allKeyFramesHistory.size() <= 4) {
+        if(allKeyFramesHistory.size()==2 && rmse > 20*benchmark_initializerSlackFactor) {
+            printf("I THINK INITIALIZATION FAILED! Resetting.\n");
             initFailed=true;
         }
         if(allKeyFramesHistory.size()==3 && rmse > 13*benchmark_initializerSlackFactor)
         {
-            printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
+            printf("I THINK INITIALIZATION FAILED! Resetting.\n");
             initFailed=true;
         }
         if(allKeyFramesHistory.size()==4 && rmse > 9*benchmark_initializerSlackFactor)
         {
-            printf("I THINK INITIALIZATINO FAILED! Resetting.\n");
+            printf("I THINK INITIALIZATION FAILED! Resetting.\n");
             initFailed=true;
         }
     }
@@ -1100,14 +1077,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     removeOutliers();
 
 
-
-
     {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
         coarseTracker_forNewKF->makeK(&Hcalib);
         coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians);
-
-
 
         coarseTracker_forNewKF->debugPlotIDepthMap(&minIdJetVisTracker,
                 &maxIdJetVisTracker, outputWrapper);
@@ -1116,11 +1089,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
 
 
     debugPlot("post Optimize");
-
-
-
-
-
 
     // =========================== (Activate-)Marginalize Points =========================
     flagPointsForRemoval();
@@ -1132,42 +1100,30 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
         ef->lastNullspaces_affB);
     ef->marginalizePointsF();
 
-
-
     // =========================== add new Immature points & new residuals =========================
     makeNewTraces(fh, 0);
 
-
-
-
-
-    for(IOWrap::Output3DWrapper* ow : outputWrapper)
-    {
+    for(IOWrap::Output3DWrapper* ow : outputWrapper) {
         ow->publishGraph(ef->connectivityMap);
         ow->publishKeyframes(frameHessians, false, &Hcalib);
     }
 
-
-
     // =========================== Marginalize Frames =========================
 
-    for(unsigned int i=0; i<frameHessians.size(); i++)
+    for(unsigned int i=0; i<frameHessians.size(); i++) {
         if(frameHessians[i]->flaggedForMarginalization)
         {
             marginalizeFrame(frameHessians[i]);
             i=0;
         }
-
-
+    }
 
     printLogLine();
     //printEigenValLine();
-
 }
 
 
-void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
-{
+void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     boost::unique_lock<boost::mutex> lock(mapMutex);
 
     // add firstframe.
@@ -1462,14 +1418,8 @@ void FullSystem::printFrameLifetimes()
               << " " << s->statistics_outlierResOnThis
               << " " << s->movedByOpt;
 
-
-
         (*lg) << "\n";
     }
-
-
-
-
 
     lg->close();
     delete lg;
@@ -1481,9 +1431,5 @@ void FullSystem::printEvalLine()
 {
     return;
 }
-
-
-
-
 
 }
