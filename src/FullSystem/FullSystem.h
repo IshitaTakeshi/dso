@@ -150,7 +150,6 @@ public:
 
     void debugPlot(std::string name);
 
-    void printFrameLifetimes();
     // contains pointers to active frames
 
     std::vector<IOWrap::Output3DWrapper*> outputWrapper;
@@ -230,8 +229,6 @@ private:
     void setNewFrameEnergyTH();
 
 
-    void printLogLine();
-    void printEvalLine();
     void printEigenValLine();
     std::ofstream* calibLog;
     std::ofstream* numsLog;
