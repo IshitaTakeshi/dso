@@ -141,12 +141,11 @@ struct FrameHessian
     bool flaggedForMarginalization;
 
     std::vector<PointHessian*> pointHessians;				// contains all ACTIVE points.
-    std::vector<PointHessian*>
-    pointHessiansMarginalized;	// contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
-    std::vector<PointHessian*>
-    pointHessiansOut;		// contains all OUTLIER points (= discarded.).
-    std::vector<ImmaturePoint*>
-    immaturePoints;		// contains all OUTLIER points (= discarded.).
+    // contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
+    std::vector<PointHessian*> pointHessiansMarginalized;
+    std::vector<PointHessian*> pointHessiansOut;		// contains all OUTLIER points (= discarded.).
+    // contains all OUTLIER points (= discarded.).
+    std::vector<ImmaturePoint*> immaturePoints;
 
 
     Mat66 nullspaces_pose;

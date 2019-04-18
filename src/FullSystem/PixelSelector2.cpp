@@ -262,8 +262,7 @@ int PixelSelector::makeMaps(
 
 
 Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
-                                      float* map_out, int pot, float thFactor)
-{
+                                      float* map_out, int pot, float thFactor) {
 
     Eigen::Vector3f const * const map0 = fh->dI;
 
@@ -271,12 +270,10 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
     float * mapmax1 = fh->absSquaredGrad[1];
     float * mapmax2 = fh->absSquaredGrad[2];
 
-
     int w = wG[0];
     int w1 = wG[1];
     int w2 = wG[2];
     int h = hG[0];
-
 
     const Vec2f directions[16] = {
         Vec2f(0,    1.0000),
@@ -297,24 +294,19 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
         Vec2f(0.1951,   -0.9808)
     };
 
-    memset(map_out,0,w*h*sizeof(PixelSelectorStatus));
-
-
+    memset(map_out, 0, w*h*sizeof(PixelSelectorStatus));
 
     float dw1 = setting_gradDownweightPerLevel;
     float dw2 = dw1*dw1;
 
-
     int n3=0, n2=0, n4=0;
-    for(int y4=0; y4<h; y4+=(4*pot)) for(int x4=0; x4<w; x4+=(4*pot))
-        {
+    for(int y4=0; y4<h; y4+=(4*pot)) for(int x4=0; x4<w; x4+=(4*pot)) {
             int my3 = std::min((4*pot), h-y4);
             int mx3 = std::min((4*pot), w-x4);
             int bestIdx4=-1;
             float bestVal4=0;
             Vec2f dir4 = directions[randomPattern[n2] & 0xF];
-            for(int y3=0; y3<my3; y3+=(2*pot)) for(int x3=0; x3<mx3; x3+=(2*pot))
-                {
+            for(int y3=0; y3<my3; y3+=(2*pot)) for(int x3=0; x3<mx3; x3+=(2*pot)) {
                     int x34 = x3+x4;
                     int y34 = y3+y4;
                     int my2 = std::min((2*pot), h-y34);
@@ -322,8 +314,7 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
                     int bestIdx3=-1;
                     float bestVal3=0;
                     Vec2f dir3 = directions[randomPattern[n2] & 0xF];
-                    for(int y2=0; y2<my2; y2+=pot) for(int x2=0; x2<mx2; x2+=pot)
-                        {
+                    for(int y2=0; y2<my2; y2+=pot) for(int x2=0; x2<mx2; x2+=pot) {
                             int x234 = x2+x34;
                             int y234 = y2+y34;
                             int my1 = std::min(pot, h-y234);
@@ -418,10 +409,7 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
             }
         }
 
-
     return Eigen::Vector3i(n2,n3,n4);
 }
-
-
 }
 
