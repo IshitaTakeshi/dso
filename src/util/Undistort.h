@@ -99,7 +99,7 @@ public:
 
     template<typename T>
     ImageAndExposure* undistort(const MinimalImage<T>* image_raw, float exposure=0,
-                                double timestamp=0, float factor=1) const;
+                                float factor=1) const;
     static Undistort* getUndistorterForFile(std::string configFilename,
                                             std::string gammaFilename, std::string vignetteFilename);
 

@@ -158,7 +158,7 @@ public:
 
 
         // load timestamps if possible.
-        loadTimestamps();
+        loadExposures();
         printf("ImageFolderReader: got %d files in %s!\n", (int)files.size(),
                path.c_str());
 
@@ -201,14 +201,6 @@ public:
     int getNumImages()
     {
         return files.size();
-    }
-
-    double getTimestamp(int id)
-    {
-        if(timestamps.size()==0) return id*0.1f;
-        if(id >= (int)timestamps.size()) return 0;
-        if(id < 0) return 0;
-        return timestamps[id];
     }
 
 
@@ -286,40 +278,17 @@ private:
         MinimalImageB* minimg = getImageRaw_internal(id, 0);
         ImageAndExposure* ret2 = undistort->undistort<unsigned char>(
                                      minimg,
-                                     (exposures.size() == 0 ? 1.0f : exposures[id]),
-                                     (timestamps.size() == 0 ? 0.0 : timestamps[id]));
+                                     (exposures.size() == 0 ? 1.0f : exposures[id]));
         delete minimg;
         return ret2;
     }
 
-    inline void loadTimestamps()
+    inline void loadExposures()
     {
-        std::ifstream tr;
-        std::string timesFile = path.substr(0,path.find_last_of('/')) + "/times.txt";
-        tr.open(timesFile.c_str());
-        while(!tr.eof() && tr.good())
-        {
-            std::string line;
-            char buf[1000];
-            tr.getline(buf, 1000);
 
-            int id;
-            double stamp;
-            float exposure = 0;
-
-            if(3 == sscanf(buf, "%d %lf %f", &id, &stamp, &exposure))
-            {
-                timestamps.push_back(stamp);
-                exposures.push_back(exposure);
-            }
-
-            else if(2 == sscanf(buf, "%d %lf", &id, &stamp))
-            {
-                timestamps.push_back(stamp);
-                exposures.push_back(exposure);
-            }
+        for(int i=0; i<(int)getNumImages(); i++) {
+            exposures.push_back(0.1);
         }
-        tr.close();
 
         // check if exposures are correct, (possibly skip)
         bool exposuresGood = ((int)exposures.size()==(int)getNumImages()) ;
@@ -346,21 +315,14 @@ private:
         }
 
 
-        if((int)getNumImages() != (int)timestamps.size())
-        {
-            printf("set timestamps and exposures to zero!\n");
-            exposures.clear();
-            timestamps.clear();
-        }
-
         if((int)getNumImages() != (int)exposures.size() || !exposuresGood)
         {
             printf("set EXPOSURES to zero!\n");
             exposures.clear();
         }
 
-        printf("got %d images and %d timestamps and %d exposures.!\n",
-               (int)getNumImages(), (int)timestamps.size(), (int)exposures.size());
+        printf("got %d images and %d exposures.!\n",
+               (int)getNumImages(), (int)exposures.size());
     }
 
 
@@ -368,7 +330,6 @@ private:
 
     std::vector<ImageAndExposure*> preloadedImages;
     std::vector<std::string> files;
-    std::vector<double> timestamps;
     std::vector<float> exposures;
 
     int width, height;
