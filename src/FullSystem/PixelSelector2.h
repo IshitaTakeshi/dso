@@ -25,6 +25,7 @@
 #pragma once
 
 #include "util/NumType.h"
+#include "util/settings.h"
 
 namespace dso
 {
@@ -40,8 +41,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     int makeMaps(
         const FrameHessian* const fh,
-        float* map_out, float density, int recursionsLeft=1, bool plot=false,
-        float thFactor=1);
+        float* map_out, float density, int recursionsLeft=1, float thFactor=1);
 
     PixelSelector(int w, int h);
     ~PixelSelector();

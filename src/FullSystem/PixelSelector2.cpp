@@ -41,7 +41,7 @@ namespace dso
 PixelSelector::PixelSelector(int w, int h)
 {
     randomPattern = new unsigned char[w*h];
-    std::srand(3141592);	// want to be deterministic.
+    std::srand(3141592); // want to be deterministic.
     for(int i=0; i<w*h; i++) randomPattern[i] = rand() & 0xFF;
 
     currentPotential=3;
@@ -115,7 +115,7 @@ void PixelSelector::makeHists(const FrameHessian* const fh)
             float sum=0,num=0;
             if(x>0)
             {
-                if(y>0) 	{
+                if(y>0)  {
                     num++;
                     sum+=ths[x-1+(y-1)*w32];
                 }
@@ -129,7 +129,7 @@ void PixelSelector::makeHists(const FrameHessian* const fh)
 
             if(x<w32-1)
             {
-                if(y>0) 	{
+                if(y>0) {
                     num++;
                     sum+=ths[x+1+(y-1)*w32];
                 }
@@ -141,7 +141,7 @@ void PixelSelector::makeHists(const FrameHessian* const fh)
                 sum+=ths[x+1+(y)*w32];
             }
 
-            if(y>0) 	{
+            if(y>0) {
                 num++;
                 sum+=ths[x+(y-1)*w32];
             }
@@ -155,99 +155,52 @@ void PixelSelector::makeHists(const FrameHessian* const fh)
             thsSmoothed[x+y*w32] = (sum/num) * (sum/num);
 
         }
-
-
-
-
-
 }
 int PixelSelector::makeMaps(
     const FrameHessian* const fh,
-    float* map_out, float density, int recursionsLeft, bool plot, float thFactor)
-{
+    float* map_out, float density, int recursionsLeft, float thFactor) {
     float numHave=0;
     float numWant=density;
     float quotia;
     int idealPotential = currentPotential;
 
+    // the number of selected pixels behaves approximately as
+    // K / (pot+1)^2, where K is a scene-dependent constant.
+    // we will allow sub-selecting pixels by up to a quotia of 0.25, otherwise we will re-select.
 
-//	if(setting_pixelSelectionUseFast>0 && allowFast)
-//	{
-//		memset(map_out, 0, sizeof(float)*wG[0]*hG[0]);
-//		std::vector<cv::KeyPoint> pts;
-//		cv::Mat img8u(hG[0],wG[0],CV_8U);
-//		for(int i=0;i<wG[0]*hG[0];i++)
-//		{
-//			float v = fh->dI[i][0]*0.8;
-//			img8u.at<uchar>(i) = (!std::isfinite(v) || v>255) ? 255 : v;
-//		}
-//		cv::FAST(img8u, pts, setting_pixelSelectionUseFast, true);
-//		for(unsigned int i=0;i<pts.size();i++)
-//		{
-//			int x = pts[i].pt.x+0.5;
-//			int y = pts[i].pt.y+0.5;
-//			map_out[x+y*wG[0]]=1;
-//			numHave++;
-//		}
-//
-//		printf("FAST selection: got %f / %f!\n", numHave, numWant);
-//		quotia = numWant / numHave;
-//	}
-//	else
-    {
+    if(fh != gradHistFrame) makeHists(fh);
 
+    // select!
+    Eigen::Vector3i n = this->select(fh, map_out, currentPotential, thFactor);
 
+    // sub-select!
+    numHave = n[0]+n[1]+n[2];
+    quotia = numWant / numHave;
 
+    // by default we want to over-sample by 40% just to be sure.
+    float K = numHave * (currentPotential+1) * (currentPotential+1);
+    idealPotential = sqrtf(K/numWant)-1; // round down.
+    if(idealPotential<1) idealPotential=1;
 
-        // the number of selected pixels behaves approximately as
-        // K / (pot+1)^2, where K is a scene-dependent constant.
-        // we will allow sub-selecting pixels by up to a quotia of 0.25, otherwise we will re-select.
-
-        if(fh != gradHistFrame) makeHists(fh);
-
-        // select!
-        Eigen::Vector3i n = this->select(fh, map_out,currentPotential, thFactor);
-
-        // sub-select!
-        numHave = n[0]+n[1]+n[2];
-        quotia = numWant / numHave;
-
-        // by default we want to over-sample by 40% just to be sure.
-        float K = numHave * (currentPotential+1) * (currentPotential+1);
-        idealPotential = sqrtf(K/numWant)-1;	// round down.
-        if(idealPotential<1) idealPotential=1;
-
-        if( recursionsLeft>0 && quotia > 1.25 && currentPotential>1)
-        {
-            //re-sample to get more points!
-            // potential needs to be smaller
-            if(idealPotential>=currentPotential)
-                idealPotential = currentPotential-1;
-
-            //		printf("PixelSelector: have %.2f%%, need %.2f%%. RESAMPLE with pot %d -> %d.\n",
-            //				100*numHave/(float)(wG[0]*hG[0]),
-            //				100*numWant/(float)(wG[0]*hG[0]),
-            //				currentPotential,
-            //				idealPotential);
-            currentPotential = idealPotential;
-            return makeMaps(fh,map_out, density, recursionsLeft-1, plot,thFactor);
+    if(recursionsLeft>0 && quotia > 1.25 && currentPotential>1) {
+        //re-sample to get more points!
+        // potential needs to be smaller
+        if(idealPotential>=currentPotential) {
+            idealPotential = currentPotential-1;
         }
-        else if(recursionsLeft>0 && quotia < 0.25)
-        {
-            // re-sample to get less points!
 
-            if(idealPotential<=currentPotential)
-                idealPotential = currentPotential+1;
+        currentPotential = idealPotential;
+        return makeMaps(fh, map_out, density, recursionsLeft-1, thFactor);
+    } else if(recursionsLeft>0 && quotia < 0.25) {
+        // re-sample to get less points!
 
-            //		printf("PixelSelector: have %.2f%%, need %.2f%%. RESAMPLE with pot %d -> %d.\n",
-            //				100*numHave/(float)(wG[0]*hG[0]),
-            //				100*numWant/(float)(wG[0]*hG[0]),
-            //				currentPotential,
-            //				idealPotential);
-            currentPotential = idealPotential;
-            return makeMaps(fh,map_out, density, recursionsLeft-1, plot,thFactor);
-
+        if(idealPotential<=currentPotential) {
+            idealPotential = currentPotential+1;
         }
+
+        currentPotential = idealPotential;
+        return makeMaps(fh, map_out, density, recursionsLeft-1, thFactor);
+
     }
 
     int numHaveSub = numHave;
@@ -270,12 +223,6 @@ int PixelSelector::makeMaps(
         }
     }
 
-//	printf("PixelSelector: have %.2f%%, need %.2f%%. KEEPCURR with pot %d -> %d. Subsampled to %.2f%%\n",
-//			100*numHave/(float)(wG[0]*hG[0]),
-//			100*numWant/(float)(wG[0]*hG[0]),
-//			currentPotential,
-//			idealPotential,
-//			100*numHaveSub/(float)(wG[0]*hG[0]));
     currentPotential = idealPotential;
 
 

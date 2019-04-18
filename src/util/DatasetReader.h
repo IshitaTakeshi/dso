@@ -283,9 +283,7 @@ private:
         return ret2;
     }
 
-    inline void loadExposures()
-    {
-
+    inline void loadExposures() {
         for(int i=0; i<(int)getNumImages(); i++) {
             exposures.push_back(0.1);
         }
@@ -324,8 +322,6 @@ private:
         printf("got %d images and %d exposures.!\n",
                (int)getNumImages(), (int)exposures.size());
     }
-
-
 
 
     std::vector<ImageAndExposure*> preloadedImages;

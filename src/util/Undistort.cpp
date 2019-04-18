@@ -431,16 +431,15 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
             int yyi = yy;
             xx -= xxi;
             yy -= yyi;
-            float xxyy = xx*yy;
 
             // get array base pointer
             const float* src = in_data + xxi + yyi * wOrg;
 
             // interpolate (bilinear)
-            out_data[idx] =  xxyy * src[1+wOrg]
-                             + (yy-xxyy) * src[wOrg]
-                             + (xx-xxyy) * src[1]
-                             + (1-xx-yy+xxyy) * src[0];
+            out_data[idx] = xx * yy * src[1+wOrg]
+                          + (1-xx) * yy * src[wOrg]
+                          + xx * (1-yy) * src[1]
+                          + (1-xx) * (1-yy) * src[0];
         }
     }
 

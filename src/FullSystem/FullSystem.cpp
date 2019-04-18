@@ -62,8 +62,6 @@ int FrameHessian::instanceCounter=0;
 int PointHessian::instanceCounter=0;
 int CalibHessian::instanceCounter=0;
 
-
-
 FullSystem::FullSystem()
 {
 
@@ -78,8 +76,6 @@ FullSystem::FullSystem()
     calibLog=0;
 
     assert(retstat!=293847);
-
-
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -1284,9 +1280,12 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth)
 {
     pixelSelector->allowFast = true;
-    //int numPointsTotal = makePixelStatus(newFrame->dI, selectionMap, wG[0], hG[0], setting_desiredDensity);
-    int numPointsTotal = pixelSelector->makeMaps(newFrame, selectionMap,
-                         setting_desiredImmatureDensity);
+
+    int numPointsTotal = pixelSelector->makeMaps(
+        newFrame,
+        selectionMap,
+        setting_desiredImmatureDensity
+    );
 
     newFrame->pointHessians.reserve(numPointsTotal*1.2f);
     //fh->pointHessiansInactive.reserve(numPointsTotal*1.2f);
@@ -1294,9 +1293,8 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth)
     newFrame->pointHessiansOut.reserve(numPointsTotal*1.2f);
 
 
-    for(int y=patternPadding+1; y<hG[0]-patternPadding-2; y++)
-        for(int x=patternPadding+1; x<wG[0]-patternPadding-2; x++)
-        {
+    for(int y=patternPadding+1; y<hG[0]-patternPadding-2; y++) {
+        for(int x=patternPadding+1; x<wG[0]-patternPadding-2; x++) {
             int i = x+y*wG[0];
             if(selectionMap[i]==0) continue;
 
@@ -1306,8 +1304,8 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth)
             else newFrame->immaturePoints.push_back(impt);
 
         }
+    }
     //printf("MADE %d IMMATURE POINTS!\n", (int)newFrame->immaturePoints.size());
-
 }
 
 
