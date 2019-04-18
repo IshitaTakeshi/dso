@@ -421,10 +421,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh) {
 void FullSystem::traceNewCoarse(FrameHessian* fh)
 {
     boost::unique_lock<boost::mutex> lock(mapMutex);
-
-    int trace_total=0, trace_good=0, trace_oob=0, trace_out=0, trace_skip=0,
-        trace_badcondition=0, trace_uninitialized=0;
-
     Mat33f K = Mat33f::Identity();
     K(0, 0) = Hcalib.fxl();
     K(1, 1) = Hcalib.fyl();
@@ -443,16 +439,6 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
 
         for(ImmaturePoint* ph : host->immaturePoints) {
             ph->traceOn(fh, KRKi, Kt, aff, &Hcalib, false);
-
-            if(ph->lastTraceStatus==ImmaturePointStatus::IPS_GOOD) trace_good++;
-            if(ph->lastTraceStatus==ImmaturePointStatus::IPS_BADCONDITION)
-                trace_badcondition++;
-            if(ph->lastTraceStatus==ImmaturePointStatus::IPS_OOB) trace_oob++;
-            if(ph->lastTraceStatus==ImmaturePointStatus::IPS_OUTLIER) trace_out++;
-            if(ph->lastTraceStatus==ImmaturePointStatus::IPS_SKIPPED) trace_skip++;
-            if(ph->lastTraceStatus==ImmaturePointStatus::IPS_UNINITIALIZED)
-                trace_uninitialized++;
-            trace_total++;
         }
     }
 }
@@ -946,6 +932,25 @@ void FullSystem::makeNonKeyFrame( FrameHessian* fh)
     traceNewCoarse(fh);
 }
 
+bool checkIfInitializationFailed(int nKeyFrames, float rmse) {
+
+    // =========================== Figure Out if INITIALIZATION FAILED =========================
+    if(nKeyFrames > 4) {
+        return false;
+    }
+    if(nKeyFrames==2 && rmse > 20*benchmark_initializerSlackFactor) {
+        return true;
+    }
+    if(nKeyFrames==3 && rmse > 13*benchmark_initializerSlackFactor) {
+        return true;
+    }
+    if(nKeyFrames==4 && rmse > 9*benchmark_initializerSlackFactor) {
+        return true;
+    }
+    return false;
+}
+
+
 void FullSystem::makeKeyFrame( FrameHessian* fh)
 {
     // needs to be set by mapping thread
@@ -966,20 +971,16 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     setPrecalcValues();
 
     // =========================== add new residuals for old points =========================
-    int numFwdResAdde=0;
-    for(FrameHessian* fh1 : frameHessians)		// go through all active frames
-    {
+    for(FrameHessian* fh1 : frameHessians) {
+        // go through all active frames
         if(fh1 == fh) continue;
-        for(PointHessian* ph : fh1->pointHessians)
-        {
+        for(PointHessian* ph : fh1->pointHessians) {
             PointFrameResidual* r = new PointFrameResidual(ph, fh1, fh);
             r->setState(ResState::IN);
             ph->residuals.push_back(r);
             ef->insertResidual(r);
             ph->lastResiduals[1] = ph->lastResiduals[0];
-            ph->lastResiduals[0] = std::pair<PointFrameResidual*, ResState>(r,
-                                   ResState::IN);
-            numFwdResAdde+=1;
+            ph->lastResiduals[0] = std::pair<PointFrameResidual*, ResState>(r, ResState::IN);
         }
     }
 
@@ -993,21 +994,9 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     float rmse = optimize(setting_maxOptIterations);
 
     // =========================== Figure Out if INITIALIZATION FAILED =========================
-    if(allKeyFramesHistory.size() <= 4) {
-        if(allKeyFramesHistory.size()==2 && rmse > 20*benchmark_initializerSlackFactor) {
-            printf("I THINK INITIALIZATION FAILED! Resetting.\n");
-            initFailed=true;
-        }
-        if(allKeyFramesHistory.size()==3 && rmse > 13*benchmark_initializerSlackFactor)
-        {
-            printf("I THINK INITIALIZATION FAILED! Resetting.\n");
-            initFailed=true;
-        }
-        if(allKeyFramesHistory.size()==4 && rmse > 9*benchmark_initializerSlackFactor)
-        {
-            printf("I THINK INITIALIZATION FAILED! Resetting.\n");
-            initFailed=true;
-        }
+    initFailed = checkIfInitializationFailed(allKeyFramesHistory.size(), rmse);
+    if(initFailed) {
+        printf("I THINK INITIALIZATION FAILED! Resetting.\n");
     }
 
     if(isLost) return;
