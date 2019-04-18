@@ -951,7 +951,7 @@ bool checkIfInitializationFailed(int nKeyFrames, float rmse) {
 }
 
 
-void FullSystem::makeKeyFrame( FrameHessian* fh)
+void FullSystem::makeKeyFrame(FrameHessian* fh)
 {
     // needs to be set by mapping thread
     makeNonKeyFrame(fh);
