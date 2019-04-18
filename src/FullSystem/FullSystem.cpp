@@ -666,13 +666,7 @@ void FullSystem::activatePointsMT()
             }
         }
     }
-
-
 }
-
-
-
-
 
 
 void FullSystem::activatePointsOldFirst()
@@ -687,19 +681,17 @@ void FullSystem::flagPointsForRemoval()
     std::vector<FrameHessian*> fhsToKeepPoints;
     std::vector<FrameHessian*> fhsToMargPoints;
 
-    //if(setting_margPointVisWindow>0)
-    {
-        for(int i=((int)frameHessians.size())-1; i>=0
-                && i >= ((int)frameHessians.size()); i--)
-            if(!frameHessians[i]->flaggedForMarginalization) fhsToKeepPoints.push_back(
-                    frameHessians[i]);
-
-        for(int i=0; i< (int)frameHessians.size(); i++)
-            if(frameHessians[i]->flaggedForMarginalization) fhsToMargPoints.push_back(
-                    frameHessians[i]);
+    for(int i=((int)frameHessians.size())-1; i>=0 && i >= ((int)frameHessians.size()); i--) {
+        if(!frameHessians[i]->flaggedForMarginalization) {
+            fhsToKeepPoints.push_back(frameHessians[i]);
+        }
     }
 
-
+    for(int i=0; i< (int)frameHessians.size(); i++) {
+        if(frameHessians[i]->flaggedForMarginalization) {
+            fhsToMargPoints.push_back(frameHessians[i]);
+        }
+    }
 
     //ef->setAdjointsF();
     //ef->setDeltaF(&Hcalib);
@@ -718,10 +710,8 @@ void FullSystem::flagPointsForRemoval()
                 ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
                 host->pointHessians[i]=0;
                 flag_nores++;
-            }
-            else if(ph->isOOB(fhsToKeepPoints, fhsToMargPoints)
-                    || host->flaggedForMarginalization)
-            {
+            } else if(ph->isOOB(fhsToKeepPoints, fhsToMargPoints)
+                    || host->flaggedForMarginalization) {
                 flag_oob++;
                 if(ph->isInlierNew())
                 {
@@ -1066,16 +1056,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
         }
     }
 
-
-
     if(isLost) return;
-
-
-
 
     // =========================== REMOVE OUTLIER =========================
     removeOutliers();
-
 
     {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
@@ -1086,7 +1070,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
                 &maxIdJetVisTracker, outputWrapper);
         coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
     }
-
 
     debugPlot("post Optimize");
 
@@ -1111,8 +1094,7 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     // =========================== Marginalize Frames =========================
 
     for(unsigned int i=0; i<frameHessians.size(); i++) {
-        if(frameHessians[i]->flaggedForMarginalization)
-        {
+        if(frameHessians[i]->flaggedForMarginalization) {
             marginalizeFrame(frameHessians[i]);
             i=0;
         }
