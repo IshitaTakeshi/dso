@@ -32,8 +32,7 @@ namespace dso
 ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
                              CalibHessian* HCalib)
     : u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN),
-      lastTraceStatus(IPS_UNINITIALIZED)
-{
+      lastTraceStatus(IPS_UNINITIALIZED) {
 
     gradH.setZero();
 
@@ -44,14 +43,11 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
 
         Vec3f ptc = getInterpolatedElement33BiLin(host->dI, u+dx, v+dy,wG[0]);
 
-
-
         color[idx] = ptc[0];
         if(!std::isfinite(color[idx])) {
             energyTH=NAN;
             return;
         }
-
 
         gradH += ptc.tail<2>()  * ptc.tail<2>().transpose();
 
@@ -392,9 +388,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 //	float absGrad1 = getInterpolatedElement(frame->absSquaredGrad[1],bestU*0.5-0.25, bestV*0.5-0.25, wG[1]);
 //	float absGrad2 = getInterpolatedElement(frame->absSquaredGrad[2],bestU*0.25-0.375, bestV*0.25-0.375, wG[2]);
     if(!(bestEnergy < energyTH*setting_trace_extraSlackOnTH))
-//			|| (absGrad0*areaGradientSlackFactor < host->frameGradTH
-//		     && absGrad1*areaGradientSlackFactor < host->frameGradTH*0.75f
-//			 && absGrad2*areaGradientSlackFactor < host->frameGradTH*0.50f))
     {
         if(debugPrint)
             printf("OUTLIER!\n");

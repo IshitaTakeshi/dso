@@ -1162,10 +1162,10 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
 
     for(int y=patternPadding+1; y<hG[0]-patternPadding-2; y++) {
         for(int x=patternPadding+1; x<wG[0]-patternPadding-2; x++) {
-            int i = x+y*wG[0];
+            int i = y*wG[0] + x;
             if(selectionMap[i]==0) continue;
 
-            ImmaturePoint* impt = new ImmaturePoint(x,y,newFrame, selectionMap[i],
+            ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, selectionMap[i],
                                                     &Hcalib);
             if(!std::isfinite(impt->energyTH)) {
                 delete impt;
