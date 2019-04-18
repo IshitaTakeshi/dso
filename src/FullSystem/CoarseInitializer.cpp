@@ -782,8 +782,7 @@ void CoarseInitializer::makeGradients(Eigen::Vector3f** data)
         }
     }
 }
-void CoarseInitializer::setFirst(	CalibHessian* HCalib,
-                                    FrameHessian* newFrameHessian)
+void CoarseInitializer::setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian)
 {
 
     makeK(HCalib);

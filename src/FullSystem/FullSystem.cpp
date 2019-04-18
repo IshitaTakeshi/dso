@@ -426,10 +426,10 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
         trace_badcondition=0, trace_uninitialized=0;
 
     Mat33f K = Mat33f::Identity();
-    K(0,0) = Hcalib.fxl();
-    K(1,1) = Hcalib.fyl();
-    K(0,2) = Hcalib.cxl();
-    K(1,2) = Hcalib.cyl();
+    K(0, 0) = Hcalib.fxl();
+    K(1, 1) = Hcalib.fyl();
+    K(0, 2) = Hcalib.cxl();
+    K(1, 2) = Hcalib.cyl();
 
     for(FrameHessian* host : frameHessians) {
         // go through all active frames
@@ -726,8 +726,7 @@ void FullSystem::flagPointsForRemoval() {
 }
 
 
-void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
-{
+void FullSystem::addActiveFrame( ImageAndExposure* image, int id ) {
 
     if(isLost) return;
     boost::unique_lock<boost::mutex> lock(trackMutex);
@@ -736,10 +735,9 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
     FrameHessian* fh = new FrameHessian();
     FrameShell* shell = new FrameShell();
     // no lock required, as fh is not used anywhere yet.
-    shell->camToWorld = SE3();
-    shell->aff_g2l = AffLight(0,0);
     shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->incoming_id = id;
+
     fh->shell = shell;
     allFrameHistory.push_back(shell);
 
@@ -1097,8 +1095,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
         if(rand()/(float)RAND_MAX > keepPercentage) continue;
 
         Pnt* point = coarseInitializer->points[0]+i;
-        ImmaturePoint* pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,firstFrame,
-                                              point->my_type, &Hcalib);
+        ImmaturePoint* pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,
+                                              firstFrame, point->my_type, &Hcalib);
 
         if(!std::isfinite(pt->energyTH)) {
             delete pt;
@@ -1123,8 +1121,6 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
         ef->insertPoint(ph);
     }
 
-
-
     SE3 firstToNew = coarseInitializer->thisToNext;
     firstToNew.translation() /= rescaleFactor;
 
@@ -1132,20 +1128,17 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     // really no lock required, as we are initializing.
     {
         boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
-        firstFrame->shell->camToWorld = SE3();
-        firstFrame->shell->aff_g2l = AffLight(0,0);
         firstFrame->setEvalPT_scaled(firstFrame->shell->camToWorld.inverse(),
                                      firstFrame->shell->aff_g2l);
         firstFrame->shell->trackingRef=0;
         firstFrame->shell->camToTrackingRef = SE3();
 
         newFrame->shell->camToWorld = firstToNew.inverse();
-        newFrame->shell->aff_g2l = AffLight(0,0);
+
         newFrame->setEvalPT_scaled(newFrame->shell->camToWorld.inverse(),
                                    newFrame->shell->aff_g2l);
         newFrame->shell->trackingRef = firstFrame->shell;
         newFrame->shell->camToTrackingRef = firstToNew.inverse();
-
     }
 
     initialized=true;
