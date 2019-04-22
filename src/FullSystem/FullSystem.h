@@ -224,8 +224,7 @@ private:
         std::vector<VecX> &nullspaces_affA,
         std::vector<VecX> &nullspaces_affB);
 
-    void setNewFrameEnergyTH();
-
+    void setNewFrameEnergyTH(const std::vector<PointFrameResidual*> activeResiduals);
 
     void printEigenValLine();
     std::ofstream* numsLog;

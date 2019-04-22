@@ -42,24 +42,17 @@
 
 #include <algorithm>
 
-namespace dso
-{
-
-
-
-
+namespace dso {
 
 void FullSystem::linearizeAll_Reductor(bool fixLinearization,
-                                       std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats,
-                                       int tid)
-{
+                                       std::vector<PointFrameResidual*>* toRemove,
+                                       int min, int max, Vec10* stats, int tid) {
     for(int k=min; k<max; k++)
     {
         PointFrameResidual* r = activeResiduals[k];
         (*stats)[0] += r->linearize(&Hcalib);
 
-        if(fixLinearization)
-        {
+        if(fixLinearization) {
             r->applyRes(true);
 
             if(r->efResidual->isActive())
@@ -69,8 +62,9 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
                     PointHessian* p = r->point;
                     Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll * Vec3f(
                                         p->u,p->v, 1);	// projected point assuming infinite depth.
-                    Vec3f ptp = ptp_inf +
-                                r->host->targetPrecalc[r->target->idx].PRE_KtTll*p->idepth_scaled;	// projected point with real depth.
+                    // projected point with real depth.
+                    Vec3f ptp = ptp_inf
+                              + r->host->targetPrecalc[r->target->idx].PRE_KtTll*p->idepth_scaled;
                     float relBS = 0.01*((ptp_inf.head<2>() / ptp_inf[2])-(ptp.head<2>() /
                                         ptp[2])).norm();	// 0.01 = one pixel.
 
@@ -92,11 +86,13 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
 
 void FullSystem::applyRes_Reductor(bool copyJacobians, int min, int max,
                                    Vec10* stats, int tid) {
-    for(int k=min; k<max; k++)
+    for(int k=min; k<max; k++) {
         activeResiduals[k]->applyRes(true);
+    }
 }
 
-void FullSystem::setNewFrameEnergyTH() {
+void FullSystem::setNewFrameEnergyTH(
+    const std::vector<PointFrameResidual*> activeResiduals) {
 
     // collect all residuals and make decision on TH.
     allResVec.clear();
@@ -154,7 +150,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization) {
         lastEnergyP = stats[0];
     }
 
-    setNewFrameEnergyTH();
+    setNewFrameEnergyTH(activeResiduals);
 
     if(fixLinearization) {
         for(PointFrameResidual* r : activeResiduals) {
@@ -361,6 +357,19 @@ void FullSystem::printOptRes(const Vec3 &res, double resL, double resM,
 
 }
 
+void createActiveResiduals(std::vector<PointFrameResidual*> &activeResiduals,
+                           const std::vector<FrameHessian*> frameHessians) {
+    for(FrameHessian* fh : frameHessians) {
+        for(PointHessian* ph : fh->pointHessians) {
+            for(PointFrameResidual* r : ph->residuals) {
+                if(!r->efResidual->isLinearized) {
+                    activeResiduals.push_back(r);
+                    r->resetOOB();
+                }
+            }
+        }
+    }
+}
 
 float FullSystem::optimize(int mnumOptIts) {
     if(frameHessians.size() < 2) {
@@ -376,16 +385,7 @@ float FullSystem::optimize(int mnumOptIts) {
     // get statistics and active residuals.
 
     activeResiduals.clear();
-    for(FrameHessian* fh : frameHessians) {
-        for(PointHessian* ph : fh->pointHessians) {
-            for(PointFrameResidual* r : ph->residuals) {
-                if(!r->efResidual->isLinearized) {
-                    activeResiduals.push_back(r);
-                    r->resetOOB();
-                }
-            }
-        }
-    }
+    createActiveResiduals(activeResiduals, frameHessians);
 
     Vec3 lastEnergy = linearizeAll(false);
     double lastEnergyL = ef->calcLEnergyF_MT();
