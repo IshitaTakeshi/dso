@@ -230,7 +230,6 @@ private:
 
 
     void printEigenValLine();
-    std::ofstream* calibLog;
     std::ofstream* numsLog;
     std::ofstream* errorsLog;
     std::ofstream* eigenAllLog;

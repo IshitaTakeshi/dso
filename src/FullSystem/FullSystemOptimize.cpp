@@ -593,19 +593,6 @@ float FullSystem::optimize(int mnumOptIts)
         isLost=true;
     }
 
-
-    statistics_lastFineTrackRMSE = sqrtf((float)(lastEnergy[0] /
-                                         (patternNum*ef->resInA)));
-
-    if(calibLog != 0)
-    {
-        (*calibLog) << Hcalib.value_scaled.transpose() <<
-                    " " << frameHessians.back()->get_state_scaled().transpose() <<
-                    " " << sqrtf((float)(lastEnergy[0] / (patternNum*ef->resInA))) <<
-                    " " << ef->resInM << "\n";
-        calibLog->flush();
-    }
-
     {
         boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
         for(FrameHessian* fh : frameHessians)
