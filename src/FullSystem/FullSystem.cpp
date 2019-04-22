@@ -1176,7 +1176,7 @@ void FullSystem::setPrecalcValues()
         }
     }
 
-    ef->setDeltaF(&Hcalib);
+    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
 }
 
 

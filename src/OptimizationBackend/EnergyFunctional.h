@@ -78,18 +78,15 @@ public:
     void marginalizeFrame(EFFrame* fh);
     void removePoint(EFPoint* ph);
 
-
-
     void marginalizePointsF();
     void dropPointsF();
     void solveSystemF(int iteration, double lambda, CalibHessian* HCalib);
     double calcMEnergyF();
     double calcLEnergyF_MT();
 
-
     void makeIDX();
 
-    void setDeltaF(CalibHessian* HCalib);
+    void setDeltaF(VecCf cDeltaF_);
 
     void setAdjointsF(CalibHessian* Hcalib);
 
