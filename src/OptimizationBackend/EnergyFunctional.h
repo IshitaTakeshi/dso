@@ -56,7 +56,6 @@ extern bool EFIndicesValid;
 extern bool EFDeltaValid;
 
 
-
 class EnergyFunctional {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -70,7 +69,6 @@ public:
 
     EnergyFunctional();
     ~EnergyFunctional();
-
 
     EFResidual* insertResidual(PointFrameResidual* r);
     EFFrame* insertFrame(FrameHessian* fh, CalibHessian* Hcalib);
@@ -113,8 +111,8 @@ public:
 
     IndexThreadReduce<Vec10>* red;
 
-
-    std::map<uint64_t,
+    std::map<
+        uint64_t,
         Eigen::Vector2i,
         std::less<uint64_t>,
         Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>
@@ -142,7 +140,6 @@ private:
 
     Mat88f* adHostF;
     Mat88f* adTargetF;
-
 
     VecC cPrior;
     VecCf cDeltaF;

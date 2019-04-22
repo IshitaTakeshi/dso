@@ -189,8 +189,7 @@ Vec3 FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResid
 
 // applies step to linearization point.
 bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR,
-                                  float stepfacA, float stepfacD)
-{
+                                  float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
 //	meanStepC += Hcalib.step.norm();
 
@@ -199,15 +198,13 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
     pstepfac.segment<3>(3).setConstant(stepfacR);
     pstepfac.segment<4>(6).setConstant(stepfacA);
 
-
     float sumA=0, sumB=0, sumT=0, sumR=0, sumID=0, numID=0;
 
     float sumNID=0;
 
     if(setting_solverMode & SOLVER_MOMENTUM) {
         Hcalib.setValue(Hcalib.value_backup + Hcalib.step);
-        for(FrameHessian* fh : frameHessians)
-        {
+        for(FrameHessian* fh : frameHessians) {
             Vec10 step = fh->step;
             step.head<6>() += 0.5f*(fh->step_backup.head<6>());
 
@@ -217,8 +214,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
             sumT += step.segment<3>(0).squaredNorm();
             sumR += step.segment<3>(3).squaredNorm();
 
-            for(PointHessian* ph : fh->pointHessians)
-            {
+            for(PointHessian* ph : fh->pointHessians) {
                 float step = ph->step+0.5f*(ph->step_backup);
                 ph->setIdepth(ph->idepth_backup + step);
                 sumID += step*step;
@@ -383,10 +379,10 @@ float FullSystem::optimize(int mnumOptIts) {
     // get statistics and active residuals.
 
     std::vector<PointFrameResidual*> activeResiduals;
-
     createActiveResiduals(activeResiduals, frameHessians);
 
     Vec3 lastEnergy = linearizeAll(activeResiduals, false);
+
     double lastEnergyL = ef->calcLEnergyF_MT();
     double lastEnergyM = ef->calcMEnergyF();
 
@@ -397,8 +393,6 @@ float FullSystem::optimize(int mnumOptIts) {
         );
     else
         applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
-
-    debugPlotTracking();
 
     double lambda = 1e-1;
     float stepsize=1;
@@ -411,7 +405,6 @@ float FullSystem::optimize(int mnumOptIts) {
         double incDirChange = (1e-20 + previousX.dot(ef->lastX)) /
                               (1e-20 + previousX.norm() * ef->lastX.norm());
         previousX = ef->lastX;
-
 
         if(std::isfinite(incDirChange) && (setting_solverMode & SOLVER_STEPMOMENTUM)) {
             float newStepsize = exp(incDirChange*1.4);
@@ -446,9 +439,7 @@ float FullSystem::optimize(int mnumOptIts) {
             lastEnergyM = newEnergyM;
 
             lambda *= 0.25;
-        }
-        else
-        {
+        } else {
             loadSateBackup();
             lastEnergy = linearizeAll(activeResiduals, false);
             lastEnergyL = ef->calcLEnergyF_MT();
@@ -488,8 +479,6 @@ float FullSystem::optimize(int mnumOptIts) {
             fh->shell->aff_g2l = fh->aff_g2l();
         }
     }
-
-    debugPlotTracking();
 
     return sqrtf((float)(lastEnergy[0] / (patternNum * ef->resInA)));
 }

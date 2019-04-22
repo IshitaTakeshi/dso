@@ -651,18 +651,17 @@ void FullSystem::flagPointsForRemoval() {
         }
     }
 
-    //ef->setAdjointsF();
-    //ef->setDeltaF(&Hcalib);
     int flag_oob=0, flag_in=0, flag_inin=0, flag_nores=0;
 
-    for(FrameHessian* host : frameHessians)		// go through all active frames
-    {
+    // go through all active frames
+    for(FrameHessian* host : frameHessians) {
         for(unsigned int i=0; i<host->pointHessians.size(); i++) {
             PointHessian* ph = host->pointHessians[i];
-            if(ph==0) continue;
+            if(ph==0) {
+                continue;
+            }
 
-            if(ph->idepth_scaled < 0 || ph->residuals.size() == 0)
-            {
+            if(ph->idepth_scaled < 0 || ph->residuals.size() == 0) {
                 host->pointHessiansOut.push_back(ph);
                 ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
                 host->pointHessians[i]=0;
@@ -954,8 +953,7 @@ bool checkIfInitializationFailed(int nKeyFrames, float rmse) {
 }
 
 
-void FullSystem::makeKeyFrame(FrameHessian* fh)
-{
+void FullSystem::makeKeyFrame(FrameHessian* fh) {
     // needs to be set by mapping thread
     makeNonKeyFrame(fh);
 

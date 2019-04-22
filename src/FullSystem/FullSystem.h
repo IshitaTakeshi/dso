@@ -168,9 +168,6 @@ private:
 
     CalibHessian Hcalib;
 
-
-
-
     // opt single point
     int optimizePoint(PointHessian* point, int minObs, bool flagOOB);
     PointHessian* optimizeImmaturePoint(ImmaturePoint* point, int minObs,
