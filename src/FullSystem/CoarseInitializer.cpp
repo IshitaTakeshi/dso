@@ -42,21 +42,16 @@
 #include "SSE2NEON.h"
 #endif
 
-namespace dso
-{
-
-CoarseInitializer::CoarseInitializer(int ww, int hh) : thisToNext_aff(0,0),
-    thisToNext(SE3())
-{
-    for(int lvl=0; lvl<pyrLevelsUsed; lvl++)
-    {
+namespace dso {
+CoarseInitializer::CoarseInitializer(int ww, int hh) :
+    thisToNext_aff(0,0), thisToNext(SE3()) {
+    for(int lvl=0; lvl<pyrLevelsUsed; lvl++) {
         points[lvl] = 0;
         numPoints[lvl] = 0;
     }
 
     JbBuffer = new Vec10f[ww*hh];
     JbBuffer_new = new Vec10f[ww*hh];
-
 
     frameID=-1;
     fixAffine=true;
@@ -67,11 +62,12 @@ CoarseInitializer::CoarseInitializer(int ww, int hh) : thisToNext_aff(0,0),
     wM.diagonal()[6] = SCALE_A;
     wM.diagonal()[7] = SCALE_B;
 }
-CoarseInitializer::~CoarseInitializer()
-{
-    for(int lvl=0; lvl<pyrLevelsUsed; lvl++)
-    {
-        if(points[lvl] != 0) delete[] points[lvl];
+
+CoarseInitializer::~CoarseInitializer() {
+    for(int lvl=0; lvl<pyrLevelsUsed; lvl++) {
+        if(points[lvl] != 0) {
+            delete[] points[lvl];
+        }
     }
 
     delete[] JbBuffer;
@@ -80,15 +76,14 @@ CoarseInitializer::~CoarseInitializer()
 
 
 bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
-                                   std::vector<IOWrap::Output3DWrapper*> &wraps)
-{
+                                   std::vector<IOWrap::Output3DWrapper*> &wraps) {
     newFrame = newFrameHessian;
 
-    for(IOWrap::Output3DWrapper* ow : wraps)
+    for(IOWrap::Output3DWrapper* ow : wraps) {
         ow->pushLiveFrame(newFrameHessian);
+    }
 
     int maxIterations[] = {5,5,10,30,50};
-
 
 
     alphaK = 2.5*2.5;//*freeDebugParam1*freeDebugParam1;
@@ -96,8 +91,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
     regWeight = 0.8;//*freeDebugParam4;
     couplingWeight = 1;//*freeDebugParam5;
 
-    if(!snapped)
-    {
+    if(!snapped) {
         thisToNext.translation().setZero();
         for(int lvl=0; lvl<pyrLevelsUsed; lvl++)
         {
@@ -358,17 +352,13 @@ Vec3f CoarseInitializer::calcResAndGS(
     float cxl = cx[lvl];
     float cyl = cy[lvl];
 
-
     Accumulator11 E;
     acc9.initialize();
     E.initialize();
 
-
     int npts = numPoints[lvl];
     Pnt* ptsl = points[lvl];
-    for(int i=0; i<npts; i++)
-    {
-
+    for(int i=0; i<npts; i++) {
         Pnt* point = ptsl+i;
 
         point->maxstep = 1e10;
@@ -395,11 +385,9 @@ Vec3f CoarseInitializer::calcResAndGS(
         // sum over all residuals.
         bool isGood = true;
         float energy=0;
-        for(int idx=0; idx<patternNum; idx++)
-        {
+        for(int idx=0; idx<patternNum; idx++) {
             int dx = patternP[idx][0];
             int dy = patternP[idx][1];
-
 
             Vec3f pt = RKi * Vec3f(point->u+dx, point->v+dy, 1) + t*point->idepth_new;
             float u = pt[0] / pt[2];
@@ -408,8 +396,7 @@ Vec3f CoarseInitializer::calcResAndGS(
             float Kv = fyl * v + cyl;
             float new_idepth = point->idepth_new/pt[2];
 
-            if(!(Ku > 1 && Kv > 1 && Ku < wl-2 && Kv < hl-2 && new_idepth > 0))
-            {
+            if(!(Ku > 1 && Kv > 1 && Ku < wl-2 && Kv < hl-2 && new_idepth > 0)) {
                 isGood = false;
                 break;
             }
@@ -420,20 +407,15 @@ Vec3f CoarseInitializer::calcResAndGS(
             //float rlR = colorRef[point->u+dx + (point->v+dy) * wl][0];
             float rlR = getInterpolatedElement31(colorRef, point->u+dx, point->v+dy, wl);
 
-            if(!std::isfinite(rlR) || !std::isfinite((float)hitColor[0]))
-            {
+            if(!std::isfinite(rlR) || !std::isfinite((float)hitColor[0])) {
                 isGood = false;
                 break;
             }
-
 
             float residual = hitColor[0] - r2new_aff[0] * rlR - r2new_aff[1];
             float hw = fabs(residual) < setting_huberTH ? 1 : setting_huberTH / fabs(
                            residual);
             energy += hw *residual*residual*(2-hw);
-
-
-
 
             float dxdd = (t[0]-t[2]*u)/pt[2];
             float dydd = (t[1]-t[2]*v)/pt[2];
@@ -476,7 +458,6 @@ Vec3f CoarseInitializer::calcResAndGS(
             continue;
         }
 
-
         // add into energy.
         E.updateSingle(energy);
         point->isGood_new = true;
@@ -501,17 +482,10 @@ Vec3f CoarseInitializer::calcResAndGS(
                 (float)dp0[i],(float)dp1[i],(float)dp2[i],(float)dp3[i],
                 (float)dp4[i],(float)dp5[i],(float)dp6[i],(float)dp7[i],
                 (float)r[i]);
-
-
     }
 
     E.finish();
     acc9.finish();
-
-
-
-
-
 
     // calculate alpha energy, and decide if we cap it.
     Accumulator11 EAlpha;
@@ -519,32 +493,22 @@ Vec3f CoarseInitializer::calcResAndGS(
     for(int i=0; i<npts; i++)
     {
         Pnt* point = ptsl+i;
-        if(!point->isGood_new)
-        {
+        if(!point->isGood_new) {
             E.updateSingle((float)(point->energy[1]));
-        }
-        else
-        {
+        } else {
             point->energy_new[1] = (point->idepth_new-1)*(point->idepth_new-1);
             E.updateSingle((float)(point->energy_new[1]));
         }
     }
     EAlpha.finish();
-    float alphaEnergy = alphaW*(EAlpha.A + refToNew.translation().squaredNorm() *
-                                npts);
-
-    //printf("AE = %f * %f + %f\n", alphaW, EAlpha.A, refToNew.translation().squaredNorm() * npts);
-
+    float alphaEnergy = alphaW*(EAlpha.A + refToNew.translation().squaredNorm() * npts);
 
     // compute alpha opt.
     float alphaOpt;
-    if(alphaEnergy > alphaK*npts)
-    {
+    if(alphaEnergy > alphaK*npts) {
         alphaOpt = 0;
         alphaEnergy = alphaK*npts;
-    }
-    else
-    {
+    } else {
         alphaOpt = alphaW;
     }
 
@@ -584,8 +548,6 @@ Vec3f CoarseInitializer::calcResAndGS(
     H_out_sc = acc9SC.H.topLeftCorner<8,8>();// / acc9.num;
     b_out_sc = acc9SC.H.topRightCorner<8,1>();// / acc9.num;
 
-
-
     H_out(0,0) += alphaOpt*npts;
     H_out(1,1) += alphaOpt*npts;
     H_out(2,2) += alphaOpt*npts;
@@ -595,32 +557,12 @@ Vec3f CoarseInitializer::calcResAndGS(
     b_out[1] += tlog[1]*alphaOpt*npts;
     b_out[2] += tlog[2]*alphaOpt*npts;
 
-
-
-
-
     return Vec3f(E.A, alphaEnergy,E.num);
 }
 
 float CoarseInitializer::rescale()
 {
     float factor = 20*thisToNext.translation().norm();
-//	float factori = 1.0f/factor;
-//	float factori2 = factori*factori;
-//
-//	for(int lvl=0;lvl<pyrLevelsUsed;lvl++)
-//	{
-//		int npts = numPoints[lvl];
-//		Pnt* ptsl = points[lvl];
-//		for(int i=0;i<npts;i++)
-//		{
-//			ptsl[i].iR *= factor;
-//			ptsl[i].idepth_new *= factor;
-//			ptsl[i].lastHessian *= factori2;
-//		}
-//	}
-//	thisToNext.translation() *= factori;
-
     return factor;
 }
 

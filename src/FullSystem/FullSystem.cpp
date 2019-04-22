@@ -712,7 +712,7 @@ void FullSystem::flagPointsForRemoval() {
 }
 
 
-void FullSystem::addActiveFrame( ImageAndExposure* image, int id ) {
+void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
 
     if(isLost) return;
     boost::unique_lock<boost::mutex> lock(trackMutex);

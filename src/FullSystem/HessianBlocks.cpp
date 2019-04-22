@@ -134,31 +134,26 @@ void FrameHessian::release()
 }
 
 
-void FrameHessian::makeImages(float* color, CalibHessian* HCalib)
-{
-
-    for(int i=0; i<pyrLevelsUsed; i++)
-    {
+void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
+    for(int i=0; i<pyrLevelsUsed; i++) {
         dIp[i] = new Eigen::Vector3f[wG[i]*hG[i]];
         absSquaredGrad[i] = new float[wG[i]*hG[i]];
     }
     dI = dIp[0];
 
-
     // make d0
     int w=wG[0];
     int h=hG[0];
-    for(int i=0; i<w*h; i++)
+    for(int i=0; i<w*h; i++) {
         dI[i][0] = color[i];
+    }
 
-    for(int lvl=0; lvl<pyrLevelsUsed; lvl++)
-    {
+    for(int lvl=0; lvl<pyrLevelsUsed; lvl++) {
         int wl = wG[lvl], hl = hG[lvl];
         Eigen::Vector3f* dI_l = dIp[lvl];
 
         float* dabs_l = absSquaredGrad[lvl];
-        if(lvl>0)
-        {
+        if(lvl>0) {
             int lvlm1 = lvl-1;
             int wlm1 = wG[lvlm1];
             Eigen::Vector3f* dI_lm = dIp[lvlm1];
