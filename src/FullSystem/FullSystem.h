@@ -199,20 +199,19 @@ private:
 
     // solce. eventually migrate to ef.
     void solveSystem(int iteration, double lambda);
-    Vec3 linearizeAll(bool fixLinearization);
+    Vec3 linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
+                      bool fixLinearization);
     bool doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
                           float stepfacA,float stepfacD);
     void backupState(bool backupLastStep);
     void loadSateBackup();
     void linearizeAll_Reductor(bool fixLinearization,
                                std::vector<PointFrameResidual*>* toRemove,
+                               const std::vector<PointFrameResidual*> activeResiduals,
                                int min, int max, Vec10* stats, int tid);
     void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,
                                    std::vector<ImmaturePoint*>* toOptimize,
                                    int min, int max, Vec10* stats, int tid);
-    void applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats,
-                           int tid);
-
     void printOptRes(const Vec3 &res, double resL, double resM, double resPrior,
                      double LExact, float a, float b);
 
@@ -273,9 +272,8 @@ private:
     PixelSelector* pixelSelector;
     CoarseDistanceMap* coarseDistanceMap;
 
-    std::vector<FrameHessian*>
-    frameHessians;	// ONLY changed in marginalizeFrame and addFrame.
-    std::vector<PointFrameResidual*> activeResiduals;
+    // ONLY changed in marginalizeFrame and addFrame.
+    std::vector<FrameHessian*> frameHessians;
     float currentMinActDist;
 
 

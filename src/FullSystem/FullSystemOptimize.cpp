@@ -46,6 +46,7 @@ namespace dso {
 
 void FullSystem::linearizeAll_Reductor(bool fixLinearization,
                                        std::vector<PointFrameResidual*>* toRemove,
+                                       const std::vector<PointFrameResidual*> activeResiduals,
                                        int min, int max, Vec10* stats, int tid) {
     for(int k=min; k<max; k++)
     {
@@ -83,9 +84,8 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
     }
 }
 
-
-void FullSystem::applyRes_Reductor(bool copyJacobians, int min, int max,
-                                   Vec10* stats, int tid) {
+void applyRes_Reductor(std::vector<PointFrameResidual*> activeResiduals,
+                       int min, int max, Vec10* stats, int tid) {
     for(int k=min; k<max; k++) {
         activeResiduals[k]->applyRes(true);
     }
@@ -128,7 +128,8 @@ void FullSystem::setNewFrameEnergyTH(
         setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
 }
 
-Vec3 FullSystem::linearizeAll(bool fixLinearization) {
+Vec3 FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
+                              bool fixLinearization) {
     double lastEnergyP = 0;
     double lastEnergyR = 0;
     double num = 0;
@@ -141,12 +142,13 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization) {
     if(multiThreading) {
         treadReduce.reduce(
             boost::bind(&FullSystem::linearizeAll_Reductor, this,
-                        fixLinearization, toRemove, _1, _2, _3, _4),
+                        fixLinearization, toRemove, activeResiduals, _1, _2, _3, _4),
             0, activeResiduals.size(), 0);
         lastEnergyP = treadReduce.stats[0];
     } else {
         Vec10 stats;
-        linearizeAll_Reductor(fixLinearization, toRemove, 0, activeResiduals.size(), &stats, 0);
+        linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals,
+                              0, activeResiduals.size(), &stats, 0);
         lastEnergyP = stats[0];
     }
 
@@ -384,20 +386,21 @@ float FullSystem::optimize(int mnumOptIts) {
 
     // get statistics and active residuals.
 
-    activeResiduals.clear();
+    std::vector<PointFrameResidual*> activeResiduals;
+
     createActiveResiduals(activeResiduals, frameHessians);
 
-    Vec3 lastEnergy = linearizeAll(false);
+    Vec3 lastEnergy = linearizeAll(activeResiduals, false);
     double lastEnergyL = ef->calcLEnergyF_MT();
     double lastEnergyM = ef->calcMEnergyF();
 
     if(multiThreading)
         treadReduce.reduce(
-            boost::bind(&FullSystem::applyRes_Reductor, this, true, _1, _2, _3, _4),
+            boost::bind(applyRes_Reductor, activeResiduals, _1, _2, _3, _4),
             0, activeResiduals.size(), 50
         );
     else
-        applyRes_Reductor(true, 0, activeResiduals.size(), 0, 0);
+        applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
 
     debugPlotTracking();
 
@@ -428,7 +431,7 @@ float FullSystem::optimize(int mnumOptIts) {
         bool canbreak = doStepFromBackup(stepsize,stepsize,stepsize,stepsize,stepsize);
 
         // eval new energy!
-        Vec3 newEnergy = linearizeAll(false);
+        Vec3 newEnergy = linearizeAll(activeResiduals, false);
         double newEnergyL = ef->calcLEnergyF_MT();
         double newEnergyM = ef->calcMEnergyF();
 
@@ -437,10 +440,10 @@ float FullSystem::optimize(int mnumOptIts) {
                     lastEnergy[0] + lastEnergy[1] + lastEnergyL + lastEnergyM)) {
             if(multiThreading)
                 treadReduce.reduce(
-                    boost::bind(&FullSystem::applyRes_Reductor, this, true, _1, _2, _3, _4),
+                    boost::bind(applyRes_Reductor, activeResiduals, _1, _2, _3, _4),
                     0, activeResiduals.size(), 50);
             else
-                applyRes_Reductor(true,0,activeResiduals.size(), 0, 0);
+                applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
 
             lastEnergy = newEnergy;
             lastEnergyL = newEnergyL;
@@ -451,7 +454,7 @@ float FullSystem::optimize(int mnumOptIts) {
         else
         {
             loadSateBackup();
-            lastEnergy = linearizeAll(false);
+            lastEnergy = linearizeAll(activeResiduals, false);
             lastEnergyL = ef->calcLEnergyF_MT();
             lastEnergyM = ef->calcMEnergyF();
             lambda *= 1e2;
@@ -472,7 +475,7 @@ float FullSystem::optimize(int mnumOptIts) {
     ef->setAdjointsF(&Hcalib);
     setPrecalcValues();
 
-    lastEnergy = linearizeAll(true);
+    lastEnergy = linearizeAll(activeResiduals, true);
 
     if(!std::isfinite((double)lastEnergy[0]) ||
        !std::isfinite((double)lastEnergy[1]) ||
