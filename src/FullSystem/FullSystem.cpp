@@ -70,7 +70,6 @@ FullSystem::FullSystem() {
     eigenPLog=0;
     eigenAllLog=0;
     numsLog=0;
-    calibLog=0;
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -714,12 +713,16 @@ void FullSystem::flagPointsForRemoval() {
 
 void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
 
-    if(isLost) return;
+    if(isLost) {
+        return;
+    }
+
     boost::unique_lock<boost::mutex> lock(trackMutex);
 
     // =========================== add into allFrameHistory =========================
     FrameHessian* fh = new FrameHessian();
     FrameShell* shell = new FrameShell();
+
     // no lock required, as fh is not used anywhere yet.
     shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->incoming_id = id;

@@ -204,14 +204,12 @@ private:
                           float stepfacA,float stepfacD);
     void backupState(bool backupLastStep);
     void loadSateBackup();
-    double calcLEnergy();
-    double calcMEnergy();
     void linearizeAll_Reductor(bool fixLinearization,
-                               std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats,
-                               int tid);
+                               std::vector<PointFrameResidual*>* toRemove,
+                               int min, int max, Vec10* stats, int tid);
     void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,
-                                   std::vector<ImmaturePoint*>* toOptimize,int min, int max, Vec10* stats,
-                                   int tid);
+                                   std::vector<ImmaturePoint*>* toOptimize,
+                                   int min, int max, Vec10* stats, int tid);
     void applyRes_Reductor(bool copyJacobians, int min, int max, Vec10* stats,
                            int tid);
 
