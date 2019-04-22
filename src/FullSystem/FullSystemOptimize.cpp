@@ -48,36 +48,32 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
                                        std::vector<PointFrameResidual*>* toRemove,
                                        const std::vector<PointFrameResidual*> activeResiduals,
                                        int min, int max, Vec10* stats, int tid) {
-    for(int k=min; k<max; k++)
-    {
+    for(int k=min; k<max; k++) {
         PointFrameResidual* r = activeResiduals[k];
         (*stats)[0] += r->linearize(&Hcalib);
 
         if(fixLinearization) {
             r->applyRes(true);
 
-            if(r->efResidual->isActive())
-            {
-                if(r->isNew)
-                {
+            if(r->efResidual->isActive()) {
+                if(r->isNew) {
                     PointHessian* p = r->point;
-                    Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll * Vec3f(
-                                        p->u,p->v, 1);	// projected point assuming infinite depth.
+                    // projected point assuming infinite depth.
+                    Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll
+                                  * Vec3f(p->u,p->v, 1);
                     // projected point with real depth.
                     Vec3f ptp = ptp_inf
                               + r->host->targetPrecalc[r->target->idx].PRE_KtTll*p->idepth_scaled;
-                    float relBS = 0.01*((ptp_inf.head<2>() / ptp_inf[2])-(ptp.head<2>() /
-                                        ptp[2])).norm();	// 0.01 = one pixel.
-
+                    // 0.01 = one pixel.
+                    float relBS = 0.01
+                                * ((ptp_inf.head<2>() / ptp_inf[2])-(ptp.head<2>() / ptp[2])).norm();
 
                     if(relBS > p->maxRelBaseline)
                         p->maxRelBaseline = relBS;
 
                     p->numGoodResiduals++;
                 }
-            }
-            else
-            {
+            } else {
                 toRemove[tid].push_back(activeResiduals[k]);
             }
         }
@@ -506,7 +502,7 @@ void FullSystem::solveSystem(int iteration, double lambda) {
                                         ef->lastNullspaces_affA,
                                         ef->lastNullspaces_affB);
 
-    ef->solveSystemF(iteration, lambda,&Hcalib);
+    ef->solveSystemF(iteration, lambda, &Hcalib);
 }
 
 

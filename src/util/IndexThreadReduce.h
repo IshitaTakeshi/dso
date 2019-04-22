@@ -41,13 +41,12 @@ class IndexThreadReduce
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    inline IndexThreadReduce()
-    {
+    inline IndexThreadReduce() {
         nextIndex = 0;
         maxIndex = 0;
         stepSize = 1;
-        callPerIndex = boost::bind(&IndexThreadReduce::callPerIndexDefault, this, _1,
-                                   _2, _3, _4);
+        callPerIndex = boost::bind(&IndexThreadReduce::callPerIndexDefault, this,
+                                   _1, _2, _3, _4);
 
         running = true;
         for(int i=0; i<NUM_THREADS; i++)
@@ -66,33 +65,21 @@ public:
         todo_signal.notify_all();
         exMutex.unlock();
 
-        for(int i=0; i<NUM_THREADS; i++)
+        for(int i=0; i<NUM_THREADS; i++) {
             workerThreads[i].join();
-
+        }
 
         printf("destroyed ThreadReduce\n");
 
     }
 
-    inline void reduce(boost::function<void(int,int,Running*,int)> callPerIndex,
-                       int first, int end, int stepSize = 0)
-    {
+    inline void reduce(boost::function<void(int, int, Running*, int)> callPerIndex,
+                       int first, int end, int stepSize = 0) {
 
         memset(&stats, 0, sizeof(Running));
 
-//		if(!multiThreading)
-//		{
-//			callPerIndex(first, end, &stats, 0);
-//			return;
-//		}
-
-
-
         if(stepSize == 0)
             stepSize = ((end-first)+NUM_THREADS-1)/NUM_THREADS;
-
-
-        //printf("reduce called\n");
 
         boost::unique_lock<boost::mutex> lock(exMutex);
 
@@ -103,8 +90,7 @@ public:
         this->stepSize = stepSize;
 
         // go worker threads!
-        for(int i=0; i<NUM_THREADS; i++)
-        {
+        for(int i=0; i<NUM_THREADS; i++) {
             isDone[i] = false;
             gotOne[i] = false;
         }
@@ -115,8 +101,7 @@ public:
 
         //printf("reduce waiting for threads to finish\n");
         // wait for all worker threads to signal they are done.
-        while(true)
-        {
+        while(true) {
             // wait for at least one to finish
             done_signal.wait(lock);
             //printf("thread finished!\n");
@@ -135,8 +120,6 @@ public:
         maxIndex = 0;
         this->callPerIndex = boost::bind(&IndexThreadReduce::callPerIndexDefault, this,
                                          _1, _2, _3, _4);
-
-        //printf("reduce done (all threads finished)\n");
     }
 
     Running stats;
@@ -164,12 +147,10 @@ private:
         assert(false);
     }
 
-    void workerLoop(int idx)
-    {
+    void workerLoop(int idx) {
         boost::unique_lock<boost::mutex> lock(exMutex);
 
-        while(running)
-        {
+        while(running) {
             // try to get something to do.
             int todo = 0;
             bool gotSomething = false;
@@ -182,8 +163,7 @@ private:
             }
 
             // if got something: do it (unlock in the meantime)
-            if(gotSomething)
-            {
+            if(gotSomething) {
                 lock.unlock();
 
                 assert(callPerIndex != 0);
