@@ -28,13 +28,11 @@
 #include "FullSystem/ImmaturePoint.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 
-namespace dso
-{
+namespace dso {
 
 
 PointHessian::PointHessian(const ImmaturePoint* const rawPoint,
-                           CalibHessian* Hcalib)
-{
+                           CalibHessian* Hcalib) {
     host = rawPoint->host;
     hasDepthPrior=false;
 
@@ -59,8 +57,6 @@ PointHessian::PointHessian(const ImmaturePoint* const rawPoint,
     energyTH = rawPoint->energyTH;
 
     efPoint=0;
-
-
 }
 
 
@@ -71,8 +67,7 @@ void PointHessian::release()
 }
 
 
-void FrameHessian::setStateZero(const Vec10 &state_zero)
-{
+void FrameHessian::setStateZero(const Vec10 &state_zero) {
     assert(state_zero.head<6>().squaredNorm() < 1e-20);
 
     this->state_zero = state_zero;
@@ -194,11 +189,8 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
     }
 }
 
-void FrameFramePrecalc::set(
-    FrameHessian* host,
-    FrameHessian* target,
-    const Mat33f &K) {
-
+void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target,
+                            const Mat33f &K) {
     this->host = host;
     this->target = target;
 
