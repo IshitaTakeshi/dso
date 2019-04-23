@@ -963,6 +963,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     fh->frameID = allKeyFramesHistory.size();
     allKeyFramesHistory.push_back(fh->shell);
     ef->insertFrame(fh);
+    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
 
     setPrecalcValues();
 
@@ -1054,6 +1055,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     allKeyFramesHistory.push_back(firstFrame->shell);
 
     ef->insertFrame(firstFrame);
+    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
 
     setPrecalcValues();
 
@@ -1188,8 +1190,6 @@ void FullSystem::setPrecalcValues() {
             fh->targetPrecalc[i].set(fh, frameHessians[i], K);
         }
     }
-
-    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
 }
 
 
