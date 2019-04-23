@@ -122,7 +122,6 @@ struct FrameHessian
     float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms etc.). no NAN.
 
     int frameID;						// incremental ID for keyframes only!
-    static int instanceCounter;
     int idx;
 
     // Photometric Calibration Stuff
@@ -250,7 +249,6 @@ struct FrameHessian
     {
         assert(efFrame==0);
         release();
-        instanceCounter--;
         for(int i=0; i<pyrLevelsUsed; i++)
         {
             delete[] dIp[i];
@@ -264,7 +262,6 @@ struct FrameHessian
     };
     inline FrameHessian()
     {
-        instanceCounter++;
         flaggedForMarginalization=false;
         frameID = -1;
         efFrame = 0;
@@ -318,7 +315,6 @@ struct FrameHessian
 struct CalibHessian
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    static int instanceCounter;
 
     VecC value_zero;
     VecC value_scaled;
@@ -331,7 +327,6 @@ struct CalibHessian
     VecC value_minus_value_zero;
 
     inline ~CalibHessian() {
-        instanceCounter--;
     }
     inline CalibHessian()
     {
@@ -346,7 +341,6 @@ struct CalibHessian
         value_zero = value;
         value_minus_value_zero.setZero();
 
-        instanceCounter++;
         for(int i=0; i<256; i++)
             Binv[i] = B[i] = i;		// set gamma function to identity
     };
@@ -440,7 +434,6 @@ struct CalibHessian
 struct PointHessian
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    static int instanceCounter;
     EFPoint* efPoint;
 
     // static values
@@ -504,7 +497,6 @@ struct PointHessian
     inline ~PointHessian() {
         assert(efPoint==0);
         release();
-        instanceCounter--;
     }
 
 

@@ -46,22 +46,17 @@
 
 #include "FullSystem/HessianBlocks.h"
 
-namespace dso
-{
-int PointFrameResidual::instanceCounter = 0;
-
+namespace dso {
 
 long runningResID=0;
 
 
 PointFrameResidual::PointFrameResidual() {
     assert(false);
-    instanceCounter++;
 }
 
 PointFrameResidual::~PointFrameResidual() {
     assert(efResidual==0);
-    instanceCounter--;
     delete J;
 }
 
@@ -72,7 +67,6 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_,
     target(target_)
 {
     efResidual=0;
-    instanceCounter++;
     resetOOB();
     J = new RawResidualJacobian();
     assert(((long)J)%16==0);

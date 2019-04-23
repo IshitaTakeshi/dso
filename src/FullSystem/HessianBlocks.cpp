@@ -35,7 +35,6 @@ namespace dso
 PointHessian::PointHessian(const ImmaturePoint* const rawPoint,
                            CalibHessian* Hcalib)
 {
-    instanceCounter++;
     host = rawPoint->host;
     hasDepthPrior=false;
 
@@ -226,4 +225,3 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target,
 }
 
 }
-
