@@ -129,6 +129,9 @@ inline bool eigenTestNan(const MatXX &m, std::string msg)
 
 
 
+// set precalc values.
+void setPrecalcValues(std::vector<FrameHessian*> frameHessians,
+                      CalibHessian &Hcalib);
 
 
 class FullSystem {
@@ -188,11 +191,6 @@ private:
 
 
     void removeOutliers();
-
-
-    // set precalc values.
-    void setPrecalcValues();
-
 
     // solce. eventually migrate to ef.
     void solveSystem(int iteration, double lambda);
