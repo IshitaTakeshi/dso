@@ -315,9 +315,7 @@ void EnergyFunctional::resubstituteFPt(
 }
 
 
-double EnergyFunctional::calcMEnergyF()
-{
-
+double EnergyFunctional::calcMEnergyF() {
     assert(EFDeltaValid);
     assert(EFAdjointsValid);
     assert(EFIndicesValid);

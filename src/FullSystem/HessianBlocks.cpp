@@ -216,8 +216,11 @@ void FrameFramePrecalc::set(
     PRE_RKiTll = PRE_RTll * K.inverse();
     PRE_KtTll = K * PRE_tTll;
 
-    PRE_aff_mode = AffLight::fromToVecExposure(host->ab_exposure,
-                   target->ab_exposure, host->aff_g2l(), target->aff_g2l()).cast<float>();
+    PRE_aff_mode = AffLight::fromToVecExposure(
+        host->ab_exposure,
+        target->ab_exposure,
+        host->aff_g2l(),
+        target->aff_g2l()).cast<float>();
     PRE_b0_mode = host->aff_g2l_0().b;
 }
 

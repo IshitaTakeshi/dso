@@ -41,8 +41,8 @@ namespace dso
 
 
 inline Vec2 affFromTo(const Vec2 &from,
-                      const Vec2 &to)	// contains affine parameters as XtoWorld.
-{
+                      const Vec2 &to) {
+    // contains affine parameters as XtoWorld.
     return Vec2(from[0] / to[0], (from[1] - to[1]) / to[0]);
 }
 
@@ -75,11 +75,9 @@ class EFPoint;
 #define SCALE_B_INVERSE (1.0f / SCALE_B)
 
 
-struct FrameFramePrecalc
-{
+struct FrameFramePrecalc {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     // static values
-    static int instanceCounter;
     FrameHessian* host;	// defines row
     FrameHessian* target;	// defines column
 
