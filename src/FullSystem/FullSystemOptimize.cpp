@@ -30,6 +30,7 @@
 #include <Eigen/LU>
 #include <algorithm>
 #include "IOWrapper/ImageDisplay.h"
+#include "util/math.h"
 #include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
@@ -407,8 +408,7 @@ float FullSystem::optimize(int mnumOptIts) {
             }
 
             stepsize = sqrtf(sqrtf(newStepsize*stepsize*stepsize*stepsize));
-            if(stepsize > 2) stepsize=2;
-            if(stepsize < 0.25) stepsize=0.25;
+            stepsize = clamp(stepsize, 0.25, 2.0);
         }
 
         bool canbreak = doStepFromBackup(stepsize,stepsize,stepsize,stepsize,stepsize);
