@@ -71,7 +71,7 @@ public:
     ~EnergyFunctional();
 
     EFResidual* insertResidual(PointFrameResidual* r);
-    EFFrame* insertFrame(FrameHessian* fh, CalibHessian* Hcalib);
+    EFFrame* insertFrame(FrameHessian* fh);
     EFPoint* insertPoint(PointHessian* ph);
 
     void dropResidual(EFResidual* r);
@@ -88,7 +88,7 @@ public:
 
     void setDeltaF(VecCf cDeltaF_);
 
-    void setAdjointsF(CalibHessian* Hcalib);
+    void setAdjointsF();
 
     std::vector<EFFrame*> frames;
     int nPoints, nFrames, nResiduals;

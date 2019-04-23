@@ -42,7 +42,7 @@ bool EFAdjointsValid = false;
 bool EFIndicesValid = false;
 bool EFDeltaValid = false;
 
-void EnergyFunctional::setAdjointsF(CalibHessian* Hcalib) {
+void EnergyFunctional::setAdjointsF() {
     if(adHost != 0) {
         delete[] adHost;
     }
@@ -422,7 +422,7 @@ EFResidual* EnergyFunctional::insertResidual(PointFrameResidual* r)
     r->efResidual = efr;
     return efr;
 }
-EFFrame* EnergyFunctional::insertFrame(FrameHessian* fh, CalibHessian* Hcalib) {
+EFFrame* EnergyFunctional::insertFrame(FrameHessian* fh) {
     EFFrame* eff = new EFFrame(fh);
     eff->idx = frames.size();
     frames.push_back(eff);
@@ -441,7 +441,7 @@ EFFrame* EnergyFunctional::insertFrame(FrameHessian* fh, CalibHessian* Hcalib) {
     EFAdjointsValid=false;
     EFDeltaValid=false;
 
-    setAdjointsF(Hcalib);
+    setAdjointsF();
     makeIDX();
 
     for(EFFrame* fh2 : frames) {

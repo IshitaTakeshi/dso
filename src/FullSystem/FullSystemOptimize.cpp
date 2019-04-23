@@ -98,7 +98,6 @@ void FullSystem::setNewFrameEnergyTH(
     for(PointFrameResidual* r : activeResiduals) {
         if(r->state_NewEnergyWithOutlier >= 0 && r->target == newFrame) {
             allResVec.push_back(r->state_NewEnergyWithOutlier);
-
         }
     }
 
@@ -459,7 +458,7 @@ float FullSystem::optimize(int mnumOptIts) {
                                     newStateZero);
     EFDeltaValid=false;
     EFAdjointsValid=false;
-    ef->setAdjointsF(&Hcalib);
+    ef->setAdjointsF();
     setPrecalcValues();
 
     lastEnergy = linearizeAll(activeResiduals, true);

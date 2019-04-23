@@ -967,7 +967,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     frameHessians.push_back(fh);
     fh->frameID = allKeyFramesHistory.size();
     allKeyFramesHistory.push_back(fh->shell);
-    ef->insertFrame(fh, &Hcalib);
+    ef->insertFrame(fh);
 
     setPrecalcValues();
 
@@ -1058,7 +1058,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     firstFrame->frameID = allKeyFramesHistory.size();
     allKeyFramesHistory.push_back(firstFrame->shell);
 
-    ef->insertFrame(firstFrame, &Hcalib);
+    ef->insertFrame(firstFrame);
 
     setPrecalcValues();
 
