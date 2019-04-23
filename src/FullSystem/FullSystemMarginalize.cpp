@@ -105,7 +105,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH) {
 
             double distScore = 0;
             for(FrameFramePrecalc &ffh : fh->targetPrecalc)  {
-                if(ffh.target->frameID > latest->frameID-setting_minFrameAge+1
+                if(ffh.target->frameID > latest->frameID - setting_minFrameAge + 1
                         || ffh.target == ffh.host) continue;
                 distScore += 1/(1e-5+ffh.distanceLL);
             }
@@ -139,27 +139,19 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
 
     // drop all observations of existing points in that frame.
 
-    for(FrameHessian* fh : frameHessians)
-    {
-        if(fh==frame) continue;
+    for(FrameHessian* fh : frameHessians) {
+        if(fh==frame) {
+            continue;
+        }
 
-        for(PointHessian* ph : fh->pointHessians)
-        {
-            for(unsigned int i=0; i<ph->residuals.size(); i++)
-            {
+        for(PointHessian* ph : fh->pointHessians) {
+            for(unsigned int i=0; i<ph->residuals.size(); i++) {
                 PointFrameResidual* r = ph->residuals[i];
-                if(r->target == frame)
-                {
+                if(r->target == frame) {
                     if(ph->lastResiduals[0].first == r)
                         ph->lastResiduals[0].first=0;
                     else if(ph->lastResiduals[1].first == r)
                         ph->lastResiduals[1].first=0;
-
-
-                    if(r->host->frameID < r->target->frameID)
-                        statistics_numForceDroppedResFwd++;
-                    else
-                        statistics_numForceDroppedResBwd++;
 
                     ef->dropResidual(r->efResidual);
                     deleteOut<PointFrameResidual>(ph->residuals,i);

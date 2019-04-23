@@ -239,8 +239,6 @@ private:
     long int statistics_numDroppedPoints;
     long int statistics_numActivatedPoints;
     long int statistics_numCreatedPoints;
-    long int statistics_numForceDroppedResBwd;
-    long int statistics_numForceDroppedResFwd;
     long int statistics_numMargResFwd;
     long int statistics_numMargResBwd;
     float statistics_lastFineTrackRMSE;

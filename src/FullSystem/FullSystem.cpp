@@ -83,8 +83,6 @@ FullSystem::FullSystem() {
     statistics_numDroppedPoints=0;
     statistics_numActivatedPoints=0;
     statistics_numCreatedPoints=0;
-    statistics_numForceDroppedResBwd = 0;
-    statistics_numForceDroppedResFwd = 0;
     statistics_numMargResFwd = 0;
     statistics_numMargResBwd = 0;
 

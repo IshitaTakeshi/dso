@@ -302,9 +302,7 @@ void FullSystem::backupState(bool backupLastStep)
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         Hcalib.value_backup = Hcalib.value;
         for(FrameHessian* fh : frameHessians)
         {

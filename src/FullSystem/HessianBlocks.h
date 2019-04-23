@@ -98,16 +98,12 @@ struct FrameFramePrecalc
 
     float distanceLL;
 
-
     inline ~FrameFramePrecalc() {}
     inline FrameFramePrecalc() {
         host=target=0;
     }
     void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
 };
-
-
-
 
 
 struct FrameHessian
@@ -177,8 +173,10 @@ struct FrameHessian
     // precalc values
     SE3 PRE_worldToCam;
     SE3 PRE_camToWorld;
-    std::vector<FrameFramePrecalc,Eigen::aligned_allocator<FrameFramePrecalc>>
-            targetPrecalc;
+    std::vector<
+        FrameFramePrecalc,
+        Eigen::aligned_allocator<FrameFramePrecalc>
+        > targetPrecalc;
     MinimalImageB3* debugImage;
 
 

@@ -407,7 +407,6 @@ double EnergyFunctional::calcLEnergyF_MT() {
 }
 
 
-
 EFResidual* EnergyFunctional::insertResidual(PointFrameResidual* r)
 {
     EFResidual* efr = new EFResidual(r, r->point->efPoint, r->host->efFrame,
