@@ -1162,12 +1162,30 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
 }
 
 
-void FullSystem::setPrecalcValues()
-{
+Mat33f initializeCameraMatrix(const float fx, const float fy,
+                              const float cx, const float cy) {
+    Mat33f K = Mat33f::Zero();
+    K(0,0) = fx;
+    K(1,1) = fy;
+    K(0,2) = cx;
+    K(1,2) = cy;
+    K(2,2) = 1;
+    return K;
+}
+
+Mat33f createCameraMatrixFromCalibHessian(CalibHessian &Hcalib) {
+    return initializeCameraMatrix(Hcalib.fxl(), Hcalib.fyl(),
+                                  Hcalib.cxl(), Hcalib.cyl());
+}
+
+
+void FullSystem::setPrecalcValues() {
+    const Mat33f K = createCameraMatrixFromCalibHessian(Hcalib);
+
     for(FrameHessian* fh : frameHessians) {
         fh->targetPrecalc.resize(frameHessians.size());
         for(unsigned int i=0; i<frameHessians.size(); i++) {
-            fh->targetPrecalc[i].set(fh, frameHessians[i], &Hcalib);
+            fh->targetPrecalc[i].set(fh, frameHessians[i], K);
         }
     }
 

@@ -194,8 +194,11 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
     }
 }
 
-void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target,
-                            CalibHessian* HCalib) {
+void FrameFramePrecalc::set(
+    FrameHessian* host,
+    FrameHessian* target,
+    const Mat33f &K) {
+
     this->host = host;
     this->target = target;
 
@@ -209,12 +212,6 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target,
     PRE_tTll = (leftToLeft.translation()).cast<float>();
     distanceLL = leftToLeft.translation().norm();
 
-    Mat33f K = Mat33f::Zero();
-    K(0,0) = HCalib->fxl();
-    K(1,1) = HCalib->fyl();
-    K(0,2) = HCalib->cxl();
-    K(1,2) = HCalib->cyl();
-    K(2,2) = 1;
     PRE_KRKiTll = K * PRE_RTll * K.inverse();
     PRE_RKiTll = PRE_RTll * K.inverse();
     PRE_KtTll = K * PRE_tTll;

@@ -102,7 +102,9 @@ struct FrameFramePrecalc
     inline FrameFramePrecalc() {
         host=target=0;
     }
-    void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
+    void set(FrameHessian* host,
+             FrameHessian* target,
+             const Mat33f &K);
 };
 
 
@@ -345,30 +347,29 @@ struct CalibHessian
             Binv[i] = B[i] = i;		// set gamma function to identity
     };
 
-
     // normal mode: use the optimized parameters everywhere!
-    inline float& fxl() {
+    inline float const fxl() {
         return value_scaledf[0];
     }
-    inline float& fyl() {
+    inline float const fyl() {
         return value_scaledf[1];
     }
-    inline float& cxl() {
+    inline float const cxl() {
         return value_scaledf[2];
     }
-    inline float& cyl() {
+    inline float const cyl() {
         return value_scaledf[3];
     }
-    inline float& fxli() {
+    inline float const fxli() {
         return value_scaledi[0];
     }
-    inline float& fyli() {
+    inline float const fyli() {
         return value_scaledi[1];
     }
-    inline float& cxli() {
+    inline float const cxli() {
         return value_scaledi[2];
     }
-    inline float& cyli() {
+    inline float const cyli() {
         return value_scaledi[3];
     }
 
