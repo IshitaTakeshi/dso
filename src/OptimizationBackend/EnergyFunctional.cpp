@@ -52,9 +52,8 @@ void EnergyFunctional::setAdjointsF() {
     adHost = new Mat88[nFrames*nFrames];
     adTarget = new Mat88[nFrames*nFrames];
 
-    for(int h=0; h<nFrames; h++)
-        for(int t=0; t<nFrames; t++)
-        {
+    for(int h=0; h<nFrames; h++) {
+        for(int t=0; t<nFrames; t++) {
             FrameHessian* host = frames[h]->data;
             FrameHessian* target = frames[t]->data;
 
@@ -87,34 +86,31 @@ void EnergyFunctional::setAdjointsF() {
             adHost[h+t*nFrames] = AH;
             adTarget[h+t*nFrames] = AT;
         }
-    cPrior = VecC::Constant(setting_initialCalibHessian);
+    }
 
+    cPrior = VecC::Constant(setting_initialCalibHessian);
 
     if(adHostF != 0) delete[] adHostF;
     if(adTargetF != 0) delete[] adTargetF;
     adHostF = new Mat88f[nFrames*nFrames];
     adTargetF = new Mat88f[nFrames*nFrames];
 
-    for(int h=0; h<nFrames; h++)
-        for(int t=0; t<nFrames; t++)
-        {
+    for(int h=0; h<nFrames; h++) {
+        for(int t=0; t<nFrames; t++) {
             adHostF[h+t*nFrames] = adHost[h+t*nFrames].cast<float>();
             adTargetF[h+t*nFrames] = adTarget[h+t*nFrames].cast<float>();
         }
+    }
 
     cPriorF = cPrior.cast<float>();
-
 
     EFAdjointsValid = true;
 }
 
 
-
-EnergyFunctional::EnergyFunctional()
-{
+EnergyFunctional::EnergyFunctional() {
     adHost=0;
     adTarget=0;
-
 
     red=0;
 
@@ -134,6 +130,7 @@ EnergyFunctional::EnergyFunctional()
     resInA = resInL = resInM = 0;
     currentLambda=0;
 }
+
 
 EnergyFunctional::~EnergyFunctional() {
     for(EFFrame* f : frames) {
@@ -170,11 +167,13 @@ void EnergyFunctional::setDeltaF(VecCf cDeltaF_) {
     adHTdeltaF = new Mat18f[nFrames*nFrames];
     for(int h=0; h<nFrames; h++) {
         for(int t=0; t<nFrames; t++) {
-            int idx = h+t*nFrames;
+            int idx = h + t*nFrames;
             adHTdeltaF[idx] =
-                  frames[h]->data->get_state_minus_stateZero().head<8>().cast<float>().transpose()
+                  frames[h]->data->get_state_minus_stateZero().head<8>()
+                                                              .cast<float>().transpose()
                 * adHostF[idx]
-                + frames[t]->data->get_state_minus_stateZero().head<8>().cast<float>().transpose()
+                + frames[t]->data->get_state_minus_stateZero().head<8>()
+                                                              .cast<float>().transpose()
                 * adTargetF[idx];
         }
     }
@@ -183,8 +182,9 @@ void EnergyFunctional::setDeltaF(VecCf cDeltaF_) {
         f->delta = f->data->get_state_minus_stateZero().head<8>();
         f->delta_prior = (f->data->get_state() - f->data->getPriorZero()).head<8>();
 
-        for(EFPoint* p : f->points)
+        for(EFPoint* p : f->points) {
             p->deltaF = p->data->idepth - p->data->idepth_zero;
+        }
     }
 
     EFDeltaValid = true;
@@ -400,10 +400,10 @@ double EnergyFunctional::calcLEnergyF_MT() {
 
     E += cDeltaF.cwiseProduct(cPriorF).dot(cDeltaF);
 
-    red->reduce(boost::bind(&EnergyFunctional::calcLEnergyPt,
-                            this, _1, _2, _3, _4), 0, allPoints.size(), 50);
+    red->reduce(boost::bind(&EnergyFunctional::calcLEnergyPt, this, _1, _2, _3, _4),
+                0, allPoints.size(), 50);
 
-    return E+red->stats[0];
+    return E + red->stats[0];
 }
 
 

@@ -340,13 +340,8 @@ void FullSystem::printOptRes(const Vec3 &res, double resL, double resM,
                              double resPrior, double LExact, float a, float b)
 {
     printf("A(%f)=(AV %.3f). Num: A(%'d) + M(%'d); ab %f %f!\n",
-           res[0],
-           sqrtf((float)(res[0] / (patternNum*ef->resInA))),
-           ef->resInA,
-           ef->resInM,
-           a,
-           b
-          );
+           res[0], sqrtf((float)(res[0] / (patternNum*ef->resInA))),
+           ef->resInA, ef->resInM, a, b);
 
 }
 
@@ -532,11 +527,9 @@ std::vector<VecX> FullSystem::getNullspaces(
     nullspaces_affA.clear();
     nullspaces_affB.clear();
 
-
     int n=CPARS+frameHessians.size()*8;
     std::vector<VecX> nullspaces_x0_pre;
-    for(int i=0; i<6; i++)
-    {
+    for(int i=0; i<6; i++) {
         VecX nullspace_x0(n);
         nullspace_x0.setZero();
         for(FrameHessian* fh : frameHessians)
