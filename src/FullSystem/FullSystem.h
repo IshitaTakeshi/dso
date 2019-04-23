@@ -194,8 +194,8 @@ private:
 
     // solce. eventually migrate to ef.
     void solveSystem(int iteration, double lambda);
-    Vec3 linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
-                      bool fixLinearization);
+    double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
+                        bool fixLinearization);
     bool doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
                           float stepfacA,float stepfacD);
     void backupState(bool backupLastStep);

@@ -124,11 +124,9 @@ void FullSystem::setNewFrameEnergyTH(
         setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
 }
 
-Vec3 FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
-                              bool fixLinearization) {
+double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
+                                bool fixLinearization) {
     double lastEnergyP = 0;
-    double lastEnergyR = 0;
-    double num = 0;
 
     std::vector<PointFrameResidual*> toRemove[NUM_THREADS];
     for(int i=0; i<NUM_THREADS; i++) {
@@ -181,7 +179,7 @@ Vec3 FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResid
         }
     }
 
-    return Vec3(lastEnergyP, lastEnergyR, num);
+    return lastEnergyP;
 }
 
 
@@ -377,7 +375,7 @@ float FullSystem::optimize(int mnumOptIts) {
     std::vector<PointFrameResidual*> activeResiduals;
     createActiveResiduals(activeResiduals, frameHessians);
 
-    Vec3 lastEnergy = linearizeAll(activeResiduals, false);
+    double lastEnergy = linearizeAll(activeResiduals, false);
 
     double lastEnergyL = ef->calcLEnergyF_MT();
     double lastEnergyM = ef->calcMEnergyF();
@@ -415,13 +413,13 @@ float FullSystem::optimize(int mnumOptIts) {
         bool canbreak = doStepFromBackup(stepsize,stepsize,stepsize,stepsize,stepsize);
 
         // eval new energy!
-        Vec3 newEnergy = linearizeAll(activeResiduals, false);
+        double newEnergy = linearizeAll(activeResiduals, false);
         double newEnergyL = ef->calcLEnergyF_MT();
         double newEnergyM = ef->calcMEnergyF();
 
         if(setting_forceAceptStep
-                || (newEnergy[0] +  newEnergy[1] +  newEnergyL + newEnergyM <
-                    lastEnergy[0] + lastEnergy[1] + lastEnergyL + lastEnergyM)) {
+                || (newEnergy + newEnergyL + newEnergyM <
+                    lastEnergy + lastEnergyL + lastEnergyM)) {
             if(multiThreading)
                 treadReduce.reduce(
                     boost::bind(applyRes_Reductor, activeResiduals, _1, _2, _3, _4),
@@ -460,23 +458,20 @@ float FullSystem::optimize(int mnumOptIts) {
 
     lastEnergy = linearizeAll(activeResiduals, true);
 
-    if(!std::isfinite((double)lastEnergy[0]) ||
-       !std::isfinite((double)lastEnergy[1]) ||
-       !std::isfinite((double)lastEnergy[2])) {
+    if(!std::isfinite(lastEnergy)) {
         printf("KF Tracking failed: LOST!\n");
-        isLost=true;
+        isLost = true;
     }
 
     {
         boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
-        for(FrameHessian* fh : frameHessians)
-        {
+        for(FrameHessian* fh : frameHessians) {
             fh->shell->camToWorld = fh->PRE_camToWorld;
             fh->shell->aff_g2l = fh->aff_g2l();
         }
     }
 
-    return sqrtf((float)(lastEnergy[0] / (patternNum * ef->resInA)));
+    return sqrtf((float)(lastEnergy / (patternNum * ef->resInA)));
 }
 
 

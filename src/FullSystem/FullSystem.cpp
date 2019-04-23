@@ -98,9 +98,9 @@ FullSystem::FullSystem() {
     needNewKFAfter = -1;
 
     linearizeOperation=true;
-    runMapping=true;
+    runMapping = true;
     mappingThread = boost::thread(&FullSystem::mappingLoop, this);
-    lastRefStopID=0;
+    lastRefStopID = 0;
 
     minIdJetVisDebug = -1;
     maxIdJetVisDebug = -1;
@@ -914,11 +914,9 @@ void FullSystem::blockUntilMappingIsFinished()
     lock.unlock();
 
     mappingThread.join();
-
 }
 
-void FullSystem::makeNonKeyFrame( FrameHessian* fh)
-{
+void FullSystem::makeNonKeyFrame( FrameHessian* fh) {
     // needs to be set by mapping thread. no lock required since we are in mapping thread.
     boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
     assert(fh->shell->trackingRef != 0);
