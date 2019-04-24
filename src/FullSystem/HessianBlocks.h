@@ -334,7 +334,6 @@ struct CalibHessian {
 
         setValueScaled(initial_value);
         value_zero = value;
-        value_minus_value_zero.setZero();
 
         for(int i=0; i<256; i++)
             Binv[i] = B[i] = i;		// set gamma function to identity
@@ -385,7 +384,6 @@ struct CalibHessian {
         this->value_scaledi[1] = 1.0f / value_scaledf[1];
         this->value_scaledi[2] = -value_scaledf[2] / value_scaledf[0];
         this->value_scaledi[3] = -value_scaledf[3] / value_scaledf[1];
-        this->value_minus_value_zero = this->value - this->value_zero;
     };
 
     inline void setValueScaled(const VecC &value_scaled) {
@@ -398,7 +396,6 @@ struct CalibHessian {
         value[2] = SCALE_C_INVERSE * value_scaled[2];
         value[3] = SCALE_C_INVERSE * value_scaled[3];
 
-        this->value_minus_value_zero = this->value - this->value_zero;
         this->value_scaledi[0] = 1.0f / value_scaledf[0];
         this->value_scaledi[1] = 1.0f / value_scaledf[1];
         this->value_scaledi[2] = -value_scaledf[2] / value_scaledf[0];
