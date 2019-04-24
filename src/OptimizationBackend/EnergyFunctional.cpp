@@ -405,8 +405,7 @@ double EnergyFunctional::calcLEnergyF_MT() {
 }
 
 
-EFResidual* EnergyFunctional::insertResidual(PointFrameResidual* r)
-{
+EFResidual* EnergyFunctional::insertResidual(PointFrameResidual* r) {
     EFResidual* efr = new EFResidual(r, r->point->efPoint, r->host->efFrame,
                                      r->target->efFrame);
     efr->idxInAll = r->point->efPoint->residualsAll.size();
@@ -419,6 +418,7 @@ EFResidual* EnergyFunctional::insertResidual(PointFrameResidual* r)
     r->efResidual = efr;
     return efr;
 }
+
 EFFrame* EnergyFunctional::insertFrame(FrameHessian* fh) {
     EFFrame* eff = new EFFrame(fh);
     eff->idx = frames.size();

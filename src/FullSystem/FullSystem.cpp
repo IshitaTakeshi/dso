@@ -770,15 +770,16 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
         );
 
         // BRIGHTNESS CHECK
-        needToMakeKF = allFrameHistory.size()== 1 ||
-                       setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
-                       (wG[0]+hG[0]) +
-                       setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
-                       (wG[0]+hG[0]) +
-                       setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
-                       (wG[0]+hG[0]) +
-                       setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((float)refToFh[0])) > 1 ||
-                       2*coarseTracker->firstCoarseRMSE < tres[0];
+        needToMakeKF =
+           allFrameHistory.size()== 1 ||
+           setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
+           (wG[0]+hG[0]) +
+           setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
+           (wG[0]+hG[0]) +
+           setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
+           (wG[0]+hG[0]) +
+           setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((float)refToFh[0])) > 1 ||
+           2 * coarseTracker->firstCoarseRMSE < tres[0];
 
         for(IOWrap::Output3DWrapper* ow : outputWrapper) {
             ow->publishCamPose(fh->shell, &Hcalib);

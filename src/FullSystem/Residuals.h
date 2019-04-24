@@ -64,20 +64,16 @@ public:
     double state_NewEnergy;
     double state_NewEnergyWithOutlier;
 
-
     void setState(ResState s) {
         state_state = s;
     }
-
 
     PointHessian* point;
     FrameHessian* host;
     FrameHessian* target;
     RawResidualJacobian* J;
 
-
     bool isNew;
-
 
     Eigen::Vector2f projectedTo[MAX_RES_PER_POINT];
     Vec3f centerProjectedTo;

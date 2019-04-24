@@ -312,8 +312,7 @@ struct FrameHessian
 
 };
 
-struct CalibHessian
-{
+struct CalibHessian {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     VecC value_zero;

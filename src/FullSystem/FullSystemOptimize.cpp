@@ -394,7 +394,7 @@ float FullSystem::optimize(int mnumOptIts) {
         applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
 
     double lambda = 1e-1;
-    float stepsize=1;
+    float stepsize = 1;
     VecX previousX = VecX::Constant(CPARS + 8*frameHessians.size(), NAN);
     for(int iteration=0; iteration<mnumOptIts; iteration++) {
         // solve!

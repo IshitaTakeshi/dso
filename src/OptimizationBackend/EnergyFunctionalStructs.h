@@ -48,8 +48,7 @@ class EnergyFunctional;
 
 
 
-class EFResidual
-{
+class EFResidual {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 

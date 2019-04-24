@@ -75,14 +75,10 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_,
 }
 
 
+double PointFrameResidual::linearize(CalibHessian* HCalib) {
+    state_NewEnergyWithOutlier = -1;
 
-
-double PointFrameResidual::linearize(CalibHessian* HCalib)
-{
-    state_NewEnergyWithOutlier=-1;
-
-    if(state_state == ResState::OOB)
-    {
+    if(state_state == ResState::OOB) {
         state_NewState = ResState::OOB;
         return state_energy;
     }
@@ -110,7 +106,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
         float Ku, Kv;
         Vec3f KliP;
 
-        if(!projectPoint(point->u, point->v, point->idepth_zero_scaled, 0, 0,HCalib,
+        if(!projectPoint(point->u, point->v, point->idepth_zero_scaled, 0, 0, HCalib,
                          PRE_RTll_0,PRE_tTll_0, drescale, u, v, Ku, Kv, KliP, new_idepth))
         {
             state_NewState = ResState::OOB;
