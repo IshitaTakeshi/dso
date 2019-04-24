@@ -256,7 +256,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
     sumNID /= numID;
 
     EFDeltaValid=false;
-    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
+    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
     setPrecalcValues(frameHessians, Hcalib);
 
     return sqrtf(sumA) < 0.0005*setting_thOptIterations &&
@@ -335,7 +335,7 @@ void FullSystem::loadSateBackup()
 
     EFDeltaValid=false;
 
-    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
+    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
     setPrecalcValues(frameHessians, Hcalib);
 }
 
@@ -458,7 +458,7 @@ float FullSystem::optimize(int mnumOptIts) {
     EFDeltaValid=false;
     EFAdjointsValid=false;
     ef->setAdjointsF();
-    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
+    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
     setPrecalcValues(frameHessians, Hcalib);
 
     lastEnergy = linearizeAll(activeResiduals, true);

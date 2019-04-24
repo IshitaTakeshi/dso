@@ -173,7 +173,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
     for(unsigned int i=0; i<frameHessians.size(); i++)
         frameHessians[i]->idx = i;
 
-    ef->setDeltaF(Hcalib.value_minus_value_zero.cast<float>());
+    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
     setPrecalcValues(frameHessians, Hcalib);
 
     ef->setAdjointsF();

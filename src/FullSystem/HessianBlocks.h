@@ -322,7 +322,6 @@ struct CalibHessian {
     VecC step;
     VecC step_backup;
     VecC value_backup;
-    VecC value_minus_value_zero;
 
     inline ~CalibHessian() {
     }
@@ -340,6 +339,10 @@ struct CalibHessian {
         for(int i=0; i<256; i++)
             Binv[i] = B[i] = i;		// set gamma function to identity
     };
+
+    inline VecC valueMinusValueZero() {
+        return this->value - this->value_zero;
+    }
 
     // normal mode: use the optimized parameters everywhere!
     inline float const fxl() {
