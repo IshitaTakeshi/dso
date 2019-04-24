@@ -54,7 +54,11 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
         (*stats)[0] += r->linearize(&Hcalib);
 
         if(fixLinearization) {
-            r->applyRes(true);
+            // TODO search if applyRes affects the result of r->efResidual->isActive()
+            // if not, we can call it at the outside of if(fixLinearization)
+            // block and separate 'toRemove'
+
+            r->applyRes();
 
             if(r->efResidual->isActive()) {
                 if(r->isNew) {
@@ -84,7 +88,7 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
 void applyRes_Reductor(std::vector<PointFrameResidual*> activeResiduals,
                        int min, int max, Vec10* stats, int tid) {
     for(int k=min; k<max; k++) {
-        activeResiduals[k]->applyRes(true);
+        activeResiduals[k]->applyRes();
     }
 }
 
@@ -358,6 +362,7 @@ void createActiveResiduals(std::vector<PointFrameResidual*> &activeResiduals,
         }
     }
 }
+
 
 float FullSystem::optimize(int mnumOptIts) {
     if(frameHessians.size() < 2) {

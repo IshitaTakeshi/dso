@@ -57,7 +57,6 @@ EIGEN_STRONG_INLINE bool projectPoint(
 }
 
 
-
 EIGEN_STRONG_INLINE bool projectPoint(
     const float &u_pt,const float &v_pt,
     const float &idepth,

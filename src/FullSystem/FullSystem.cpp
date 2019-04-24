@@ -671,7 +671,7 @@ void FullSystem::flagPointsForRemoval() {
                         r->resetOOB();
                         r->linearize(&Hcalib);
                         r->efResidual->isLinearized = false;
-                        r->applyRes(true);
+                        r->applyRes();
                         if(r->efResidual->isActive()) {
                             r->efResidual->fixLinearizationF(ef);
                             ngoodRes++;
@@ -1172,6 +1172,7 @@ Mat33f initializeCameraMatrix(const float fx, const float fy,
     K(2,2) = 1;
     return K;
 }
+
 
 Mat33f createCameraMatrixFromCalibHessian(CalibHessian &Hcalib) {
     return initializeCameraMatrix(Hcalib.fxl(), Hcalib.fyl(),

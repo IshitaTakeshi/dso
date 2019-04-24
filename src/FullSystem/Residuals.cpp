@@ -325,25 +325,16 @@ void PointFrameResidual::debugPlot()
 }
 
 
-
-void PointFrameResidual::applyRes(bool copyJacobians)
-{
-    if(copyJacobians)
-    {
-        if(state_state == ResState::OOB)
-        {
-            assert(!efResidual->isActiveAndIsGoodNEW);
-            return;	// can never go back from OOB
-        }
-        if(state_NewState == ResState::IN)// && )
-        {
-            efResidual->isActiveAndIsGoodNEW=true;
-            efResidual->takeDataF();
-        }
-        else
-        {
-            efResidual->isActiveAndIsGoodNEW=false;
-        }
+void PointFrameResidual::applyRes() {
+    if(state_state == ResState::OOB) {
+        assert(!efResidual->isActiveAndIsGoodNEW);
+        return;	// can never go back from OOB
+    }
+    if(state_NewState == ResState::IN) {
+        efResidual->isActiveAndIsGoodNEW = true;
+        efResidual->takeDataF();
+    } else {
+        efResidual->isActiveAndIsGoodNEW = false;
     }
 
     setState(state_NewState);
