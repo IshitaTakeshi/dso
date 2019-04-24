@@ -317,7 +317,6 @@ struct CalibHessian {
 
     VecC value_zero;
     VecC value_scaled;
-    VecCf value_scaledi;
     VecC value;
     VecC step;
     VecC step_backup;
@@ -344,6 +343,7 @@ struct CalibHessian {
     }
 
     // normal mode: use the optimized parameters everywhere!
+    // TODO cast after accessing the array element
     inline float const fxl() {
         return this->value_scaled.cast<float>()[0];
     }
@@ -357,49 +357,35 @@ struct CalibHessian {
         return this->value_scaled.cast<float>()[3];
     }
     inline float const fxli() {
-        return this->value_scaledi[0];
+        return 1.0f / fxl();
     }
     inline float const fyli() {
-        return this->value_scaledi[1];
+        return 1.0f / fyl();
     }
     inline float const cxli() {
-        return this->value_scaledi[2];
+        return -cxl() / fxl();
     }
     inline float const cyli() {
-        return this->value_scaledi[3];
+        return -cyl() / fyl();
     }
 
     inline void setValue(const VecC &value) {
         // [0-3: Kl, 4-7: Kr, 8-12: l2r]
         this->value = value;
 
-        VecCf value_scaledf;
         this->value_scaled[0] = SCALE_F * value[0];
         this->value_scaled[1] = SCALE_F * value[1];
         this->value_scaled[2] = SCALE_C * value[2];
         this->value_scaled[3] = SCALE_C * value[3];
-
-        value_scaledf = this->value_scaled.cast<float>();
-        this->value_scaledi[0] = 1.0f / value_scaledf[0];
-        this->value_scaledi[1] = 1.0f / value_scaledf[1];
-        this->value_scaledi[2] = -value_scaledf[2] / value_scaledf[0];
-        this->value_scaledi[3] = -value_scaledf[3] / value_scaledf[1];
     };
 
     inline void setValueScaled(const VecC &value_scaled) {
         this->value_scaled = value_scaled;
 
-        VecCf value_scaledf = this->value_scaled.cast<float>();
-
         value[0] = SCALE_F_INVERSE * value_scaled[0];
         value[1] = SCALE_F_INVERSE * value_scaled[1];
         value[2] = SCALE_C_INVERSE * value_scaled[2];
         value[3] = SCALE_C_INVERSE * value_scaled[3];
-
-        this->value_scaledi[0] = 1.0f / value_scaledf[0];
-        this->value_scaledi[1] = 1.0f / value_scaledf[1];
-        this->value_scaledi[2] = -value_scaledf[2] / value_scaledf[0];
-        this->value_scaledi[3] = -value_scaledf[3] / value_scaledf[1];
     };
 
 
