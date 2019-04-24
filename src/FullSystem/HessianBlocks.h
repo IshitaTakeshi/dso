@@ -327,9 +327,7 @@ struct CalibHessian {
 
     inline ~CalibHessian() {
     }
-    inline CalibHessian()
-    {
-
+    inline CalibHessian() {
         VecC initial_value = VecC::Zero();
         initial_value[0] = fxG[0];
         initial_value[1] = fyG[0];
@@ -389,8 +387,7 @@ struct CalibHessian {
         this->value_minus_value_zero = this->value - this->value_zero;
     };
 
-    inline void setValueScaled(const VecC &value_scaled)
-    {
+    inline void setValueScaled(const VecC &value_scaled) {
         this->value_scaled = value_scaled;
         this->value_scaledf = this->value_scaled.cast<float>();
         value[0] = SCALE_F_INVERSE * value_scaled[0];

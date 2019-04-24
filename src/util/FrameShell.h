@@ -47,26 +47,14 @@ public:
     AffLight aff_g2l;
     bool poseValid;
 
-    // statisitcs
-    int statistics_outlierResOnThis;
-    int statistics_goodResOnThis;
-    int marginalizedAt;
-    double movedByOpt;
-
-
     inline FrameShell()
     {
         id=0;
         poseValid=true;
         camToWorld = SE3();
-        marginalizedAt=-1;
-        movedByOpt=0;
-        statistics_outlierResOnThis=statistics_goodResOnThis=0;
         trackingRef=0;
         camToTrackingRef = SE3();
     }
 };
 
-
 }
-

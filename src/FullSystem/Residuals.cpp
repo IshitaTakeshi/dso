@@ -175,11 +175,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
 
     }
 
-
-
-
-
-
     float JIdxJIdx_00=0, JIdxJIdx_11=0, JIdxJIdx_10=0;
     float JabJIdx_00=0, JabJIdx_01=0, JabJIdx_10=0, JabJIdx_11=0;
     float JabJab_00=0, JabJab_01=0, JabJab_11=0;

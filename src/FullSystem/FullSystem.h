@@ -162,10 +162,7 @@ public:
     bool initialized;
     bool linearizeOperation;
 
-
     void setGammaFunction(float* BInv);
-    void setOriginalCalib(const VecXf &originalCalib, int originalW,
-                          int originalH);
 
 private:
 

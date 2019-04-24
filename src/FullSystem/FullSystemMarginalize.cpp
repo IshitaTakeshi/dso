@@ -168,8 +168,6 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
             ow->publishKeyframes(v, true, &Hcalib);
     }
 
-    frame->shell->marginalizedAt = frameHessians.back()->shell->id;
-    frame->shell->movedByOpt = frame->w2c_leftEps().norm();
 
     deleteOutOrder<FrameHessian>(frameHessians, frame);
     for(unsigned int i=0; i<frameHessians.size(); i++)

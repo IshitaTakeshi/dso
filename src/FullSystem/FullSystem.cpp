@@ -127,30 +127,19 @@ FullSystem::~FullSystem()
     delete ef;
 }
 
-void FullSystem::setOriginalCalib(const VecXf &originalCalib, int originalW,
-                                  int originalH)
-{
-
-}
-
-void FullSystem::setGammaFunction(float* BInv)
-{
+void FullSystem::setGammaFunction(float* BInv) {
     if(BInv==0) return;
 
     // copy BInv.
     memcpy(Hcalib.Binv, BInv, sizeof(float)*256);
 
-
     // invert.
-    for(int i=1; i<255; i++)
-    {
+    for(int i=1; i<255; i++) {
         // find val, such that Binv[val] = i.
         // I dont care about speed for this, so do it the stupid way.
 
-        for(int s=1; s<255; s++)
-        {
-            if(BInv[s] <= i && BInv[s+1] >= i)
-            {
+        for(int s=1; s<255; s++) {
+            if(BInv[s] <= i && BInv[s+1] >= i) {
                 Hcalib.B[i] = s+(i - BInv[s]) / (BInv[s+1]-BInv[s]);
                 break;
             }
@@ -718,7 +707,6 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     FrameShell* shell = new FrameShell();
 
     // no lock required, as fh is not used anywhere yet.
-    shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->incoming_id = id;
 
     fh->shell = shell;
