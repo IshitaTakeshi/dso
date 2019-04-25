@@ -193,10 +193,10 @@ private:
     VecC solveSystem(int iteration, double lambda);
     double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
                         bool fixLinearization);
-    bool doStepFromBackup(VecC step,
-                          float stepfacC, float stepfacT,
-                          float stepfacR, float stepfacA, float stepfacD);
-    void backupState(VecC step, bool backupLastStep);
+    bool doStepFromBackup(VecC step, VecC value_backup,
+                          float stepfacC, float stepfacT, float stepfacR,
+                          float stepfacA, float stepfacD);
+    void backupState(bool backupLastStep);
     void loadSateBackup();
     void linearizeAll_Reductor(bool fixLinearization,
                                std::vector<PointFrameResidual*>* toRemove,

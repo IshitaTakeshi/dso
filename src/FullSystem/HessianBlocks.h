@@ -329,7 +329,6 @@ struct CalibHessian {
     VecC value_scaled;
     VecC value;
     VecC step;
-    VecC value_backup;
 
     inline ~CalibHessian() {
     }

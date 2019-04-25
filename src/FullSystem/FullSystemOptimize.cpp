@@ -190,7 +190,8 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 
 
 // applies step to linearization point.
-bool FullSystem::doStepFromBackup(VecC step, float stepfacC, float stepfacT, float stepfacR,
+bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
+                                  float stepfacC, float stepfacT, float stepfacR,
                                   float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
 //	meanStepC += step.norm();
@@ -205,7 +206,7 @@ bool FullSystem::doStepFromBackup(VecC step, float stepfacC, float stepfacT, flo
     float sumNID=0;
 
     if(setting_solverMode & SOLVER_MOMENTUM) {
-        HCalib.setValue(HCalib.value_backup + step);
+        HCalib.setValue(value_backup + step);
         for(FrameHessian* fh : frameHessians) {
             Vec10 step = fh->step;
             step.head<6>() += 0.5f*(fh->step_backup.head<6>());
@@ -227,7 +228,7 @@ bool FullSystem::doStepFromBackup(VecC step, float stepfacC, float stepfacT, flo
             }
         }
     } else {
-        HCalib.setValue(HCalib.value_backup + stepfacC*step);
+        HCalib.setValue(value_backup + stepfacC*step);
         for(FrameHessian* fh : frameHessians)
         {
             fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
@@ -271,13 +272,11 @@ bool FullSystem::doStepFromBackup(VecC step, float stepfacC, float stepfacT, flo
 
 
 // sets linearization point.
-void FullSystem::backupState(VecC step, bool backupLastStep)
-{
+void FullSystem::backupState(bool backupLastStep) {
     if(setting_solverMode & SOLVER_MOMENTUM)
     {
         if(backupLastStep)
         {
-            HCalib.value_backup = HCalib.value;
             for(FrameHessian* fh : frameHessians)
             {
                 fh->step_backup = fh->step;
@@ -291,7 +290,6 @@ void FullSystem::backupState(VecC step, bool backupLastStep)
         }
         else
         {
-            HCalib.value_backup = HCalib.value;
             for(FrameHessian* fh : frameHessians)
             {
                 fh->step_backup.setZero();
@@ -304,7 +302,6 @@ void FullSystem::backupState(VecC step, bool backupLastStep)
             }
         }
     } else {
-        HCalib.value_backup = HCalib.value;
         for(FrameHessian* fh : frameHessians)
         {
             fh->state_backup = fh->get_state();
@@ -315,21 +312,15 @@ void FullSystem::backupState(VecC step, bool backupLastStep)
 }
 
 // sets linearization point.
-void FullSystem::loadSateBackup()
-{
-    HCalib.setValue(HCalib.value_backup);
-    for(FrameHessian* fh : frameHessians)
-    {
+void FullSystem::loadSateBackup() {
+    for(FrameHessian* fh : frameHessians) {
         fh->setState(fh->state_backup);
-        for(PointHessian* ph : fh->pointHessians)
-        {
+        for(PointHessian* ph : fh->pointHessians) {
             ph->setIdepth(ph->idepth_backup);
-
             ph->setIdepthZero(ph->idepth_backup);
         }
 
     }
-
 
     EFDeltaValid=false;
 
@@ -398,7 +389,10 @@ float FullSystem::optimize(int mnumOptIts) {
 
     for(int iteration=0; iteration<mnumOptIts; iteration++) {
         // solve!
-        backupState(step, iteration!=0);
+
+        VecC value_backup = HCalib.value;
+
+        backupState(iteration!=0);
         //solveSystemNew(0);
 
         step = solveSystem(iteration, lambda);
@@ -417,7 +411,8 @@ float FullSystem::optimize(int mnumOptIts) {
             stepsize = clamp(stepsize, 0.25, 2.0);
         }
 
-        bool canbreak = doStepFromBackup(step, stepsize,stepsize,stepsize,stepsize,stepsize);
+        bool canbreak = doStepFromBackup(step, value_backup,
+                                         stepsize, stepsize, stepsize, stepsize, stepsize);
 
         // eval new energy!
         double newEnergy = linearizeAll(activeResiduals, false);
@@ -440,7 +435,10 @@ float FullSystem::optimize(int mnumOptIts) {
 
             lambda *= 0.25;
         } else {
+            HCalib.setValue(value_backup);
+
             loadSateBackup();
+
             lastEnergy = linearizeAll(activeResiduals, false);
             lastEnergyL = ef->calcLEnergyF_MT();
             lastEnergyM = ef->calcMEnergyF();
