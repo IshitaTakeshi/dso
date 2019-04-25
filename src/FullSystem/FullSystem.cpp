@@ -707,6 +707,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     FrameShell* shell = new FrameShell();
 
     // no lock required, as fh is not used anywhere yet.
+    shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->incoming_id = id;
 
     fh->shell = shell;
