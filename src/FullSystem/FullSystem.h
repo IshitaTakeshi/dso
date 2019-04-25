@@ -230,21 +230,6 @@ private:
 
     std::ofstream* coarseTrackingLog;
 
-    // statistics
-    long int statistics_lastNumOptIts;
-    long int statistics_numDroppedPoints;
-    long int statistics_numActivatedPoints;
-    long int statistics_numCreatedPoints;
-    long int statistics_numMargResFwd;
-    long int statistics_numMargResBwd;
-    float statistics_lastFineTrackRMSE;
-
-
-
-
-
-
-
     // =================== changed by tracker-thread. protected by trackMutex ============
     boost::mutex trackMutex;
     std::vector<FrameShell*> allFrameHistory;

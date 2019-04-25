@@ -389,7 +389,6 @@ struct CalibHessian {
     float Binv[256];
     float B[256];
 
-
     EIGEN_STRONG_INLINE float getBGradOnly(float color)
     {
         int c = color+0.5f;

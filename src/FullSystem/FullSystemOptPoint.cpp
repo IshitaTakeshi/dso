@@ -212,7 +212,6 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 
     if(print) printf("point activated!\n");
 
-    statistics_numActivatedPoints++;
     return p;
 }
 
