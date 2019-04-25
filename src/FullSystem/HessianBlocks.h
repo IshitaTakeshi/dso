@@ -474,7 +474,7 @@ struct PointHessian
 
 
     void release();
-    PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hcalib);
+    PointHessian(const ImmaturePoint* const rawPoint);
     inline ~PointHessian() {
         assert(efPoint==0);
         release();

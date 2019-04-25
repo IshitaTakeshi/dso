@@ -1079,7 +1079,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
 
 
         pt->idepth_max=pt->idepth_min=1;
-        PointHessian* ph = new PointHessian(pt, &Hcalib);
+        PointHessian* ph = new PointHessian(pt);
         delete pt;
         if(!std::isfinite(ph->energyTH)) {
             delete ph;

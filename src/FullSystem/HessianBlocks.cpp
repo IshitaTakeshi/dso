@@ -31,8 +31,7 @@
 namespace dso {
 
 
-PointHessian::PointHessian(const ImmaturePoint* const rawPoint,
-                           CalibHessian* Hcalib) {
+PointHessian::PointHessian(const ImmaturePoint* const rawPoint) {
     host = rawPoint->host;
     hasDepthPrior=false;
 

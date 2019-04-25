@@ -173,7 +173,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 
 
 
-    PointHessian* p = new PointHessian(point, &Hcalib);
+    PointHessian* p = new PointHessian(point);
     if(!std::isfinite(p->energyTH)) {
         delete p;
         return (PointHessian*)((long)(-1));
