@@ -128,7 +128,6 @@ EnergyFunctional::EnergyFunctional() {
     accSSE_bot = new AccumulatedSCHessianSSE();
 
     resInA = resInL = resInM = 0;
-    currentLambda=0;
 }
 
 
@@ -262,12 +261,11 @@ void EnergyFunctional::accumulateSCF_MT(MatXX &H, VecX &b, bool MT) {
 }
 
 
-void EnergyFunctional::resubstituteF_MT(VecX x, CalibHessian* HCalib, bool MT)
-{
+VecC EnergyFunctional::resubstituteF_MT(VecX x, bool MT) {
     assert(x.size() == CPARS+nFrames*8);
 
     VecXf xF = x.cast<float>();
-    HCalib->step = - x.head<CPARS>();
+    VecC step = -x.head<CPARS>();
 
     Mat18f* xAd = new Mat18f[nFrames*nFrames];
     VecCf cstep = xF.head<CPARS>();
@@ -289,6 +287,7 @@ void EnergyFunctional::resubstituteF_MT(VecX x, CalibHessian* HCalib, bool MT)
         resubstituteFPt(cstep, xAd, 0, allPoints.size(), 0,0);
 
     delete[] xAd;
+    return step;
 }
 
 void EnergyFunctional::resubstituteFPt(
@@ -715,8 +714,7 @@ void EnergyFunctional::orthogonalize(VecX* b, MatXX* H) {
 }
 
 
-void EnergyFunctional::solveSystemF(int iteration, double lambda,
-                                    CalibHessian* HCalib)
+VecC EnergyFunctional::solveSystemF(int iteration, double lambda)
 {
     if(setting_solverMode & SOLVER_USE_GN) lambda=0;
     if(setting_solverMode & SOLVER_FIX_LAMBDA) lambda = 1e-5;
@@ -826,11 +824,9 @@ void EnergyFunctional::solveSystemF(int iteration, double lambda,
 
     lastX = x;
 
-    //resubstituteF(x, HCalib);
-    currentLambda= lambda;
-    resubstituteF_MT(x, HCalib,multiThreading);
-    currentLambda=0;
+    return resubstituteF_MT(x, multiThreading);
 }
+
 void EnergyFunctional::makeIDX()
 {
     for(unsigned int idx=0; idx<frames.size(); idx++)

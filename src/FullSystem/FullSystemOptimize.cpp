@@ -190,10 +190,10 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 
 
 // applies step to linearization point.
-bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR,
+bool FullSystem::doStepFromBackup(VecC step, float stepfacC, float stepfacT, float stepfacR,
                                   float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
-//	meanStepC += HCalib.step.norm();
+//	meanStepC += step.norm();
 
     Vec10 pstepfac;
     pstepfac.segment<3>(0).setConstant(stepfacT);
@@ -205,7 +205,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
     float sumNID=0;
 
     if(setting_solverMode & SOLVER_MOMENTUM) {
-        HCalib.setValue(HCalib.value_backup + HCalib.step);
+        HCalib.setValue(HCalib.value_backup + step);
         for(FrameHessian* fh : frameHessians) {
             Vec10 step = fh->step;
             step.head<6>() += 0.5f*(fh->step_backup.head<6>());
@@ -227,7 +227,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
             }
         }
     } else {
-        HCalib.setValue(HCalib.value_backup + stepfacC*HCalib.step);
+        HCalib.setValue(HCalib.value_backup + stepfacC*step);
         for(FrameHessian* fh : frameHessians)
         {
             fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
@@ -271,13 +271,12 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
 
 
 // sets linearization point.
-void FullSystem::backupState(bool backupLastStep)
+void FullSystem::backupState(VecC step, bool backupLastStep)
 {
     if(setting_solverMode & SOLVER_MOMENTUM)
     {
         if(backupLastStep)
         {
-            HCalib.step_backup = HCalib.step;
             HCalib.value_backup = HCalib.value;
             for(FrameHessian* fh : frameHessians)
             {
@@ -292,7 +291,6 @@ void FullSystem::backupState(bool backupLastStep)
         }
         else
         {
-            HCalib.step_backup.setZero();
             HCalib.value_backup = HCalib.value;
             for(FrameHessian* fh : frameHessians)
             {
@@ -396,11 +394,15 @@ float FullSystem::optimize(int mnumOptIts) {
     double lambda = 1e-1;
     float stepsize = 1;
     VecX previousX = VecX::Constant(CPARS + 8*frameHessians.size(), NAN);
+    VecC step;
+
     for(int iteration=0; iteration<mnumOptIts; iteration++) {
         // solve!
-        backupState(iteration!=0);
+        backupState(step, iteration!=0);
         //solveSystemNew(0);
-        solveSystem(iteration, lambda);
+
+        step = solveSystem(iteration, lambda);
+
         double incDirChange = (1e-20 + previousX.dot(ef->lastX)) /
                               (1e-20 + previousX.norm() * ef->lastX.norm());
         previousX = ef->lastX;
@@ -415,7 +417,7 @@ float FullSystem::optimize(int mnumOptIts) {
             stepsize = clamp(stepsize, 0.25, 2.0);
         }
 
-        bool canbreak = doStepFromBackup(stepsize,stepsize,stepsize,stepsize,stepsize);
+        bool canbreak = doStepFromBackup(step, stepsize,stepsize,stepsize,stepsize,stepsize);
 
         // eval new energy!
         double newEnergy = linearizeAll(activeResiduals, false);
@@ -480,14 +482,14 @@ float FullSystem::optimize(int mnumOptIts) {
 }
 
 
-void FullSystem::solveSystem(int iteration, double lambda) {
+VecC FullSystem::solveSystem(int iteration, double lambda) {
     ef->lastNullspaces_forLogging = getNullspaces(
                                         ef->lastNullspaces_pose,
                                         ef->lastNullspaces_scale,
                                         ef->lastNullspaces_affA,
                                         ef->lastNullspaces_affB);
 
-    ef->solveSystemF(iteration, lambda, &HCalib);
+    return ef->solveSystemF(iteration, lambda);
 }
 
 

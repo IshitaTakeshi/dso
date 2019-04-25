@@ -80,7 +80,7 @@ public:
 
     void marginalizePointsF();
     void dropPointsF();
-    void solveSystemF(int iteration, double lambda, CalibHessian* HCalib);
+    VecC solveSystemF(int iteration, double lambda);
     double calcMEnergyF();
     double calcLEnergyF_MT();
 
@@ -119,7 +119,7 @@ private:
 
     VecX getStitchedDeltaF() const;
 
-    void resubstituteF_MT(VecX x, CalibHessian* HCalib, bool MT);
+    VecC resubstituteF_MT(VecX x, bool MT);
     void resubstituteFPt(const VecCf &xc, Mat18f* xAd, int min, int max,
                          Vec10* stats, int tid);
 
@@ -150,8 +150,6 @@ private:
 
     std::vector<EFPoint*> allPoints;
     std::vector<EFPoint*> allPointsToMarg;
-
-    float currentLambda;
 };
 }
 
