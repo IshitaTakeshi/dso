@@ -131,7 +131,7 @@ inline bool eigenTestNan(const MatXX &m, std::string msg)
 
 // set precalc values.
 void setPrecalcValues(std::vector<FrameHessian*> frameHessians,
-                      CalibHessian &Hcalib);
+                      CalibHessian &HCalib);
 
 
 class FullSystem {
@@ -166,7 +166,7 @@ public:
 
 private:
 
-    CalibHessian Hcalib;
+    CalibHessian HCalib;
 
     // opt single point
     int optimizePoint(PointHessian* point, int minObs, bool flagOOB);

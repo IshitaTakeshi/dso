@@ -51,7 +51,7 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
                                        int min, int max, Vec10* stats, int tid) {
     for(int k=min; k<max; k++) {
         PointFrameResidual* r = activeResiduals[k];
-        (*stats)[0] += r->linearize(&Hcalib);
+        (*stats)[0] += r->linearize(&HCalib);
 
         if(fixLinearization) {
             // TODO search if applyRes affects the result of r->efResidual->isActive()
@@ -193,7 +193,7 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR,
                                   float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
-//	meanStepC += Hcalib.step.norm();
+//	meanStepC += HCalib.step.norm();
 
     Vec10 pstepfac;
     pstepfac.segment<3>(0).setConstant(stepfacT);
@@ -205,7 +205,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
     float sumNID=0;
 
     if(setting_solverMode & SOLVER_MOMENTUM) {
-        Hcalib.setValue(Hcalib.value_backup + Hcalib.step);
+        HCalib.setValue(HCalib.value_backup + HCalib.step);
         for(FrameHessian* fh : frameHessians) {
             Vec10 step = fh->step;
             step.head<6>() += 0.5f*(fh->step_backup.head<6>());
@@ -227,7 +227,7 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
             }
         }
     } else {
-        Hcalib.setValue(Hcalib.value_backup + stepfacC*Hcalib.step);
+        HCalib.setValue(HCalib.value_backup + stepfacC*HCalib.step);
         for(FrameHessian* fh : frameHessians)
         {
             fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
@@ -256,8 +256,8 @@ bool FullSystem::doStepFromBackup(float stepfacC, float stepfacT, float stepfacR
     sumNID /= numID;
 
     EFDeltaValid=false;
-    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
-    setPrecalcValues(frameHessians, Hcalib);
+    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
+    setPrecalcValues(frameHessians, HCalib);
 
     return sqrtf(sumA) < 0.0005*setting_thOptIterations &&
            sqrtf(sumB) < 0.00005*setting_thOptIterations &&
@@ -277,8 +277,8 @@ void FullSystem::backupState(bool backupLastStep)
     {
         if(backupLastStep)
         {
-            Hcalib.step_backup = Hcalib.step;
-            Hcalib.value_backup = Hcalib.value;
+            HCalib.step_backup = HCalib.step;
+            HCalib.value_backup = HCalib.value;
             for(FrameHessian* fh : frameHessians)
             {
                 fh->step_backup = fh->step;
@@ -292,8 +292,8 @@ void FullSystem::backupState(bool backupLastStep)
         }
         else
         {
-            Hcalib.step_backup.setZero();
-            Hcalib.value_backup = Hcalib.value;
+            HCalib.step_backup.setZero();
+            HCalib.value_backup = HCalib.value;
             for(FrameHessian* fh : frameHessians)
             {
                 fh->step_backup.setZero();
@@ -306,7 +306,7 @@ void FullSystem::backupState(bool backupLastStep)
             }
         }
     } else {
-        Hcalib.value_backup = Hcalib.value;
+        HCalib.value_backup = HCalib.value;
         for(FrameHessian* fh : frameHessians)
         {
             fh->state_backup = fh->get_state();
@@ -319,7 +319,7 @@ void FullSystem::backupState(bool backupLastStep)
 // sets linearization point.
 void FullSystem::loadSateBackup()
 {
-    Hcalib.setValue(Hcalib.value_backup);
+    HCalib.setValue(HCalib.value_backup);
     for(FrameHessian* fh : frameHessians)
     {
         fh->setState(fh->state_backup);
@@ -335,8 +335,8 @@ void FullSystem::loadSateBackup()
 
     EFDeltaValid=false;
 
-    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
-    setPrecalcValues(frameHessians, Hcalib);
+    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
+    setPrecalcValues(frameHessians, HCalib);
 }
 
 
@@ -458,8 +458,8 @@ float FullSystem::optimize(int mnumOptIts) {
     EFDeltaValid=false;
     EFAdjointsValid=false;
     ef->setAdjointsF();
-    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
-    setPrecalcValues(frameHessians, Hcalib);
+    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
+    setPrecalcValues(frameHessians, HCalib);
 
     lastEnergy = linearizeAll(activeResiduals, true);
 
@@ -487,7 +487,7 @@ void FullSystem::solveSystem(int iteration, double lambda) {
                                         ef->lastNullspaces_affA,
                                         ef->lastNullspaces_affB);
 
-    ef->solveSystemF(iteration, lambda, &Hcalib);
+    ef->solveSystemF(iteration, lambda, &HCalib);
 }
 
 

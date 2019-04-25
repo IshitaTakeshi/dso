@@ -131,7 +131,7 @@ void FullSystem::setGammaFunction(float* BInv) {
     if(BInv==0) return;
 
     // copy BInv.
-    memcpy(Hcalib.Binv, BInv, sizeof(float)*256);
+    memcpy(HCalib.Binv, BInv, sizeof(float)*256);
 
     // invert.
     for(int i=1; i<255; i++) {
@@ -140,13 +140,13 @@ void FullSystem::setGammaFunction(float* BInv) {
 
         for(int s=1; s<255; s++) {
             if(BInv[s] <= i && BInv[s+1] >= i) {
-                Hcalib.B[i] = s+(i - BInv[s]) / (BInv[s+1]-BInv[s]);
+                HCalib.B[i] = s+(i - BInv[s]) / (BInv[s+1]-BInv[s]);
                 break;
             }
         }
     }
-    Hcalib.B[0] = 0;
-    Hcalib.B[255] = 255;
+    HCalib.B[0] = 0;
+    HCalib.B[255] = 255;
 }
 
 
@@ -405,10 +405,10 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
 {
     boost::unique_lock<boost::mutex> lock(mapMutex);
     Mat33f K = Mat33f::Identity();
-    K(0, 0) = Hcalib.fxl();
-    K(1, 1) = Hcalib.fyl();
-    K(0, 2) = Hcalib.cxl();
-    K(1, 2) = Hcalib.cyl();
+    K(0, 0) = HCalib.fxl();
+    K(1, 1) = HCalib.fyl();
+    K(0, 2) = HCalib.cxl();
+    K(1, 2) = HCalib.cyl();
 
     for(FrameHessian* host : frameHessians) {
         // go through all active frames
@@ -421,7 +421,7 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
             host->aff_g2l(), fh->aff_g2l()).cast<float>();
 
         for(ImmaturePoint* ph : host->immaturePoints) {
-            ph->traceOn(fh, KRKi, Kt, aff, &Hcalib, false);
+            ph->traceOn(fh, KRKi, Kt, aff, &HCalib, false);
         }
     }
 }
@@ -472,7 +472,7 @@ void FullSystem::activatePointsMT()
     FrameHessian* newestHs = frameHessians.back();
 
     // make dist map.
-    coarseDistanceMap->makeK(&Hcalib);
+    coarseDistanceMap->makeK(&HCalib);
     coarseDistanceMap->makeDistanceMap(frameHessians, newestHs);
 
     //coarseTracker->debugPlotDistMap("distMap");
@@ -658,7 +658,7 @@ void FullSystem::flagPointsForRemoval() {
                     int ngoodRes = 0;
                     for(PointFrameResidual* r : ph->residuals) {
                         r->resetOOB();
-                        r->linearize(&Hcalib);
+                        r->linearize(&HCalib);
                         r->efResidual->isLinearized = false;
                         r->applyRes();
                         if(r->efResidual->isActive()) {
@@ -714,13 +714,13 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
 
     // =========================== make Images / derivatives etc. =========================
     fh->ab_exposure = image->exposure_time;
-    fh->makeImages(image->image, &Hcalib);
+    fh->makeImages(image->image, &HCalib);
 
     if(!initialized) {
         // use initializer!
         if(coarseInitializer->frameID<0) {
             // first frame set. fh is kept by coarseInitializer.
-            coarseInitializer->setFirst(&Hcalib, fh);
+            coarseInitializer->setFirst(&HCalib, fh);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {
             // if SNAPPED
             initializeFromInitializer(fh);
@@ -770,7 +770,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
            2 * coarseTracker->firstCoarseRMSE < tres[0];
 
         for(IOWrap::Output3DWrapper* ow : outputWrapper) {
-            ow->publishCamPose(fh->shell, &Hcalib);
+            ow->publishCamPose(fh->shell, &HCalib);
         }
 
         lock.unlock();
@@ -950,9 +950,9 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     fh->frameID = allKeyFramesHistory.size();
     allKeyFramesHistory.push_back(fh->shell);
     ef->insertFrame(fh);
-    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
+    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
 
-    setPrecalcValues(frameHessians, Hcalib);
+    setPrecalcValues(frameHessians, HCalib);
 
     // =========================== add new residuals for old points =========================
     for(FrameHessian* fh1 : frameHessians) {
@@ -990,7 +990,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
 
     {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
-        coarseTracker_forNewKF->makeK(&Hcalib);
+        coarseTracker_forNewKF->makeK(&HCalib);
         coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians);
 
         coarseTracker_forNewKF->debugPlotIDepthMap(&minIdJetVisTracker,
@@ -1015,7 +1015,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
 
     for(IOWrap::Output3DWrapper* ow : outputWrapper) {
         ow->publishGraph(ef->connectivityMap);
-        ow->publishKeyframes(frameHessians, false, &Hcalib);
+        ow->publishKeyframes(frameHessians, false, &HCalib);
     }
 
     // =========================== Marginalize Frames =========================
@@ -1042,9 +1042,9 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     allKeyFramesHistory.push_back(firstFrame->shell);
 
     ef->insertFrame(firstFrame);
-    ef->setDeltaF(Hcalib.valueMinusValueZero().cast<float>());
+    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
 
-    setPrecalcValues(frameHessians, Hcalib);
+    setPrecalcValues(frameHessians, HCalib);
 
     firstFrame->pointHessians.reserve(wG[0] * hG[0] * 0.2f);
     firstFrame->pointHessiansMarginalized.reserve(wG[0] * hG[0] * 0.2f);
@@ -1070,7 +1070,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
 
         Pnt* point = coarseInitializer->points[0]+i;
         ImmaturePoint* pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,
-                                              firstFrame, point->my_type, &Hcalib);
+                                              firstFrame, point->my_type, &HCalib);
 
         if(!std::isfinite(pt->energyTH)) {
             delete pt;
@@ -1140,7 +1140,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
             if(selectionMap[i]==0) continue;
 
             ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, selectionMap[i],
-                                                    &Hcalib);
+                                                    &HCalib);
             if(!std::isfinite(impt->energyTH)) {
                 delete impt;
             } else {
@@ -1163,14 +1163,14 @@ Mat33f initializeCameraMatrix(const float fx, const float fy,
 }
 
 
-Mat33f createCameraMatrixFromCalibHessian(CalibHessian &Hcalib) {
-    return initializeCameraMatrix(Hcalib.fxl(), Hcalib.fyl(),
-                                  Hcalib.cxl(), Hcalib.cyl());
+Mat33f createCameraMatrixFromCalibHessian(CalibHessian &HCalib) {
+    return initializeCameraMatrix(HCalib.fxl(), HCalib.fyl(),
+                                  HCalib.cxl(), HCalib.cyl());
 }
 
 
-void setPrecalcValues(std::vector<FrameHessian*> frameHessians, CalibHessian &Hcalib) {
-    const Mat33f K = createCameraMatrixFromCalibHessian(Hcalib);
+void setPrecalcValues(std::vector<FrameHessian*> frameHessians, CalibHessian &HCalib) {
+    const Mat33f K = createCameraMatrixFromCalibHessian(HCalib);
 
     for(FrameHessian* fh : frameHessians) {
         fh->targetPrecalc.resize(frameHessians.size());
