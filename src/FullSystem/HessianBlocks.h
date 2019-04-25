@@ -343,18 +343,17 @@ struct CalibHessian {
     }
 
     // normal mode: use the optimized parameters everywhere!
-    // TODO cast after accessing the array element
     inline float const fxl() {
-        return this->value_scaled.cast<float>()[0];
+        return (float)(this->value_scaled[0]);
     }
     inline float const fyl() {
-        return this->value_scaled.cast<float>()[1];
+        return (float)(this->value_scaled[1]);
     }
     inline float const cxl() {
-        return this->value_scaled.cast<float>()[2];
+        return (float)(this->value_scaled[2]);
     }
     inline float const cyl() {
-        return this->value_scaled.cast<float>()[3];
+        return (float)(this->value_scaled[3]);
     }
     inline float const fxli() {
         return 1.0f / fxl();
