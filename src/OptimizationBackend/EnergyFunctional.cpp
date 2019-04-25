@@ -814,8 +814,8 @@ VecC EnergyFunctional::solveSystemF(int iteration, double lambda)
 
 
 
-    if((setting_solverMode & SOLVER_ORTHOGONALIZE_X) || (iteration >= 2
-            && (setting_solverMode & SOLVER_ORTHOGONALIZE_X_LATER)))
+    if((setting_solverMode & SOLVER_ORTHOGONALIZE_X) ||
+       (iteration >= 2 && (setting_solverMode & SOLVER_ORTHOGONALIZE_X_LATER)))
     {
         VecX xOld = x;
         orthogonalize(&x, 0);

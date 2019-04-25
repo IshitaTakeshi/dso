@@ -341,8 +341,7 @@ struct CalibHessian {
         initial_value[3] = cyG[0];
 
         this->value_scaled = initial_value;
-        this->value = scale(initial_value);
-        value_zero = value;
+        this->value_zero = this->value = scale(initial_value);
 
         for(int i=0; i<256; i++)
             Binv[i] = B[i] = i;		// set gamma function to identity
@@ -419,8 +418,6 @@ struct PointHessian
     // static values
     float color[MAX_RES_PER_POINT];			// colors in host frame
     float weights[MAX_RES_PER_POINT];		// host-weights for respective residuals.
-
-
 
     float u,v;
     int idx;
