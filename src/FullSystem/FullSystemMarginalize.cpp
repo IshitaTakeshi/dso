@@ -55,11 +55,9 @@ namespace dso
 
 
 
-void FullSystem::flagFramesForMarginalization(FrameHessian* newFH) {
-    if(setting_minFrameAge > setting_maxFrames)
-    {
-        for(int i=setting_maxFrames; i<(int)frameHessians.size(); i++)
-        {
+void FullSystem::flagFramesForMarginalization() {
+    if(setting_minFrameAge > setting_maxFrames) {
+        for(int i=setting_maxFrames; i<(int)frameHessians.size(); i++) {
             FrameHessian* fh = frameHessians[i-setting_maxFrames];
             fh->flaggedForMarginalization = true;
         }

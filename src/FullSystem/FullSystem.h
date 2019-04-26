@@ -183,7 +183,7 @@ private:
     void flagPointsForRemoval();
     void makeNewTraces(FrameHessian* newFrame, float* gtDepth);
     void initializeFromInitializer(FrameHessian* newFrame);
-    void flagFramesForMarginalization(FrameHessian* newFH);
+    void flagFramesForMarginalization();
 
 
     void removeOutliers();

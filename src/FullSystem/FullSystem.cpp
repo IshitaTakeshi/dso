@@ -916,7 +916,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     boost::unique_lock<boost::mutex> lock(mapMutex);
 
     // =========================== Flag Frames to be Marginalized. =========================
-    flagFramesForMarginalization(fh);
+    flagFramesForMarginalization();
 
     // =========================== add New Frame to Hessian Struct. =========================
     fh->idx = frameHessians.size();
