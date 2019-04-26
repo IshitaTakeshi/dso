@@ -387,14 +387,6 @@ struct CalibHessian {
         int c = (int)(clamp(std::round(color), 5.0, 250.0));
         return B[c+1]-B[c];
     }
-
-    EIGEN_STRONG_INLINE float getBInvGradOnly(float color)
-    {
-        int c = color+0.5f;
-        if(c<5) c=5;
-        if(c>250) c=250;
-        return Binv[c+1]-Binv[c];
-    }
 };
 
 
