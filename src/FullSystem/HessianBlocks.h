@@ -29,9 +29,11 @@
 #include "util/globalCalib.h"
 #include "vector"
 
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include "util/NumType.h"
+#include "util/math.h"
 #include "FullSystem/Residuals.h"
 #include "util/ImageAndExposure.h"
 
@@ -116,8 +118,7 @@ struct FrameFramePrecalc {
 };
 
 
-struct FrameHessian
-{
+struct FrameHessian {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     EFFrame* efFrame;
 
@@ -382,11 +383,8 @@ struct CalibHessian {
         this->value_scaled[3] = SCALE_C * value[3];
     };
 
-    EIGEN_STRONG_INLINE float getBGradOnly(float color)
-    {
-        int c = color+0.5f;
-        if(c<5) c=5;
-        if(c>250) c=250;
+    EIGEN_STRONG_INLINE float getBGradOnly(float color) {
+        int c = (int)(clamp(std::round(color), 5.0, 250.0));
         return B[c+1]-B[c];
     }
 

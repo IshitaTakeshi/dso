@@ -102,8 +102,7 @@ void FrameHessian::setStateZero(const Vec10 &state_zero) {
     nullspaces_affine.setZero();
     nullspaces_affine.topLeftCorner<2,1>()  = Vec2(1,0);
     assert(ab_exposure > 0);
-    nullspaces_affine.topRightCorner<2,1>() = Vec2(0,
-            expf(aff_g2l_0().a)*ab_exposure);
+    nullspaces_affine.topRightCorner<2,1>() = Vec2(0, expf(aff_g2l_0().a)*ab_exposure);
 };
 
 
@@ -151,23 +150,19 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
             int wlm1 = wG[lvlm1];
             Eigen::Vector3f* dI_lm = dIp[lvlm1];
 
-
-
-            for(int y=0; y<hl; y++)
-                for(int x=0; x<wl; x++)
-                {
+            for(int y=0; y<hl; y++) {
+                for(int x=0; x<wl; x++) {
                     dI_l[x + y*wl][0] = 0.25f * (dI_lm[2*x   + 2*y*wlm1][0] +
                                                  dI_lm[2*x+1 + 2*y*wlm1][0] +
                                                  dI_lm[2*x   + 2*y*wlm1+wlm1][0] +
                                                  dI_lm[2*x+1 + 2*y*wlm1+wlm1][0]);
                 }
+            }
         }
 
-        for(int idx=wl; idx < wl*(hl-1); idx++)
-        {
+        for(int idx=wl; idx < wl*(hl-1); idx++) {
             float dx = 0.5f*(dI_l[idx+1][0] - dI_l[idx-1][0]);
             float dy = 0.5f*(dI_l[idx+wl][0] - dI_l[idx-wl][0]);
-
 
             if(!std::isfinite(dx)) dx=0;
             if(!std::isfinite(dy)) dy=0;
@@ -175,14 +170,12 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
             dI_l[idx][1] = dx;
             dI_l[idx][2] = dy;
 
-
             dabs_l[idx] = dx*dx+dy*dy;
 
-            if(setting_gammaWeightsPixelSelect==1 && HCalib!=0)
-            {
+            if(setting_gammaWeightsPixelSelect==1 && HCalib!=0) {
                 float gw = HCalib->getBGradOnly((float)(dI_l[idx][0]));
-                dabs_l[idx] *=
-                    gw*gw;	// convert to gradient of original color space (before removing response).
+                // convert to gradient of original color space (before removing response).
+                dabs_l[idx] *= gw*gw;
             }
         }
     }
