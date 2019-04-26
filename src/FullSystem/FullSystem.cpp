@@ -391,11 +391,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh) {
 void FullSystem::traceNewCoarse(FrameHessian* fh)
 {
     boost::unique_lock<boost::mutex> lock(mapMutex);
-    Mat33f K = Mat33f::Identity();
-    K(0, 0) = HCalib.fxl();
-    K(1, 1) = HCalib.fyl();
-    K(0, 2) = HCalib.cxl();
-    K(1, 2) = HCalib.cyl();
+    Mat33f K = createCameraMatrixFromCalibHessian(HCalib);
 
     for(FrameHessian* host : frameHessians) {
         // go through all active frames
