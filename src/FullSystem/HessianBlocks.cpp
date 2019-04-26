@@ -129,6 +129,35 @@ void FrameHessian::release() {
     immaturePoints.clear();
 }
 
+FrameHessian::~FrameHessian()
+{
+    assert(efFrame==0);
+    release();
+    for(int i=0; i<pyrLevelsUsed; i++)
+    {
+        delete[] dIp[i];
+        delete[]  absSquaredGrad[i];
+
+    }
+
+    if(debugImage != 0) delete debugImage;
+};
+
+
+// TODO swap names ab_exposure_  <--> ab_exposure
+FrameHessian::FrameHessian(float* image, FrameShell* shell_,
+                           const Gamma &gamma, const float ab_exposure_) :
+    shell(shell_), ab_exposure(ab_exposure_) {
+    flaggedForMarginalization=false;
+    frameID = -1;
+    efFrame = 0;
+    frameEnergyTH = 8*8*patternNum;
+
+    debugImage=0;
+
+    this->makeImages(image, gamma);
+};
+
 
 void FrameHessian::makeImages(float* color, const Gamma &gamma) {
     for(int i=0; i<pyrLevelsUsed; i++) {

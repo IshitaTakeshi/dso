@@ -664,11 +664,10 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->incoming_id = id;
 
-    FrameHessian* fh = new FrameHessian(shell, image->exposure_time);
     allFrameHistory.push_back(shell);
 
     // =========================== make Images / derivatives etc. =========================
-    fh->makeImages(image->image, gamma);
+    FrameHessian* fh = new FrameHessian(image->image, shell, gamma, image->exposure_time);
 
     if(!initialized) {
         // use initializer!
