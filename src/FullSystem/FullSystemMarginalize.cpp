@@ -53,6 +53,18 @@
 namespace dso
 {
 
+double calcDistanceScore(FrameHessian* fh, FrameHessian* latest) {
+    double score = 0;
+    for(FrameFramePrecalc &ffh : fh->targetPrecalc)  {
+        if(ffh.target->frameID > latest->frameID - setting_minFrameAge + 1 ||
+           ffh.target == ffh.host) {
+            continue;
+        }
+        score += 1/(1e-5+ffh.distanceLL);
+    }
+    score *= -sqrtf(fh->targetPrecalc.back().distanceLL);
+    return score;
+}
 
 
 void FullSystem::flagFramesForMarginalization() {
@@ -99,13 +111,7 @@ void FullSystem::flagFramesForMarginalization() {
                 continue;
             }
 
-            double distScore = 0;
-            for(FrameFramePrecalc &ffh : fh->targetPrecalc)  {
-                if(ffh.target->frameID > latest->frameID - setting_minFrameAge + 1
-                        || ffh.target == ffh.host) continue;
-                distScore += 1/(1e-5+ffh.distanceLL);
-            }
-            distScore *= -sqrtf(fh->targetPrecalc.back().distanceLL);
+            double distScore = calcDistanceScore(fh, latest);
 
             if(distScore < smallestScore) {
                 smallestScore = distScore;
