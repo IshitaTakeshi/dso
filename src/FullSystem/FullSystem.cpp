@@ -730,7 +730,6 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
         return;
     }
 
-    bool needToMakeKF = false;
     Vec2 refToFh = AffLight::fromToVecExposure(
         coarseTracker->lastRef->ab_exposure,
         fh->ab_exposure,
@@ -738,7 +737,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     );
 
     // BRIGHTNESS CHECK
-    needToMakeKF =
+    bool needToMakeKF =
        allFrameHistory.size()== 1 ||
        setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
        (wG[0]+hG[0]) +
@@ -759,17 +758,16 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
 }
 
 void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
-    if(linearizeOperation)
-    {
+    if(linearizeOperation) {
         if(goStepByStep && lastRefStopID != coarseTracker->refFrameID)
         {
             MinimalImageF3 img(wG[0], hG[0], fh->dI);
             IOWrap::displayImage("frameToTrack", &img);
             while(true)
             {
-                char k=IOWrap::waitKey(0);
-                if(k==' ') break;
-                handleKey( k );
+                char k = IOWrap::waitKey(0);
+                if(k == ' ') break;
+                handleKey(k);
             }
             lastRefStopID = coarseTracker->refFrameID;
         } else {
