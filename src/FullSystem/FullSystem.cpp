@@ -785,7 +785,9 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
 
     boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
     unmappedTrackedFrames.push_back(fh);
-    if(needKF) needNewKFAfter=fh->shell->trackingRef->id;
+    if(needKF) {
+        needNewKFAfter = fh->shell->trackingRef->id;
+    }
     trackedFrameSignal.notify_all();
 
     while(coarseTracker_forNewKF->refFrameID == -1
@@ -800,10 +802,8 @@ void FullSystem::mappingLoop()
 {
     boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
 
-    while(runMapping)
-    {
-        while(unmappedTrackedFrames.size()==0)
-        {
+    while(runMapping) {
+        while(unmappedTrackedFrames.size()==0) {
             trackedFrameSignal.wait(lock);
             if(!runMapping) return;
         }
@@ -813,8 +813,7 @@ void FullSystem::mappingLoop()
 
 
         // guaranteed to make a KF for the very first two tracked frames.
-        if(allKeyFramesHistory.size() <= 2)
-        {
+        if(allKeyFramesHistory.size() <= 2) {
             lock.unlock();
             makeKeyFrame(fh);
             lock.lock();
@@ -825,10 +824,8 @@ void FullSystem::mappingLoop()
         if(unmappedTrackedFrames.size() > 3)
             needToKetchupMapping=true;
 
-
-        if(unmappedTrackedFrames.size() >
-                0) // if there are other frames to tracke, do that first.
-        {
+        // if there are other frames to tracke, do that first.
+        if(unmappedTrackedFrames.size() > 0) {
             lock.unlock();
             makeNonKeyFrame(fh);
             delete fh;

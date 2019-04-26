@@ -68,12 +68,8 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH) {
 
     int flagged = 0;
     // marginalize all frames that have not enough points.
-    for(int i=0; i<(int)frameHessians.size(); i++)
-    {
+    for(int i=0; i<(int)frameHessians.size(); i++) {
         FrameHessian* fh = frameHessians[i];
-        int in = fh->pointHessians.size() + fh->immaturePoints.size();
-        int out = fh->pointHessiansMarginalized.size() + fh->pointHessiansOut.size();
-
 
         Vec2 refToFh = AffLight::fromToVecExposure(
             frameHessians.back()->ab_exposure,
@@ -81,6 +77,9 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH) {
             frameHessians.back()->aff_g2l(),
             fh->aff_g2l()
         );
+
+        int in = fh->pointHessians.size() + fh->immaturePoints.size();
+        int out = fh->pointHessiansMarginalized.size() + fh->pointHessiansOut.size();
 
         if((in < setting_minPointsRemaining *(in+out) ||
             fabs(logf((float)refToFh[0])) > setting_maxLogAffFacInWindow) &&
@@ -91,8 +90,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH) {
     }
 
     // marginalize one.
-    if((int)frameHessians.size()-flagged >= setting_maxFrames)
-    {
+    if((int)frameHessians.size()-flagged >= setting_maxFrames) {
         double smallestScore = 1;
         FrameHessian* toMarginalize=0;
         FrameHessian* latest = frameHessians.back();
@@ -119,14 +117,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH) {
         toMarginalize->flaggedForMarginalization = true;
         flagged++;
     }
-
-//	printf("FRAMES LEFT: ");
-//	for(FrameHessian* fh : frameHessians)
-//		printf("%d ", fh->frameID);
-//	printf("\n");
 }
-
-
 
 
 void FullSystem::marginalizeFrame(FrameHessian* frame)
