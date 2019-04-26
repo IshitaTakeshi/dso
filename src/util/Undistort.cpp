@@ -35,6 +35,7 @@
 #include "IOWrapper/ImageDisplay.h"
 #include "IOWrapper/ImageRW.h"
 #include "util/Undistort.h"
+#include "util/camera_matrix.h"
 
 
 namespace dso {
@@ -694,11 +695,10 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
                outputCalibration[2], outputCalibration[3]);
     }
 
-    K.setIdentity();
-    K(0,0) = outputCalibration[0] * w;
-    K(1,1) = outputCalibration[1] * h;
-    K(0,2) = outputCalibration[2] * w - 0.5;
-    K(1,2) = outputCalibration[3] * h - 0.5;
+    K = initializeCameraMatrix(outputCalibration[0] * w,
+                               outputCalibration[1] * h,
+                               outputCalibration[2] * w - 0.5,
+                               outputCalibration[3] * h - 0.5);
 
     for(int y=0; y<h; y++) {
         for(int x=0; x<w; x++) {

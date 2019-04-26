@@ -79,7 +79,7 @@ public:
                                     float* out_y, int n) const = 0;
 
 
-    inline const Mat33 getK() const {
+    inline const Mat33f getK() const {
         return K;
     };
     inline const Eigen::Vector2i getSize() const {
@@ -111,7 +111,7 @@ public:
 protected:
     int w, h, wOrg, hOrg, wUp, hUp;
     int upsampleUndistFactor;
-    Mat33 K;
+    Mat33f K;
     VecX parsOrg;
     bool valid;
 
