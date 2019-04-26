@@ -47,9 +47,8 @@ public:
     ~PixelSelector();
     int currentPotential;
 
-
-    bool allowFast;
     void makeHists(const FrameHessian* const fh);
+
 private:
 
     Eigen::Vector3i select(const FrameHessian* const fh,

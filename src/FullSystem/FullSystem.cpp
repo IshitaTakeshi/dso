@@ -467,7 +467,6 @@ void FullSystem::activatePointsMT()
     std::vector<ImmaturePoint*> toOptimize;
     toOptimize.reserve(20000);
 
-
     for(FrameHessian* host : frameHessians)		// go through all active frames
     {
         if(host == newestHs) continue;
@@ -495,13 +494,15 @@ void FullSystem::activatePointsMT()
             }
 
             // can activate only if this is true.
-            bool canActivate = (ph->lastTraceStatus == IPS_GOOD
-                                || ph->lastTraceStatus == IPS_SKIPPED
-                                || ph->lastTraceStatus == IPS_BADCONDITION
-                                || ph->lastTraceStatus == IPS_OOB )
-                               && ph->lastTracePixelInterval < 8
-                               && ph->quality > setting_minTraceQuality
-                               && (ph->idepth_max+ph->idepth_min) > 0;
+            bool canActivate = (
+                    ph->lastTraceStatus == IPS_GOOD ||
+                    ph->lastTraceStatus == IPS_SKIPPED ||
+                    ph->lastTraceStatus == IPS_BADCONDITION ||
+                    ph->lastTraceStatus == IPS_OOB
+                ) &&
+                ph->lastTracePixelInterval < 8 &&
+                ph->quality > setting_minTraceQuality &&
+                (ph->idepth_max+ph->idepth_min) > 0;
 
 
             // if I cannot activate the point, skip it. Maybe also delete it.
@@ -510,14 +511,11 @@ void FullSystem::activatePointsMT()
                 // if point will be out afterwards, delete it instead.
                 if(ph->host->flaggedForMarginalization || ph->lastTraceStatus == IPS_OOB)
                 {
-//					immature_notReady_deleted++;
                     delete ph;
                     host->immaturePoints[i]=0;
                 }
-//				immature_notReady_skipped++;
                 continue;
             }
-
 
             // see if we need to activate point due to distance map.
             Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1)
@@ -539,10 +537,6 @@ void FullSystem::activatePointsMT()
             }
         }
     }
-
-
-//	printf("ACTIVATE: %d. (del %d, notReady %d, marg %d, good %d, marg-skip %d)\n",
-//			(int)toOptimize.size(), immature_deleted, immature_notReady, immature_needMarg, immature_want, immature_margskip);
 
     std::vector<PointHessian*> optimized;
     optimized.resize(toOptimize.size());
@@ -603,6 +597,7 @@ void FullSystem::activatePointsOldFirst()
 {
     assert(false);
 }
+
 
 void FullSystem::flagPointsForRemoval() {
     assert(EFIndicesValid);
@@ -1109,8 +1104,6 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
 }
 
 void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
-    pixelSelector->allowFast = true;
-
     int numPointsTotal = pixelSelector->makeMaps(
         newFrame,
         selectionMap,

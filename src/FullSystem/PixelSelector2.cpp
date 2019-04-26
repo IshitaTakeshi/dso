@@ -38,20 +38,19 @@ namespace dso
 {
 
 
-PixelSelector::PixelSelector(int w, int h)
-{
+PixelSelector::PixelSelector(int w, int h) {
     randomPattern = new unsigned char[w*h];
     std::srand(3141592); // want to be deterministic.
-    for(int i=0; i<w*h; i++) randomPattern[i] = rand() & 0xFF;
+    for(int i=0; i<w*h; i++) {
+        randomPattern[i] = rand() & 0xFF;
+    }
 
     currentPotential=3;
-
 
     gradHist = new int[100*(1+w/32)*(1+h/32)];
     ths = new float[(w/32)*(h/32)+100];
     thsSmoothed = new float[(w/32)*(h/32)+100];
 
-    allowFast=false;
     gradHistFrame=0;
 }
 
