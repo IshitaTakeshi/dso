@@ -136,7 +136,7 @@ struct FrameHessian
 
     // Photometric Calibration Stuff
     float frameEnergyTH;	// set dynamically depending on tracking residual
-    float ab_exposure;
+    const float ab_exposure;
 
     bool flaggedForMarginalization;
 
@@ -263,22 +263,19 @@ struct FrameHessian
 
         }
 
-
-
         if(debugImage != 0) delete debugImage;
     };
-    inline FrameHessian()
-    {
+
+    // TODO swap names ab_exposure_  <--> ab_exposure
+    inline FrameHessian(FrameShell* shell_, float ab_exposure_) :
+        shell(shell_), ab_exposure(ab_exposure_) {
         flaggedForMarginalization=false;
         frameID = -1;
         efFrame = 0;
         frameEnergyTH = 8*8*patternNum;
 
-
-
         debugImage=0;
     };
-
 
     void makeImages(float* color, CalibHessian* HCalib);
 

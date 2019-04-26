@@ -681,18 +681,16 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     boost::unique_lock<boost::mutex> lock(trackMutex);
 
     // =========================== add into allFrameHistory =========================
-    FrameHessian* fh = new FrameHessian();
     FrameShell* shell = new FrameShell();
 
     // no lock required, as fh is not used anywhere yet.
     shell->marginalizedAt = shell->id = allFrameHistory.size();
     shell->incoming_id = id;
 
-    fh->shell = shell;
+    FrameHessian* fh = new FrameHessian(shell, image->exposure_time);
     allFrameHistory.push_back(shell);
 
     // =========================== make Images / derivatives etc. =========================
-    fh->ab_exposure = image->exposure_time;
     fh->makeImages(image->image, &HCalib);
 
     if(!initialized) {
