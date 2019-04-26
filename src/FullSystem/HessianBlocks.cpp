@@ -126,7 +126,7 @@ void FrameHessian::release()
 }
 
 
-void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
+void FrameHessian::makeImages(float* color, const Gamma &gamma) {
     for(int i=0; i<pyrLevelsUsed; i++) {
         dIp[i] = new Eigen::Vector3f[wG[i]*hG[i]];
         absSquaredGrad[i] = new float[wG[i]*hG[i]];
@@ -172,8 +172,9 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
 
             dabs_l[idx] = dx*dx+dy*dy;
 
-            if(setting_gammaWeightsPixelSelect==1 && HCalib!=0) {
-                float gw = HCalib->getBGradOnly((float)(dI_l[idx][0]));
+            if(setting_gammaWeightsPixelSelect==1 && gamma.isAvailable) {
+                int c = (int)(clamp(std::round((float)(dI_l[idx][0])), 5.0, 250.0));
+                float gw = gamma.get(c+1) - gamma.get(c);
                 // convert to gradient of original color space (before removing response).
                 dabs_l[idx] *= gw*gw;
             }

@@ -33,6 +33,7 @@
 #include <iostream>
 #include <fstream>
 #include "util/NumType.h"
+#include "util/gamma.h"
 #include "util/math.h"
 #include "FullSystem/Residuals.h"
 #include "util/ImageAndExposure.h"
@@ -278,7 +279,7 @@ struct FrameHessian {
         debugImage=0;
     };
 
-    void makeImages(float* color, CalibHessian* HCalib);
+    void makeImages(float* color, const Gamma &gamma);
 
     inline Vec10 getPrior()
     {
@@ -317,15 +318,13 @@ struct FrameHessian {
 
 };
 
+
 struct CalibHessian {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     VecC value_zero;
     VecC value_scaled;
     VecC value;
-
-    float Binv[256];
-    float B[256];
 
     inline ~CalibHessian() {
     }
@@ -338,9 +337,6 @@ struct CalibHessian {
 
         this->value_scaled = initial_value;
         this->value_zero = this->value = scale(initial_value);
-
-        for(int i=0; i<256; i++)
-            Binv[i] = B[i] = i;		// set gamma function to identity
     };
 
     inline VecC valueMinusValueZero() {
@@ -382,11 +378,6 @@ struct CalibHessian {
         this->value_scaled[2] = SCALE_C * value[2];
         this->value_scaled[3] = SCALE_C * value[3];
     };
-
-    EIGEN_STRONG_INLINE float getBGradOnly(float color) {
-        int c = (int)(clamp(std::round(color), 5.0, 250.0));
-        return B[c+1]-B[c];
-    }
 };
 
 

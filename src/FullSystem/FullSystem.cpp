@@ -54,37 +54,14 @@
 
 #include "util/ImageAndExposure.h"
 #include "util/camera_matrix.h"
+#include "util/gamma.h"
 
 #include <cmath>
 
 namespace dso {
 
 
-void setGamma(float* B, const float* BInv) {
-    // invert.
-    for(int i=1; i<255; i++) {
-        // find val, such that Binv[val] = i.
-        // I dont care about speed for this, so do it the stupid way.
-
-        for(int s=1; s<255; s++) {
-            if(BInv[s] <= i && i <= BInv[s+1]) {
-                B[i] = s + (i - BInv[s]) / (BInv[s+1] - BInv[s]);
-                break;
-            }
-        }
-    }
-    B[0] = 0;
-    B[255] = 255;
-}
-
-
-FullSystem::FullSystem(float *BInv) {
-
-    if(BInv != 0) {
-        // copy BInv.
-        memcpy(HCalib.Binv, BInv, sizeof(float)*256);
-        setGamma(HCalib.B, BInv);
-    }
+FullSystem::FullSystem(float *gammaInverse) : gamma(Gamma(gammaInverse)) {
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -691,7 +668,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     allFrameHistory.push_back(shell);
 
     // =========================== make Images / derivatives etc. =========================
-    fh->makeImages(image->image, &HCalib);
+    fh->makeImages(image->image, gamma);
 
     if(!initialized) {
         // use initializer!

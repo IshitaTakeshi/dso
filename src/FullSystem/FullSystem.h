@@ -26,13 +26,14 @@
 #define MAX_ACTIVE_FRAMES 100
 
 #include <deque>
-#include "util/NumType.h"
-#include "util/globalCalib.h"
 #include "vector"
 
 #include <iostream>
 #include <fstream>
+
+#include "util/globalCalib.h"
 #include "util/NumType.h"
+#include "util/gamma.h"
 #include "FullSystem/Residuals.h"
 #include "FullSystem/HessianBlocks.h"
 #include "util/FrameShell.h"
@@ -164,6 +165,7 @@ public:
     bool linearizeOperation;
 
 private:
+    const Gamma gamma;
 
     CalibHessian HCalib;
 
