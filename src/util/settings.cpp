@@ -129,8 +129,8 @@ float setting_affineOptModeA =
 float setting_affineOptModeB =
     1e8; //-1: fix. >=0: optimize (with prior, if > 0).
 
-int setting_gammaWeightsPixelSelect =
-    1; // 1 = use original intensity for pixel selection; 0 = use gamma-corrected intensity.
+int setting_gammaWeightsPixelSelect = 1;
+// 1 = use original intensity for pixel selection; 0 = use gamma-corrected intensity.
 
 
 

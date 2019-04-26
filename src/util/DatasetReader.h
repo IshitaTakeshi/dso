@@ -190,8 +190,7 @@ public:
         h = undistort->getSize()[1];
     }
 
-    void setGlobalCalibration()
-    {
+    void setGlobalCalibration() {
         int w_out, h_out;
         Eigen::Matrix3f K;
         getCalibMono(K, w_out, h_out);

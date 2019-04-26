@@ -107,17 +107,21 @@ void FrameHessian::setStateZero(const Vec10 &state_zero) {
 
 
 
-void FrameHessian::release()
-{
+void FrameHessian::release() {
     // DELETE POINT
     // DELETE RESIDUAL
-    for(unsigned int i=0; i<pointHessians.size(); i++) delete pointHessians[i];
-    for(unsigned int i=0; i<pointHessiansMarginalized.size();
-            i++) delete pointHessiansMarginalized[i];
-    for(unsigned int i=0; i<pointHessiansOut.size();
-            i++) delete pointHessiansOut[i];
-    for(unsigned int i=0; i<immaturePoints.size(); i++) delete immaturePoints[i];
-
+    for(unsigned int i=0; i<pointHessians.size(); i++) {
+        delete pointHessians[i];
+    }
+    for(unsigned int i=0; i<pointHessiansMarginalized.size(); i++) {
+        delete pointHessiansMarginalized[i];
+    }
+    for(unsigned int i=0; i<pointHessiansOut.size(); i++) {
+        delete pointHessiansOut[i];
+    }
+    for(unsigned int i=0; i<immaturePoints.size(); i++) {
+        delete immaturePoints[i];
+    }
 
     pointHessians.clear();
     pointHessiansMarginalized.clear();
@@ -134,31 +138,33 @@ void FrameHessian::makeImages(float* color, const Gamma &gamma) {
     dI = dIp[0];
 
     // make d0
-    int w=wG[0];
-    int h=hG[0];
+    int w = wG[0];
+    int h = hG[0];
     for(int i=0; i<w*h; i++) {
         dI[i][0] = color[i];
     }
 
-    for(int lvl=0; lvl<pyrLevelsUsed; lvl++) {
-        int wl = wG[lvl], hl = hG[lvl];
-        Eigen::Vector3f* dI_l = dIp[lvl];
+    for(int level=0; level<pyrLevelsUsed; level++) {
+        int wl = wG[level], hl = hG[level];
+        Eigen::Vector3f* dI_l = dIp[level];
 
-        float* dabs_l = absSquaredGrad[lvl];
-        if(lvl>0) {
-            int lvlm1 = lvl-1;
-            int wlm1 = wG[lvlm1];
-            Eigen::Vector3f* dI_lm = dIp[lvlm1];
+        if(level>0) {
+            int wlm1 = wG[level-1];
+            Eigen::Vector3f* dI_lm = dIp[level-1];
 
             for(int y=0; y<hl; y++) {
                 for(int x=0; x<wl; x++) {
-                    dI_l[x + y*wl][0] = 0.25f * (dI_lm[2*x   + 2*y*wlm1][0] +
-                                                 dI_lm[2*x+1 + 2*y*wlm1][0] +
-                                                 dI_lm[2*x   + 2*y*wlm1+wlm1][0] +
-                                                 dI_lm[2*x+1 + 2*y*wlm1+wlm1][0]);
+                    dI_l[x + y*wl][0] = 0.25f * (
+                        dI_lm[2*x   + 2*y*wlm1][0] +
+                        dI_lm[2*x+1 + 2*y*wlm1][0] +
+                        dI_lm[2*x   + 2*y*wlm1+wlm1][0] +
+                        dI_lm[2*x+1 + 2*y*wlm1+wlm1][0]
+                    );
                 }
             }
         }
+
+        float* dabs_l = absSquaredGrad[level];
 
         for(int idx=wl; idx < wl*(hl-1); idx++) {
             float dx = 0.5f*(dI_l[idx+1][0] - dI_l[idx-1][0]);
