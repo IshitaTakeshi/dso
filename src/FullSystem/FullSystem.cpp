@@ -711,51 +711,51 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
             delete fh;
         }
         return;
-    } else {
-        // do front-end operation.
-        // =========================== SWAP tracking reference?. =========================
-        if(coarseTracker_forNewKF->refFrameID > coarseTracker->refFrameID) {
-            boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
-            CoarseTracker* tmp = coarseTracker;
-            coarseTracker = coarseTracker_forNewKF;
-            coarseTracker_forNewKF = tmp;
-        }
+    }
 
-        Vec4 tres = trackNewCoarse(fh);
-        if(!std::isfinite((double)tres[0]) || !std::isfinite((double)tres[1]) ||
-           !std::isfinite((double)tres[2]) || !std::isfinite((double)tres[3])) {
-            printf("Initial Tracking failed: LOST!\n");
-            isLost = true;
-            return;
-        }
+    // do front-end operation.
+    // =========================== SWAP tracking reference?. =========================
+    if(coarseTracker_forNewKF->refFrameID > coarseTracker->refFrameID) {
+        boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
+        CoarseTracker* tmp = coarseTracker;
+        coarseTracker = coarseTracker_forNewKF;
+        coarseTracker_forNewKF = tmp;
+    }
 
-        bool needToMakeKF = false;
-        Vec2 refToFh = AffLight::fromToVecExposure(
-            coarseTracker->lastRef->ab_exposure,
-            fh->ab_exposure,
-            coarseTracker->lastRef_aff_g2l, fh->shell->aff_g2l
-        );
-
-        // BRIGHTNESS CHECK
-        needToMakeKF =
-           allFrameHistory.size()== 1 ||
-           setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
-           (wG[0]+hG[0]) +
-           setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
-           (wG[0]+hG[0]) +
-           setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
-           (wG[0]+hG[0]) +
-           setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((float)refToFh[0])) > 1 ||
-           2 * coarseTracker->firstCoarseRMSE < tres[0];
-
-        for(IOWrap::Output3DWrapper* ow : outputWrapper) {
-            ow->publishCamPose(fh->shell, &HCalib);
-        }
-
-        lock.unlock();
-        deliverTrackedFrame(fh, needToMakeKF);
+    Vec4 tres = trackNewCoarse(fh);
+    if(!std::isfinite((double)tres[0]) || !std::isfinite((double)tres[1]) ||
+       !std::isfinite((double)tres[2]) || !std::isfinite((double)tres[3])) {
+        printf("Initial Tracking failed: LOST!\n");
+        isLost = true;
         return;
     }
+
+    bool needToMakeKF = false;
+    Vec2 refToFh = AffLight::fromToVecExposure(
+        coarseTracker->lastRef->ab_exposure,
+        fh->ab_exposure,
+        coarseTracker->lastRef_aff_g2l, fh->shell->aff_g2l
+    );
+
+    // BRIGHTNESS CHECK
+    needToMakeKF =
+       allFrameHistory.size()== 1 ||
+       setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
+       (wG[0]+hG[0]) +
+       setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
+       (wG[0]+hG[0]) +
+       setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
+       (wG[0]+hG[0]) +
+       setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((float)refToFh[0])) > 1 ||
+       2 * coarseTracker->firstCoarseRMSE < tres[0];
+
+    for(IOWrap::Output3DWrapper* ow : outputWrapper) {
+        ow->publishCamPose(fh->shell, &HCalib);
+    }
+
+    lock.unlock();
+    deliverTrackedFrame(fh, needToMakeKF);
+    return;
 }
 
 void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
