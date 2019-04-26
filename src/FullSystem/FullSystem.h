@@ -137,7 +137,8 @@ void setPrecalcValues(std::vector<FrameHessian*> frameHessians,
 class FullSystem {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    FullSystem();
+
+    FullSystem(float *BInv);
     virtual ~FullSystem();
 
     // adds a new frame, and creates point & residual structs.
@@ -161,8 +162,6 @@ public:
     bool initFailed;
     bool initialized;
     bool linearizeOperation;
-
-    void setGammaFunction(float* BInv);
 
 private:
 
@@ -219,23 +218,12 @@ private:
     void setNewFrameEnergyTH(const std::vector<PointFrameResidual*> activeResiduals);
 
     void printEigenValLine();
-    std::ofstream* numsLog;
-    std::ofstream* errorsLog;
-    std::ofstream* eigenAllLog;
-    std::ofstream* eigenPLog;
-    std::ofstream* eigenALog;
-    std::ofstream* DiagonalLog;
-    std::ofstream* variancesLog;
-    std::ofstream* nullspacesLog;
-
-    std::ofstream* coarseTrackingLog;
 
     // =================== changed by tracker-thread. protected by trackMutex ============
     boost::mutex trackMutex;
     std::vector<FrameShell*> allFrameHistory;
     CoarseInitializer* coarseInitializer;
     Vec5 lastCoarseRMSE;
-
 
     // ================== changed by mapper-thread. protected by mapMutex ===============
     boost::mutex mapMutex;

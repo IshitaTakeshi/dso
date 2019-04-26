@@ -328,7 +328,9 @@ struct CalibHessian {
     VecC value_zero;
     VecC value_scaled;
     VecC value;
-    VecC step;
+
+    float Binv[256];
+    float B[256];
 
     inline ~CalibHessian() {
     }
@@ -385,9 +387,6 @@ struct CalibHessian {
         this->value_scaled[2] = SCALE_C * value[2];
         this->value_scaled[3] = SCALE_C * value[3];
     };
-
-    float Binv[256];
-    float B[256];
 
     EIGEN_STRONG_INLINE float getBGradOnly(float color)
     {

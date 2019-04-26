@@ -245,8 +245,8 @@ int main( int argc, char** argv )
         exit(1);
     }
 
-    FullSystem* fullSystem = new FullSystem();
-    fullSystem->setGammaFunction(reader->getPhotometricGamma());
+    FullSystem* fullSystem = new FullSystem(reader->getPhotometricGamma());
+
     fullSystem->linearizeOperation = (playbackSpeed==0);
 
     IOWrap::PangolinDSOViewer* viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], false);
@@ -276,8 +276,7 @@ int main( int argc, char** argv )
                         ow->reset();
                     }
 
-                    fullSystem = new FullSystem();
-                    fullSystem->setGammaFunction(reader->getPhotometricGamma());
+                    fullSystem = new FullSystem(reader->getPhotometricGamma());
                     fullSystem->linearizeOperation = (playbackSpeed==0);
 
                     fullSystem->outputWrapper = wraps;

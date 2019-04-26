@@ -56,17 +56,34 @@
 
 #include <cmath>
 
-namespace dso
-{
+namespace dso {
 
-FullSystem::FullSystem() {
-    nullspacesLog=0;
-    variancesLog=0;
-    DiagonalLog=0;
-    eigenALog=0;
-    eigenPLog=0;
-    eigenAllLog=0;
-    numsLog=0;
+
+void setGamma(float* B, const float* BInv) {
+    // invert.
+    for(int i=1; i<255; i++) {
+        // find val, such that Binv[val] = i.
+        // I dont care about speed for this, so do it the stupid way.
+
+        for(int s=1; s<255; s++) {
+            if(BInv[s] <= i && i <= BInv[s+1]) {
+                B[i] = s + (i - BInv[s]) / (BInv[s+1] - BInv[s]);
+                break;
+            }
+        }
+    }
+    B[0] = 0;
+    B[255] = 255;
+}
+
+
+FullSystem::FullSystem(float *BInv) {
+
+    if(BInv != 0) {
+        // copy BInv.
+        memcpy(HCalib.Binv, BInv, sizeof(float)*256);
+        setGamma(HCalib.B, BInv);
+    }
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -86,7 +103,6 @@ FullSystem::FullSystem() {
 
     isLost=false;
     initFailed=false;
-
 
     needNewKFAfter = -1;
 
@@ -119,29 +135,6 @@ FullSystem::~FullSystem()
     delete pixelSelector;
     delete ef;
 }
-
-void FullSystem::setGammaFunction(float* BInv) {
-    if(BInv==0) return;
-
-    // copy BInv.
-    memcpy(HCalib.Binv, BInv, sizeof(float)*256);
-
-    // invert.
-    for(int i=1; i<255; i++) {
-        // find val, such that Binv[val] = i.
-        // I dont care about speed for this, so do it the stupid way.
-
-        for(int s=1; s<255; s++) {
-            if(BInv[s] <= i && BInv[s+1] >= i) {
-                HCalib.B[i] = s+(i - BInv[s]) / (BInv[s+1]-BInv[s]);
-                break;
-            }
-        }
-    }
-    HCalib.B[0] = 0;
-    HCalib.B[255] = 255;
-}
-
 
 
 void FullSystem::printResult(std::string file)
