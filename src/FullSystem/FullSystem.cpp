@@ -780,20 +780,20 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
             makeNonKeyFrame(fh);
             delete fh;
         }
-    } else {
-        boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
-        unmappedTrackedFrames.push_back(fh);
-        if(needKF) needNewKFAfter=fh->shell->trackingRef->id;
-        trackedFrameSignal.notify_all();
-
-        while(coarseTracker_forNewKF->refFrameID == -1
-                && coarseTracker->refFrameID == -1 )
-        {
-            mappedFrameSignal.wait(lock);
-        }
-
-        lock.unlock();
+        return;
     }
+
+    boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
+    unmappedTrackedFrames.push_back(fh);
+    if(needKF) needNewKFAfter=fh->shell->trackingRef->id;
+    trackedFrameSignal.notify_all();
+
+    while(coarseTracker_forNewKF->refFrameID == -1
+          && coarseTracker->refFrameID == -1) {
+        mappedFrameSignal.wait(lock);
+    }
+
+    lock.unlock();
 }
 
 void FullSystem::mappingLoop()
