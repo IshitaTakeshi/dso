@@ -107,11 +107,6 @@ public:
         undistort = Undistort::getUndistorterForFile(
                         calibFile, gammaFile, vignetteFile);
 
-        widthOrg = undistort->getOriginalSize()[0];
-        heightOrg = undistort->getOriginalSize()[1];
-        width=undistort->getSize()[0];
-        height=undistort->getSize()[1];
-
         printf("ImageFolderReader: got %d files in %s!\n", (int)filenames.size(),
                path.c_str());
 
@@ -180,9 +175,6 @@ public:
 private:
     std::vector<ImageAndExposure*> preloadedImages;
     std::vector<std::string> filenames;
-
-    int width, height;
-    int widthOrg, heightOrg;
 
     MinimalImageB* getImageRaw_internal(int id, int unused) {
         // CHANGE FOR ZIP FILE
