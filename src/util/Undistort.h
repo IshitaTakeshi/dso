@@ -80,7 +80,7 @@ public:
         return K;
     };
     inline const Eigen::Vector2i getSize() const {
-        return Eigen::Vector2i(w,h);
+        return Eigen::Vector2i(w, h);
     };
     inline const VecX getOriginalParameter() const {
         return parsOrg;

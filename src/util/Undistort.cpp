@@ -408,8 +408,7 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
 
         if(xx<0)
             out_data[idx] = 0;
-        else
-        {
+        else {
             // get integer and rational parts
             int xxi = xx;
             int yyi = yy;
@@ -428,9 +427,12 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
     }
 
     applyBlurNoise(result->image);
+
     delete output;
+
     return result;
 }
+
 template ImageAndExposure* Undistort::undistort<unsigned char>
 (const MinimalImage<unsigned char>* image_raw, float exposure, float factor) const;
 template ImageAndExposure* Undistort::undistort<unsigned short>
@@ -442,8 +444,8 @@ void Undistort::applyBlurNoise(float* img) const
     if(benchmark_varBlurNoise==0) return;
 
     int numnoise=(benchmark_noiseGridsize+8)*(benchmark_noiseGridsize+8);
-    float* noiseMapX=new float[numnoise];
-    float* noiseMapY=new float[numnoise];
+    float* noiseMapX = new float[numnoise];
+    float* noiseMapY = new float[numnoise];
     float* blutTmp=new float[w*h];
 
     if(benchmark_varBlurNoise>0) {
@@ -480,14 +482,12 @@ void Undistort::applyBlurNoise(float* img) const
                 if(gmid > 900) gmid = 900;
                 float gw = gaussMap[gmid];
 
-                if(x+dx>0 && x+dx<w)
-                {
+                if(x+dx>0 && x+dx<w) {
                     sumW += gw;
                     sumCW += gw * img[x+dx+y*this->w];
                 }
 
-                if(x-dx>0 && x-dx<w && dx!=0)
-                {
+                if(x-dx>0 && x-dx<w && dx!=0) {
                     sumW += gw;
                     sumCW += gw * img[x-dx+y*this->w];
                 }
@@ -668,9 +668,6 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         valid = false;
     }
 
-    remapX = new float[w*h];
-    remapY = new float[w*h];
-
     if(outputCalibration[2] > 1 || outputCalibration[3] > 1) {
         printf("\n\n\nWARNING: given output calibration (%f %f %f %f) seems wrong. "
                "It needs to be relative to image width / height!\n\n\n",
@@ -683,6 +680,8 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
                                outputCalibration[2] * w - 0.5,
                                outputCalibration[3] * h - 0.5);
 
+    remapX = new float[w*h];
+    remapY = new float[w*h];
     for(int y=0; y<h; y++) {
         for(int x=0; x<w; x++) {
             remapX[y*w+x] = x;

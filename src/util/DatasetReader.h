@@ -106,21 +106,22 @@ public:
         undistort(Undistort::getUndistorterForFile(calibFile, gammaFile, vignetteFile)),
         filenames(getdir(path)) {
 
+        if(filenames.size() == 0) {
+            // TODO raise some exception
+        }
         printf("ImageFolderReader: got %d files in %s!\n", (int)filenames.size(),
                path.c_str());
 
     }
-    ~ImageFolderReader()
-    {
+    ~ImageFolderReader() {
         delete undistort;
     };
 
-    Eigen::VectorXf getOriginalCalib()
-    {
+    Eigen::VectorXf getOriginalCalib() {
         return undistort->getOriginalParameter().cast<float>();
     }
-    Eigen::Vector2i getOriginalDimensions()
-    {
+
+    Eigen::Vector2i getOriginalDimensions() {
         return undistort->getOriginalSize();
     }
 
@@ -138,24 +139,18 @@ public:
         setGlobalCalib(w_out, h_out, K);
     }
 
-    int getNumImages()
-    {
+    int getNumImages() {
         return filenames.size();
     }
 
-    MinimalImageB* getImageRaw(int id)
-    {
-        return getImageRaw_internal(id);
+    ImageAndExposure* getImage(int id) {
+        MinimalImageB* minimg = getImageRaw_internal(id);
+        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(minimg, 1.0f);
+        delete minimg;
+        return ret2;
     }
 
-    ImageAndExposure* getImage(int id, bool forceLoadDirectly=false)
-    {
-        return getImage_internal(id);
-    }
-
-
-    inline float* getPhotometricGamma()
-    {
+    inline float* getPhotometricGamma() {
         if(undistort==0 || undistort->photometricUndist==0) return 0;
         return undistort->photometricUndist->getG();
     }
@@ -170,12 +165,4 @@ private:
         // CHANGE FOR ZIP FILE
         return IOWrap::readImageBW_8U(filenames[id]);
     }
-
-    ImageAndExposure* getImage_internal(int id) {
-        MinimalImageB* minimg = getImageRaw_internal(id);
-        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(minimg, 1.0f);
-        delete minimg;
-        return ret2;
-    }
 };
-
