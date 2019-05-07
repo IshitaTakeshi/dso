@@ -320,6 +320,7 @@ struct CalibHessian {
 
     inline ~CalibHessian() {
     }
+
     inline CalibHessian() {
         VecC initial_value = VecC::Zero();
         initial_value[0] = fxG[0];

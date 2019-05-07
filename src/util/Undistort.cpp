@@ -564,8 +564,6 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
     photometricUndist=0;
     valid = false;
 
-    float outputCalibration[5];
-
     parsOrg = VecX(nPars);
 
     // read parameters
@@ -644,9 +642,10 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         parsOrg[3] = parsOrg[3] * hOrg - 0.5;
     }
 
+    float outputCalibration[5];
     if(std::sscanf(l3.c_str(), "%f %f %f %f %f", &outputCalibration[0],
-                        &outputCalibration[1], &outputCalibration[2], &outputCalibration[3],
-                        &outputCalibration[4]) == 5) {
+                   &outputCalibration[1], &outputCalibration[2],
+                   &outputCalibration[3], &outputCalibration[4]) == 5) {
         printf("Out: %f %f %f %f %f\n",
                outputCalibration[0], outputCalibration[1], outputCalibration[2],
                outputCalibration[3], outputCalibration[4]);

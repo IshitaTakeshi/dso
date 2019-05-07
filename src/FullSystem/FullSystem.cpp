@@ -427,8 +427,6 @@ void FullSystem::activatePointsMT()
         printf("SPARSITY:  MinActDist %f (need %d points, have %d points)!\n",
                currentMinActDist, (int)(setting_desiredPointDensity), ef->nPoints);
 
-
-
     FrameHessian* newestHs = frameHessians.back();
 
     // make dist map.
