@@ -89,7 +89,7 @@ public:
         return parsOrg;
     };
     inline const Eigen::Vector2i getOriginalSize() {
-        return Eigen::Vector2i(wOrg,hOrg);
+        return Eigen::Vector2i(wOrg, hOrg);
     };
     inline bool isValid() {
         return valid;

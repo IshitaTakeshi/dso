@@ -166,8 +166,7 @@ PhotometricUndistorter::PhotometricUndistorter(
     printf("Successfully read photometric calibration!\n");
     valid = true;
 }
-PhotometricUndistorter::~PhotometricUndistorter()
-{
+PhotometricUndistorter::~PhotometricUndistorter() {
     if(vignetteMap != 0) delete[] vignetteMap;
     if(vignetteMapInv != 0) delete[] vignetteMapInv;
     delete output;
@@ -207,22 +206,18 @@ void PhotometricUndistorter::processFrame(T* image_in, float exposure_time, floa
     assert(output->w == w && output->h == h);
     assert(data != 0);
 
-
     if(!valid || exposure_time <= 0
-            || setting_photometricCalibration==0) // disable full photometric calibration.
-    {
+            || setting_photometricCalibration==0) { // disable full photometric calibration.
         for(int i=0; i<wh; i++) {
             data[i] = factor*image_in[i];
         }
         output->exposure_time = exposure_time;
     } else {
-        for(int i=0; i<wh; i++)
-        {
+        for(int i=0; i<wh; i++) {
             data[i] = G[image_in[i]];
         }
 
-        if(setting_photometricCalibration==2)
-        {
+        if(setting_photometricCalibration==2) {
             for(int i=0; i<wh; i++)
                 data[i] *= vignetteMapInv[i];
         }
@@ -400,8 +395,7 @@ template<typename T>
 ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
                                        float exposure, float factor) const
 {
-    if(image_raw->w != wOrg || image_raw->h != hOrg)
-    {
+    if(image_raw->w != wOrg || image_raw->h != hOrg) {
         printf("Undistort::undistort: wrong image size (%d %d instead of %d %d) \n",
                image_raw->w, image_raw->h, w, h);
         exit(1);
@@ -417,8 +411,7 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
     float* noiseMapX=0;
     float* noiseMapY=0;
 
-    for(int idx = w*h-1; idx>=0; idx--)
-    {
+    for(int idx = w*h-1; idx>=0; idx--) {
         // get interp. values
         float xx = remapX[idx];
         float yy = remapY[idx];
