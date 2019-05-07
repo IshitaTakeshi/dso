@@ -75,7 +75,6 @@ int readFOVParameters(VecX &parsOrg, const std::string &prefix, const std::strin
 }
 
 int readRadTanParameters(VecX &parsOrg, const std::string &prefix, const std::string &line) {
-
     char buf[1000];
     snprintf(buf, 1000, "%s%%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf",
              prefix.c_str());
@@ -85,6 +84,14 @@ int readRadTanParameters(VecX &parsOrg, const std::string &prefix, const std::st
         return 0;
     }
     return -1;
+}
+
+
+void relativeToAbsolute(VecX &parsOrg, const int wOrg, const int hOrg) {
+    parsOrg[0] = parsOrg[0] * wOrg;
+    parsOrg[1] = parsOrg[1] * hOrg;
+    parsOrg[2] = parsOrg[2] * wOrg - 0.5;
+    parsOrg[3] = parsOrg[3] * hOrg - 0.5;
 }
 
 
@@ -674,10 +681,7 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         // contains the integral over intensity over [0,0]-[1,1], whereas I assume the pixel (0,0)
         // to contain a sample of the intensity ot [0,0], which is best approximated by the integral over
         // [-0.5,-0.5]-[0.5,0.5]. Thus, the shift by -0.5.
-        parsOrg[0] = parsOrg[0] * wOrg;
-        parsOrg[1] = parsOrg[1] * hOrg;
-        parsOrg[2] = parsOrg[2] * wOrg - 0.5;
-        parsOrg[3] = parsOrg[3] * hOrg - 0.5;
+        relativeToAbsolute(parsOrg, wOrg, hOrg);
     }
 
     VecX outputCalibration = VecX(5);
@@ -711,10 +715,9 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
                outputCalibration[2], outputCalibration[3]);
     }
 
-    K = initializeCameraMatrix(outputCalibration[0] * w,
-                               outputCalibration[1] * h,
-                               outputCalibration[2] * w - 0.5,
-                               outputCalibration[3] * h - 0.5);
+    relativeToAbsolute(outputCalibration, w, h);
+    K = initializeCameraMatrix(outputCalibration[0], outputCalibration[1],
+                               outputCalibration[2], outputCalibration[3]);
 
     remapX = new float[w*h];
     remapY = new float[w*h];
