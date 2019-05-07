@@ -48,12 +48,9 @@ public:
     // removes readout noise, and converts to irradiance.
     // affine normalizes values to 0 <= I < 256.
     // raw irradiance = a*I + b.
-    // output will be written in [output].
-    template<typename T> void processFrame(T* image_in, float exposure_time,
+    template<typename T> ImageAndExposure* processFrame(T* image_in, float exposure_time,
                                            float factor=1);
     void unMapFloatImage(float* image);
-
-    ImageAndExposure* output;
 
     float* getG() {
         if(!valid) return 0;

@@ -50,7 +50,6 @@ PhotometricUndistorter::PhotometricUndistorter(
     vignetteMapInv=0;
     w = w_;
     h = h_;
-    output = new ImageAndExposure(w,h);
     if(file=="" || vignetteImage=="") {
         printf("NO PHOTOMETRIC Calibration!\n");
     }
@@ -169,7 +168,6 @@ PhotometricUndistorter::PhotometricUndistorter(
 PhotometricUndistorter::~PhotometricUndistorter() {
     if(vignetteMap != 0) delete[] vignetteMap;
     if(vignetteMapInv != 0) delete[] vignetteMapInv;
-    delete output;
 }
 
 
@@ -199,9 +197,11 @@ void PhotometricUndistorter::unMapFloatImage(float* image)
 }
 
 template<typename T>
-void PhotometricUndistorter::processFrame(T* image_in, float exposure_time, float factor)
+ImageAndExposure* PhotometricUndistorter::processFrame(T* image_in, float exposure_time, float factor)
 {
     int wh=w*h;
+
+    ImageAndExposure *output = new ImageAndExposure(w,h);
     float* data = output->image;
     assert(output->w == w && output->h == h);
     assert(data != 0);
@@ -211,7 +211,6 @@ void PhotometricUndistorter::processFrame(T* image_in, float exposure_time, floa
         for(int i=0; i<wh; i++) {
             data[i] = factor*image_in[i];
         }
-        output->exposure_time = exposure_time;
     } else {
         for(int i=0; i<wh; i++) {
             data[i] = G[image_in[i]];
@@ -221,22 +220,16 @@ void PhotometricUndistorter::processFrame(T* image_in, float exposure_time, floa
             for(int i=0; i<wh; i++)
                 data[i] *= vignetteMapInv[i];
         }
-
-        output->exposure_time = exposure_time;
     }
 
-
-    if(!setting_useExposure)
-        output->exposure_time = 1;
-
+    output->exposure_time = exposure_time;
+    return output;
 }
-template void PhotometricUndistorter::processFrame<unsigned char>
+
+template ImageAndExposure* PhotometricUndistorter::processFrame<unsigned char>
 (unsigned char* image_in, float exposure_time, float factor);
-template void PhotometricUndistorter::processFrame<unsigned short>
+template ImageAndExposure* PhotometricUndistorter::processFrame<unsigned short>
 (unsigned short* image_in, float exposure_time, float factor);
-
-
-
 
 
 Undistort::~Undistort()
@@ -401,12 +394,12 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
         exit(1);
     }
 
-    photometricUndist->processFrame<T>(image_raw->data, exposure, factor);
+    ImageAndExposure* output = photometricUndist->processFrame<T>(image_raw->data, exposure, factor);
     ImageAndExposure* result = new ImageAndExposure(w, h);
-    photometricUndist->output->copyMetaTo(*result);
+    output->copyMetaTo(*result);
 
     float* out_data = result->image;
-    float* in_data = photometricUndist->output->image;
+    float* in_data = output->image;
 
     float* noiseMapX=0;
     float* noiseMapY=0;
@@ -438,7 +431,7 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
     }
 
     applyBlurNoise(result->image);
-
+    delete output;
     return result;
 }
 template ImageAndExposure* Undistort::undistort<unsigned char>
