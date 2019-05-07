@@ -97,8 +97,6 @@ struct PrepImageItem
 };
 
 
-
-
 class ImageFolderReader
 {
 public:
@@ -109,15 +107,11 @@ public:
         undistort = Undistort::getUndistorterForFile(
                         calibFile, gammaFile, vignetteFile);
 
-
         widthOrg = undistort->getOriginalSize()[0];
         heightOrg = undistort->getOriginalSize()[1];
         width=undistort->getSize()[0];
         height=undistort->getSize()[1];
 
-
-        // load timestamps if possible.
-        loadExposures();
         printf("ImageFolderReader: got %d files in %s!\n", (int)filenames.size(),
                path.c_str());
 
@@ -186,7 +180,6 @@ public:
 private:
     std::vector<ImageAndExposure*> preloadedImages;
     std::vector<std::string> filenames;
-    std::vector<float> exposures;
 
     int width, height;
     int widthOrg, heightOrg;
@@ -201,49 +194,9 @@ private:
         MinimalImageB* minimg = getImageRaw_internal(id, 0);
         ImageAndExposure* ret2 = undistort->undistort<unsigned char>(
                                      minimg,
-                                     (exposures.size() == 0 ? 1.0f : exposures[id]));
+                                     1.0f);
         delete minimg;
         return ret2;
-    }
-
-    inline void loadExposures() {
-        for(int i=0; i<(int)getNumImages(); i++) {
-            exposures.push_back(0.1);
-        }
-
-        // check if exposures are correct, (possibly skip)
-        bool exposuresGood = ((int)exposures.size()==(int)getNumImages()) ;
-        for(int i=0; i<(int)exposures.size(); i++)
-        {
-            if(exposures[i] == 0)
-            {
-                // fix!
-                float sum=0,num=0;
-                if(i>0 && exposures[i-1] > 0) {
-                    sum += exposures[i-1];
-                    num++;
-                }
-                if(i+1<(int)exposures.size() && exposures[i+1] > 0) {
-                    sum += exposures[i+1];
-                    num++;
-                }
-
-                if(num>0)
-                    exposures[i] = sum/num;
-            }
-
-            if(exposures[i] == 0) exposuresGood=false;
-        }
-
-
-        if((int)getNumImages() != (int)exposures.size() || !exposuresGood)
-        {
-            printf("set EXPOSURES to zero!\n");
-            exposures.clear();
-        }
-
-        printf("got %d images and %d exposures.!\n",
-               (int)getNumImages(), (int)exposures.size());
     }
 };
 
