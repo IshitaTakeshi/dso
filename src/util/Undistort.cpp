@@ -193,9 +193,9 @@ void PhotometricUndistorter::unMapFloatImage(float* image)
     }
 }
 
-template<typename T>
-ImageAndExposure* PhotometricUndistorter::processFrame(T* image_in, float exposure_time, float factor)
-{
+template<typename T> ImageAndExposure* PhotometricUndistorter::processFrame(
+    T* image_in, float exposure_time, float factor) const {
+
     int wh=w*h;
 
     ImageAndExposure *output = new ImageAndExposure(w,h);
@@ -224,9 +224,9 @@ ImageAndExposure* PhotometricUndistorter::processFrame(T* image_in, float exposu
 }
 
 template ImageAndExposure* PhotometricUndistorter::processFrame<unsigned char>
-(unsigned char* image_in, float exposure_time, float factor);
+(unsigned char* image_in, float exposure_time, float factor) const;
 template ImageAndExposure* PhotometricUndistorter::processFrame<unsigned short>
-(unsigned short* image_in, float exposure_time, float factor);
+(unsigned short* image_in, float exposure_time, float factor) const;
 
 
 Undistort::~Undistort()

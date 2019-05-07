@@ -41,12 +41,13 @@ using namespace dso;
 
 
 
-inline int getdir(std::string dirname, std::vector<std::string> &filenames) {
+inline std::vector<std::string> getdir(std::string dirname) {
+    std::vector<std::string> filenames;
     DIR *dp;
     struct dirent *dirp;
 
     if((dp = opendir(dirname.c_str())) == NULL) {
-        return -1;
+        return std::vector<std::string>();  // return empty list
     }
 
     while ((dirp = readdir(dp)) != NULL) {
@@ -72,7 +73,7 @@ inline int getdir(std::string dirname, std::vector<std::string> &filenames) {
         filename = dirname + filename;
     }
 
-    return filenames.size();
+    return filenames;
 }
 
 
@@ -101,11 +102,9 @@ class ImageFolderReader
 {
 public:
     ImageFolderReader(std::string path, std::string calibFile,
-                      std::string gammaFile, std::string vignetteFile) {
-        getdir(path, filenames);
-
-        undistort = Undistort::getUndistorterForFile(
-                        calibFile, gammaFile, vignetteFile);
+                      std::string gammaFile, std::string vignetteFile) :
+        undistort(Undistort::getUndistorterForFile(calibFile, gammaFile, vignetteFile)),
+        filenames(getdir(path)) {
 
         printf("ImageFolderReader: got %d files in %s!\n", (int)filenames.size(),
                path.c_str());
@@ -161,13 +160,11 @@ public:
         return undistort->photometricUndist->getG();
     }
 
-
-    // undistorter. [0] always exists, [1-2] only when MT is enabled.
-    Undistort* undistort;
-
 private:
     std::vector<ImageAndExposure*> preloadedImages;
-    std::vector<std::string> filenames;
+    const std::vector<std::string> filenames;
+    // undistorter. [0] always exists, [1-2] only when MT is enabled.
+    const Undistort* undistort;
 
     MinimalImageB* getImageRaw_internal(int id) {
         // CHANGE FOR ZIP FILE

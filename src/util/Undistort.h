@@ -49,7 +49,7 @@ public:
     // affine normalizes values to 0 <= I < 256.
     // raw irradiance = a*I + b.
     template<typename T> ImageAndExposure* processFrame(T* image_in, float exposure_time,
-                                           float factor=1);
+                                           float factor=1) const;
     void unMapFloatImage(float* image);
 
     float* getG() {
@@ -85,7 +85,7 @@ public:
     inline const VecX getOriginalParameter() const {
         return parsOrg;
     };
-    inline const Eigen::Vector2i getOriginalSize() {
+    inline const Eigen::Vector2i getOriginalSize() const {
         return Eigen::Vector2i(wOrg, hOrg);
     };
     inline bool isValid() {
