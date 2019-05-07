@@ -35,44 +35,44 @@
 #include "util/Undistort.h"
 #include "IOWrapper/ImageRW.h"
 
-#if HAS_ZIPLIB
-#include "zip.h"
-#endif
-
 #include <boost/thread.hpp>
 
 using namespace dso;
 
 
 
-inline int getdir (std::string dir, std::vector<std::string> &files)
-{
+inline int getdir(std::string dirname, std::vector<std::string> &filenames) {
     DIR *dp;
     struct dirent *dirp;
-    if((dp  = opendir(dir.c_str())) == NULL)
-    {
+
+    if((dp = opendir(dirname.c_str())) == NULL) {
         return -1;
     }
 
     while ((dirp = readdir(dp)) != NULL) {
         std::string name = std::string(dirp->d_name);
 
-        if(name != "." && name != "..")
-            files.push_back(name);
+        if(name != "." && name != "..") {
+            filenames.push_back(name);
+        }
     }
+
     closedir(dp);
 
-
-    std::sort(files.begin(), files.end());
-
-    if(dir.at( dir.length() - 1 ) != '/') dir = dir+"/";
-    for(unsigned int i=0; i<files.size(); i++)
-    {
-        if(files[i].at(0) != '/')
-            files[i] = dir + files[i];
+    for(auto &filename : filenames) {
+        std::cout << "filename " << filename << std::endl;
     }
 
-    return files.size();
+    std::sort(filenames.begin(), filenames.end());
+
+    if(dirname[dirname.length() - 1] != '/') {
+        dirname = dirname + "/";
+    }
+    for(std::string &filename : filenames) {
+        filename = dirname + filename;
+    }
+
+    return filenames.size();
 }
 
 
@@ -103,49 +103,8 @@ class ImageFolderReader
 {
 public:
     ImageFolderReader(std::string path, std::string calibFile,
-                      std::string gammaFile, std::string vignetteFile)
-    {
-        this->path = path;
-        this->calibfile = calibFile;
-
-#if HAS_ZIPLIB
-        ziparchive=0;
-        databuffer=0;
-#endif
-
-        isZipped = (path.length()>4 && path.substr(path.length()-4) == ".zip");
-
-        if(isZipped)
-        {
-#if HAS_ZIPLIB
-            int ziperror=0;
-            ziparchive = zip_open(path.c_str(),  ZIP_RDONLY, &ziperror);
-            if(ziperror!=0)
-            {
-                printf("ERROR %d reading archive %s!\n", ziperror, path.c_str());
-                exit(1);
-            }
-
-            files.clear();
-            int numEntries = zip_get_num_entries(ziparchive, 0);
-            for(int k=0; k<numEntries; k++)
-            {
-                const char* name = zip_get_name(ziparchive, k,  ZIP_FL_ENC_STRICT);
-                std::string nstr = std::string(name);
-                if(nstr == "." || nstr == "..") continue;
-                files.push_back(name);
-            }
-
-            printf("got %d entries and %d files!\n", numEntries, (int)files.size());
-            std::sort(files.begin(), files.end());
-#else
-            printf("ERROR: cannot read .zip archive, as compile without ziplib!\n");
-            exit(1);
-#endif
-        }
-        else
-            getdir (path, files);
-
+                      std::string gammaFile, std::string vignetteFile) {
+        getdir(path, filenames);
 
         undistort = Undistort::getUndistorterForFile(
                         calibFile, gammaFile, vignetteFile);
@@ -159,18 +118,12 @@ public:
 
         // load timestamps if possible.
         loadExposures();
-        printf("ImageFolderReader: got %d files in %s!\n", (int)files.size(),
+        printf("ImageFolderReader: got %d files in %s!\n", (int)filenames.size(),
                path.c_str());
 
     }
     ~ImageFolderReader()
     {
-#if HAS_ZIPLIB
-        if(ziparchive!=0) zip_close(ziparchive);
-        if(databuffer!=0) delete databuffer;
-#endif
-
-
         delete undistort;
     };
 
@@ -199,7 +152,7 @@ public:
 
     int getNumImages()
     {
-        return files.size();
+        return filenames.size();
     }
 
 
@@ -229,48 +182,19 @@ public:
 
     // undistorter. [0] always exists, [1-2] only when MT is enabled.
     Undistort* undistort;
+
 private:
+    std::vector<ImageAndExposure*> preloadedImages;
+    std::vector<std::string> filenames;
+    std::vector<float> exposures;
 
+    int width, height;
+    int widthOrg, heightOrg;
 
-    MinimalImageB* getImageRaw_internal(int id, int unused)
-    {
-        if(!isZipped)
-        {
-            // CHANGE FOR ZIP FILE
-            return IOWrap::readImageBW_8U(files[id]);
-        }
-        else
-        {
-#if HAS_ZIPLIB
-            if(databuffer==0) databuffer = new char[widthOrg*heightOrg*6+10000];
-            zip_file_t* fle = zip_fopen(ziparchive, files[id].c_str(), 0);
-            long readbytes = zip_fread(fle, databuffer, (long)widthOrg*heightOrg*6+10000);
-
-            if(readbytes > (long)widthOrg*heightOrg*6)
-            {
-                printf("read %ld/%ld bytes for file %s. increase buffer!!\n", readbytes,
-                       (long)widthOrg*heightOrg*6+10000, files[id].c_str());
-                delete[] databuffer;
-                databuffer = new char[(long)widthOrg*heightOrg*30];
-                fle = zip_fopen(ziparchive, files[id].c_str(), 0);
-                readbytes = zip_fread(fle, databuffer, (long)widthOrg*heightOrg*30+10000);
-
-                if(readbytes > (long)widthOrg*heightOrg*30)
-                {
-                    printf("buffer still to small (read %ld/%ld). abort.\n", readbytes,
-                           (long)widthOrg*heightOrg*30+10000);
-                    exit(1);
-                }
-            }
-
-            return IOWrap::readStreamBW_8U(databuffer, readbytes);
-#else
-            printf("ERROR: cannot read .zip archive, as compile without ziplib!\n");
-            exit(1);
-#endif
-        }
+    MinimalImageB* getImageRaw_internal(int id, int unused) {
+        // CHANGE FOR ZIP FILE
+        return IOWrap::readImageBW_8U(filenames[id]);
     }
-
 
     ImageAndExposure* getImage_internal(int id, int unused)
     {
@@ -321,23 +245,5 @@ private:
         printf("got %d images and %d exposures.!\n",
                (int)getNumImages(), (int)exposures.size());
     }
-
-
-    std::vector<ImageAndExposure*> preloadedImages;
-    std::vector<std::string> files;
-    std::vector<float> exposures;
-
-    int width, height;
-    int widthOrg, heightOrg;
-
-    std::string path;
-    std::string calibfile;
-
-    bool isZipped;
-
-#if HAS_ZIPLIB
-    zip_t* ziparchive;
-    char* databuffer;
-#endif
 };
 
