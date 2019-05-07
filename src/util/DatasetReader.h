@@ -125,18 +125,11 @@ public:
         return undistort->getOriginalSize();
     }
 
-    void getCalibMono(Eigen::Matrix3f &K, int &w, int &h)
-    {
-        K = undistort->getK().cast<float>();
-        w = undistort->getSize()[0];
-        h = undistort->getSize()[1];
-    }
-
+    // TODO remove this function
     void setGlobalCalibration() {
-        int w_out, h_out;
-        Eigen::Matrix3f K;
-        getCalibMono(K, w_out, h_out);
-        setGlobalCalib(w_out, h_out, K);
+        setGlobalCalib(undistort->getSize()[0],
+                       undistort->getSize()[1],
+                       undistort->getK().cast<float>());
     }
 
     int getNumImages() {
@@ -156,7 +149,6 @@ public:
     }
 
 private:
-    std::vector<ImageAndExposure*> preloadedImages;
     const std::vector<std::string> filenames;
     // undistorter. [0] always exists, [1-2] only when MT is enabled.
     const Undistort* undistort;
