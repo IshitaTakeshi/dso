@@ -36,7 +36,6 @@
 namespace dso
 {
 
-
 class PhotometricUndistorter
 {
 public:
@@ -120,8 +119,7 @@ protected:
     void makeOptimalK_crop();
     void makeOptimalK_full();
 
-    void readFromFile(const char* configFileName, int nPars,
-                      std::string prefix = "");
+    void readFromFile(const char* configFileName, int nPars);
 };
 
 class UndistortFOV : public Undistort
@@ -129,7 +127,7 @@ class UndistortFOV : public Undistort
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    UndistortFOV(const char* configFileName, bool noprefix);
+    UndistortFOV(const char* configFileName);
     ~UndistortFOV();
     void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
                             int n) const;
@@ -140,7 +138,7 @@ class UndistortRadTan : public Undistort
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortRadTan(const char* configFileName, bool noprefix);
+    UndistortRadTan(const char* configFileName);
     ~UndistortRadTan();
     void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
                             int n) const;
@@ -151,7 +149,7 @@ class UndistortEquidistant : public Undistort
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortEquidistant(const char* configFileName, bool noprefix);
+    UndistortEquidistant(const char* configFileName);
     ~UndistortEquidistant();
     void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
                             int n) const;
@@ -162,7 +160,7 @@ class UndistortPinhole : public Undistort
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortPinhole(const char* configFileName, bool noprefix);
+    UndistortPinhole(const char* configFileName);
     ~UndistortPinhole();
     void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
                             int n) const;
@@ -175,7 +173,7 @@ class UndistortKB : public Undistort
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortKB(const char* configFileName, bool noprefix);
+    UndistortKB(const char* configFileName);
     ~UndistortKB();
     void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
                             int n) const;
