@@ -29,6 +29,17 @@
 
 namespace dso
 {
+
+class CameraParameterPyramid {
+ private:
+  std::vector<double> fxs;
+  std::vector<double> fys;
+  std::vector<double> cxs;
+  std::vector<double> cys;
+  std::vector<double> widths;
+  std::vector<double> heights;
+};
+
 extern int wG[PYR_LEVELS], hG[PYR_LEVELS];
 extern float fxG[PYR_LEVELS], fyG[PYR_LEVELS],
        cxG[PYR_LEVELS], cyG[PYR_LEVELS];
@@ -42,4 +53,5 @@ extern float wM3G;
 extern float hM3G;
 
 void setGlobalCalib(int w, int h, const Eigen::Matrix3f &K );
+
 }
