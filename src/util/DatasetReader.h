@@ -122,7 +122,7 @@ public:
     }
     Eigen::Vector2i getOriginalDimensions()
     {
-        return  undistort->getOriginalSize();
+        return undistort->getOriginalSize();
     }
 
     void getCalibMono(Eigen::Matrix3f &K, int &w, int &h)
@@ -144,21 +144,14 @@ public:
         return filenames.size();
     }
 
-
-    void prepImage(int id, bool as8U=false)
-    {
-
-    }
-
-
     MinimalImageB* getImageRaw(int id)
     {
-        return getImageRaw_internal(id,0);
+        return getImageRaw_internal(id);
     }
 
     ImageAndExposure* getImage(int id, bool forceLoadDirectly=false)
     {
-        return getImage_internal(id, 0);
+        return getImage_internal(id);
     }
 
 
@@ -176,17 +169,14 @@ private:
     std::vector<ImageAndExposure*> preloadedImages;
     std::vector<std::string> filenames;
 
-    MinimalImageB* getImageRaw_internal(int id, int unused) {
+    MinimalImageB* getImageRaw_internal(int id) {
         // CHANGE FOR ZIP FILE
         return IOWrap::readImageBW_8U(filenames[id]);
     }
 
-    ImageAndExposure* getImage_internal(int id, int unused)
-    {
-        MinimalImageB* minimg = getImageRaw_internal(id, 0);
-        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(
-                                     minimg,
-                                     1.0f);
+    ImageAndExposure* getImage_internal(int id) {
+        MinimalImageB* minimg = getImageRaw_internal(id);
+        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(minimg, 1.0f);
         delete minimg;
         return ret2;
     }
