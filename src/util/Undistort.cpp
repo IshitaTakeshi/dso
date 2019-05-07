@@ -96,12 +96,9 @@ PhotometricUndistorter::PhotometricUndistorter(
                 i++) G[i] = 255.0 * (G[i] - min) / (max-min);			// make it to 0..255 => 0..255.
     }
 
-    if(setting_photometricCalibration==0)
-    {
+    if(setting_photometricCalibration==0) {
         for(int i=0; i<GDepth; i++) G[i]=255.0f*i/(float)(GDepth-1);
     }
-
-
 
     printf("Reading Vignette Image from %s\n",vignetteImage.c_str());
     MinimalImage<unsigned short>* vm16 = IOWrap::readImageBW_16U(

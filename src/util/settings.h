@@ -114,7 +114,6 @@ extern int   setting_minInlierVotesForMarg;
 
 
 extern int setting_photometricCalibration;
-extern bool setting_useExposure;
 extern float setting_affineOptModeA;
 extern float setting_affineOptModeB;
 extern int setting_gammaWeightsPixelSelect;
