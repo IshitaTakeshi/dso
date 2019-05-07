@@ -48,6 +48,21 @@ int readImageSize(int &wOrg, int &hOrg, const std::string &line) {
 }
 
 
+int isRelativeFormat(const VecX &parsOrg) {
+    return parsOrg[2] < 1 && parsOrg[3] < 1;
+}
+
+
+int readOutputParameters(VecX &outputCalibration, const std::string &line) {
+    if(std::sscanf(line.c_str(), "%lf %lf %lf %lf %lf",
+                   &outputCalibration[0], &outputCalibration[1], &outputCalibration[2],
+                   &outputCalibration[3], &outputCalibration[4]) == 5) {
+        return 0;
+    }
+    return -1;
+}
+
+
 int readFOVParameters(VecX &parsOrg, const std::string &prefix, const std::string &line) {
     char buf[1000];
     snprintf(buf, 1000, "%s%%lf %%lf %%lf %%lf %%lf", prefix.c_str());
@@ -647,7 +662,7 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         return;
     }
 
-    if(parsOrg[2] < 1 && parsOrg[3] < 1) {
+    if(isRelativeFormat(parsOrg)) {
         printf("\n\nFound fx=%f, fy=%f, cx=%f, cy=%f.\n I'm assuming this is the \"relative\" calibration file format,"
                "and will rescale this by image width / height to fx=%f, fy=%f, cx=%f, cy=%f.\n\n",
                parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3],
@@ -665,10 +680,9 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         parsOrg[3] = parsOrg[3] * hOrg - 0.5;
     }
 
-    float outputCalibration[5];
-    if(std::sscanf(l3.c_str(), "%f %f %f %f %f", &outputCalibration[0],
-                   &outputCalibration[1], &outputCalibration[2],
-                   &outputCalibration[3], &outputCalibration[4]) == 5) {
+    VecX outputCalibration = VecX(5);
+
+    if(readOutputParameters(outputCalibration, l3) == 0) {
         printf("Out: %f %f %f %f %f\n",
                outputCalibration[0], outputCalibration[1], outputCalibration[2],
                outputCalibration[3], outputCalibration[4]);
@@ -682,14 +696,14 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
     // make w and h constant in the cleass
     // separate file io to another function or class
 
-    // l4
-    if(std::sscanf(l4.c_str(), "%d %d", &w, &h) == 2) {
+    if(readImageSize(w, h, l4) == 0) {
         printf("Output resolution: %d %d\n",w, h);
     } else {
         printf("Out: Failed to Read Output resolution... not rectifying.\n");
         valid = false;
     }
 
+    // if(!isRelativeFormat(outputCalibration)) {
     if(outputCalibration[2] > 1 || outputCalibration[3] > 1) {
         printf("\n\n\nWARNING: given output calibration (%f %f %f %f) seems wrong. "
                "It needs to be relative to image width / height!\n\n\n",
