@@ -40,6 +40,39 @@
 
 namespace dso {
 
+int readImageSize(int &wOrg, int &hOrg, const std::string &line) {
+    if(std::sscanf(line.c_str(), "%d %d", &wOrg, &hOrg) == 2) {
+        return 0;
+    }
+    return -1;
+}
+
+
+int readFOVParameters(VecX &parsOrg, const std::string &prefix, const std::string &line) {
+    char buf[1000];
+    snprintf(buf, 1000, "%s%%lf %%lf %%lf %%lf %%lf", prefix.c_str());
+
+    if(std::sscanf(line.c_str(), buf,
+                   &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3], &parsOrg[4]) == 5) {
+        return 0;
+    }
+    return -1;
+}
+
+int readRadTanParameters(VecX &parsOrg, const std::string &prefix, const std::string &line) {
+
+    char buf[1000];
+    snprintf(buf, 1000, "%s%%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf",
+             prefix.c_str());
+    if(std::sscanf(line.c_str(), buf,
+                   &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3],
+                   &parsOrg[4], &parsOrg[5], &parsOrg[6], &parsOrg[7]) == 8) {
+        return 0;
+    }
+    return -1;
+}
+
+
 PhotometricUndistorter::PhotometricUndistorter(
     std::string file,
     std::string noiseImage,
@@ -580,12 +613,8 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
     // l1 & l2
     if(nPars == 5) {
         // fov model
-        char buf[1000];
-        snprintf(buf, 1000, "%s%%lf %%lf %%lf %%lf %%lf", prefix.c_str());
-
-        if(std::sscanf(l1.c_str(), buf,
-                       &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3], &parsOrg[4]) == 5 &&
-                std::sscanf(l2.c_str(), "%d %d", &wOrg, &hOrg) == 2)
+        if(readFOVParameters(parsOrg, prefix, l1) == 0 &&
+           readImageSize(wOrg, hOrg, l2) == 0)
         {
             printf("Input resolution: %d %d\n",wOrg, hOrg);
             printf("In: %f %f %f %f %f\n",
@@ -599,15 +628,9 @@ void Undistort::readFromFile(const char* configFileName, int nPars,
         }
     } else if(nPars == 8) {
         // KB, equi & radtan model
-        char buf[1000];
-        snprintf(buf, 1000, "%s%%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf",
-                 prefix.c_str());
-
-        if(std::sscanf(l1.c_str(), buf,
-                       &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3],
-                       &parsOrg[4], &parsOrg[5], &parsOrg[6], &parsOrg[7]) == 8 &&
-                       std::sscanf(l2.c_str(), "%d %d", &wOrg, &hOrg) == 2) {
-            printf("Input resolution: %d %d\n",wOrg, hOrg);
+        if(readRadTanParameters(parsOrg, prefix, l1) == 0 &&
+           readImageSize(wOrg, hOrg, l2) == 0) {
+            printf("Input resolution: %d %d\n", wOrg, hOrg);
             printf("In: %s%f %f %f %f %f %f %f %f\n",
                    prefix.c_str(),
                    parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3],
