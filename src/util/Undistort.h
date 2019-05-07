@@ -145,17 +145,6 @@ public:
 
 };
 
-class UndistortEquidistant : public Undistort
-{
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortEquidistant(const char* configFileName);
-    ~UndistortEquidistant();
-    void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
-                            int n) const;
-
-};
-
 class UndistortPinhole : public Undistort
 {
 public:
@@ -168,17 +157,5 @@ public:
 private:
     float inputCalibration[8];
 };
-
-class UndistortKB : public Undistort
-{
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortKB(const char* configFileName);
-    ~UndistortKB();
-    void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
-                            int n) const;
-
-};
-
 }
 
