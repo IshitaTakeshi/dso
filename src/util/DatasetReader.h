@@ -98,12 +98,13 @@ struct PrepImageItem
 };
 
 
-class ImageFolderReader
-{
+class ImageFolderReader {
 public:
     //TODO remove undistort from class members
-    ImageFolderReader(std::string path, Undistort* undistort_) :
+    ImageFolderReader(std::string path, Undistort* undistort_,
+                      PhotometricUndistorter *photometricUndist_) :
         undistort(undistort_),
+        photometricUndist(photometricUndist_),
         filenames(getdir(path)) {
 
         if(filenames.size() == 0) {
@@ -136,8 +137,20 @@ public:
 
     ImageAndExposure* getImage(int id) {
         MinimalImageB* minimg = getImageRaw_internal(id);
-        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(minimg, 1.0f);
+
+
+        if(minimg->w != undistort->getOriginalSize()[0] ||
+           minimg->h != undistort->getOriginalSize()[1]) {
+            printf("Undistort::undistort: wrong image size\n");
+            exit(1);
+        }
+
+        ImageAndExposure* output = photometricUndist->processFrame<unsigned char>(
+            minimg->data, 1.0f, 1.0f);
+        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(output);
+
         delete minimg;
+        delete output;
         return ret2;
     }
 
@@ -149,6 +162,7 @@ private:
     const std::vector<std::string> filenames;
     // undistorter. [0] always exists, [1-2] only when MT is enabled.
     const Undistort* undistort;
+    const PhotometricUndistorter* photometricUndist;
 
     MinimalImageB* getImageRaw_internal(int id) {
         // CHANGE FOR ZIP FILE

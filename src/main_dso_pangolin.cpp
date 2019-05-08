@@ -234,11 +234,15 @@ int main( int argc, char** argv )
     // hook crtl+C.
     boost::thread exThread = boost::thread(exitThread);
 
-    Undistort *undistort = Undistort::getUndistorterForFile(calib, gammaCalib, vignette);
-    ImageFolderReader* reader = new ImageFolderReader(source, undistort);
+    Undistort *undistort = Undistort::getUndistorterForFile(calib);
+    // TODO make photometricUndist independent from this class
+    PhotometricUndistorter *photometricUndist = new PhotometricUndistorter(
+        gammaCalib, "", vignette,
+        undistort->getOriginalSize()[0], undistort->getOriginalSize()[1]);
+    ImageFolderReader* reader = new ImageFolderReader(source, undistort, photometricUndist);
     reader->setGlobalCalibration();
 
-    if(setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0) {
+    if(setting_photometricCalibration > 0 && photometricUndist->getG() == 0) {
         printf(
           "ERROR: dont't have photometric calibation. "
           "Need to use commandline options mode=1 or mode=2 "
@@ -246,7 +250,7 @@ int main( int argc, char** argv )
         exit(1);
     }
 
-    FullSystem* fullSystem = new FullSystem(reader->getPhotometricGamma(),
+    FullSystem* fullSystem = new FullSystem(photometricUndist->getG(),
                                             undistort->getK(),
                                             playbackSpeed);
 
@@ -277,7 +281,7 @@ int main( int argc, char** argv )
                         ow->reset();
                     }
 
-                    fullSystem = new FullSystem(reader->getPhotometricGamma(),
+                    fullSystem = new FullSystem(photometricUndist->getG(),
                                                 undistort->getK(),
                                                 playbackSpeed);
                     fullSystem->outputWrapper = wraps;
@@ -307,6 +311,7 @@ int main( int argc, char** argv )
     }
 
     printf("DELETE FULLSYSTEM!\n");
+    delete undistort;
     delete fullSystem;
 
     printf("DELETE READER!\n");

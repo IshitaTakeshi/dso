@@ -88,6 +88,11 @@ int readRadTanParameters(VecX &parsOrg, const std::string &line) {
 
 
 void relativeToAbsolute(VecX &parsOrg, const int wOrg, const int hOrg) {
+    // rescale and substract 0.5 offset.
+    // the 0.5 is because I'm assuming the calibration is given such that the pixel at (0,0)
+    // contains the integral over intensity over [0,0]-[1,1], whereas I assume the pixel (0,0)
+    // to contain a sample of the intensity ot [0,0], which is best approximated by the integral over
+    // [-0.5,-0.5]-[0.5,0.5]. Thus, the shift by -0.5.
     parsOrg[0] = parsOrg[0] * wOrg;
     parsOrg[1] = parsOrg[1] * hOrg;
     parsOrg[2] = parsOrg[2] * wOrg - 0.5;
@@ -291,8 +296,7 @@ Undistort::~Undistort()
     if(remapY != 0) delete[] remapY;
 }
 
-Undistort* Undistort::getUndistorterForFile(std::string configFilename,
-        std::string gammaFilename, std::string vignetteFilename)
+Undistort* Undistort::getUndistorterForFile(std::string configFilename)
 {
     printf("Reading Calibration from file %s",configFilename.c_str());
 
@@ -416,32 +420,11 @@ Undistort* Undistort::getUndistorterForFile(std::string configFilename,
         exit(1);
     }
 
-    u->loadPhotometricCalibration(
-        gammaFilename,
-        "",
-        vignetteFilename);
-
     return u;
 }
 
-void Undistort::loadPhotometricCalibration(std::string file,
-        std::string noiseImage, std::string vignetteImage)
-{
-    photometricUndist = new PhotometricUndistorter(file, noiseImage, vignetteImage,
-            getOriginalSize()[0], getOriginalSize()[1]);
-}
-
 template<typename T>
-ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
-                                       float exposure, float factor) const
-{
-    if(image_raw->w != wOrg || image_raw->h != hOrg) {
-        printf("Undistort::undistort: wrong image size (%d %d instead of %d %d) \n",
-               image_raw->w, image_raw->h, w, h);
-        exit(1);
-    }
-
-    ImageAndExposure* output = photometricUndist->processFrame<T>(image_raw->data, exposure, factor);
+ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
     ImageAndExposure* result = new ImageAndExposure(w, h);
     output->copyMetaTo(*result);
 
@@ -478,15 +461,11 @@ ImageAndExposure* Undistort::undistort(const MinimalImage<T>* image_raw,
 
     applyBlurNoise(result->image);
 
-    delete output;
-
     return result;
 }
 
-template ImageAndExposure* Undistort::undistort<unsigned char>
-(const MinimalImage<unsigned char>* image_raw, float exposure, float factor) const;
-template ImageAndExposure* Undistort::undistort<unsigned short>
-(const MinimalImage<unsigned short>* image_raw, float exposure, float factor) const;
+template ImageAndExposure* Undistort::undistort<unsigned char> (ImageAndExposure* output) const;
+template ImageAndExposure* Undistort::undistort<unsigned short> (ImageAndExposure* output) const;
 
 
 void Undistort::applyBlurNoise(float* img) const
@@ -611,8 +590,6 @@ void makeRoundingResistant(float* remapX, float* remapY, int w, int h, int wOrg,
 
 
 int Undistort::readFromFile(const char* configFileName, int nPars) {
-    photometricUndist=0;
-
     parsOrg = VecX(nPars);
 
     // read parameters
