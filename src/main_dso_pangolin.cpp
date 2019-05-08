@@ -234,7 +234,11 @@ int main( int argc, char** argv )
     // hook crtl+C.
     boost::thread exThread = boost::thread(exitThread);
 
-    Undistort *undistort = Undistort::getUndistorterForFile(calib);
+    Undistort *undistort = getUndistorterForFile(calib);
+    if(undistort == 0) {
+        exit(-1);
+    }
+
     // TODO make photometricUndist independent from this class
     PhotometricUndistorter *photometricUndist = new PhotometricUndistorter(
         gammaCalib, "", vignette,

@@ -65,10 +65,11 @@ private:
 };
 
 
-class Undistort
-{
+class Undistort {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    Undistort(Mat33f &K_, int wOrg_, int hOrg_, int w_, int h_);
     virtual ~Undistort();
 
     virtual void distortCoordinates(float* in_x, float* in_y, float* out_x,
@@ -87,18 +88,14 @@ public:
     inline const Eigen::Vector2i getOriginalSize() const {
         return Eigen::Vector2i(wOrg, hOrg);
     };
-    inline bool isValid() {
-        return true;
-    };
 
     template<typename T> ImageAndExposure* undistort(ImageAndExposure* output) const;
-    static Undistort* getUndistorterForFile(std::string configFilename);
 
     void loadPhotometricCalibration(std::string file, std::string noiseImage,
                                     std::string vignetteImage);
 
 protected:
-    int w, h, wOrg, hOrg, wUp, hUp;
+    int wOrg, hOrg, w, h, wUp, hUp;
     int upsampleUndistFactor;
     Mat33f K;
     VecX parsOrg;
@@ -114,40 +111,51 @@ protected:
     int readFromFile(const char* configFileName, int nPars);
 };
 
+
+Undistort* getUndistorterForFile(std::string configFilename);
+
+
 class UndistortFOV : public Undistort
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    UndistortFOV(const char* configFileName);
+    UndistortFOV(Mat33f &K_, int wOrg_, int hOrg_, int w_, int h_,
+                 float fx_, float fy_,
+                 float cx_, float cy_, float dist_);
     ~UndistortFOV();
-    void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
-                            int n) const;
+    void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y, int n) const;
 
+private:
+    float fx;
+    float fy;
+    float cx;
+    float cy;
+    float dist;
 };
 
 class UndistortRadTan : public Undistort
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortRadTan(const char* configFileName);
+
+    UndistortRadTan(Mat33f &K_, int wOrg_, int hOrg_, int w_, int h_,
+                    float fx_, float fy_,
+                    float cx_, float cy_,
+                    float k1_, float k2_,
+                    float r1_, float r2_);
     ~UndistortRadTan();
     void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
                             int n) const;
-
-};
-
-class UndistortPinhole : public Undistort
-{
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    UndistortPinhole(const char* configFileName);
-    ~UndistortPinhole();
-    void distortCoordinates(float* in_x, float* in_y, float* out_x, float* out_y,
-                            int n) const;
-
 private:
-    float inputCalibration[8];
+    float fx;
+    float fy;
+    float cx;
+    float cy;
+    float k1;
+    float k2;
+    float r1;
+    float r2;
 };
 }
 

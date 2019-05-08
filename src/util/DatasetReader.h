@@ -60,10 +60,6 @@ inline std::vector<std::string> getdir(std::string dirname) {
 
     closedir(dp);
 
-    for(auto &filename : filenames) {
-        std::cout << "filename " << filename << std::endl;
-    }
-
     std::sort(filenames.begin(), filenames.end());
 
     if(dirname[dirname.length() - 1] != '/') {

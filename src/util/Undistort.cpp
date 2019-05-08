@@ -40,63 +40,138 @@
 
 namespace dso {
 
-int readImageSize(int &wOrg, int &hOrg, const std::string &line) {
-    if(std::sscanf(line.c_str(), "%d %d", &wOrg, &hOrg) == 2) {
+
+int readImageSize(int &w, int &h, const std::string &line) {
+    if(std::sscanf(line.c_str(), "%d %d", &w, &h) == 2) {
         return 0;
     }
     return -1;
 }
 
 
-int isRelativeFormat(const VecX &parsOrg) {
-    return parsOrg[2] < 1 && parsOrg[3] < 1;
+int isRelativeFormat(const float cx, const float cy) {
+    return cx < 1 && cy < 1;
 }
 
 
-int readOutputParameters(VecX &outputCalibration, const std::string &line) {
-    if(std::sscanf(line.c_str(), "%lf %lf %lf %lf %lf",
-                   &outputCalibration[0], &outputCalibration[1], &outputCalibration[2],
-                   &outputCalibration[3], &outputCalibration[4]) == 5) {
-        return 0;
-    }
-    return -1;
+int isRadTanParameters(std::string line) {
+    float ic[8];
+    return std::sscanf(line.c_str(), "%f %f %f %f %f %f %f %f",
+                       &ic[0], &ic[1], &ic[2], &ic[3],
+                       &ic[4], &ic[5], &ic[6], &ic[7]) == 8;
 }
 
 
-int readFOVParameters(VecX &parsOrg, const std::string &line) {
-    char buf[1000];
-    snprintf(buf, 1000, "%%lf %%lf %%lf %%lf %%lf");
-
-    if(std::sscanf(line.c_str(), buf,
-                   &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3], &parsOrg[4]) == 5) {
-        return 0;
-    }
-    return -1;
+int isFOVParameters(std::string line) {
+    float ic[5];
+    return std::sscanf(line.c_str(), "%f %f %f %f %f",
+                       &ic[0], &ic[1], &ic[2], &ic[3], &ic[4]) == 5;
 }
 
 
-int readRadTanParameters(VecX &parsOrg, const std::string &line) {
-    char buf[1000];
-    snprintf(buf, 1000, "%%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf %%lf");
-    if(std::sscanf(line.c_str(), buf,
-                   &parsOrg[0], &parsOrg[1], &parsOrg[2], &parsOrg[3],
-                   &parsOrg[4], &parsOrg[5], &parsOrg[6], &parsOrg[7]) == 8) {
-        return 0;
-    }
-    return -1;
-}
-
-
-void relativeToAbsolute(VecX &parsOrg, const int wOrg, const int hOrg) {
+void relativeToAbsolute(float &fx, float &fy, float &cx, float &cy,
+                        const int wOrg, const int hOrg) {
     // rescale and substract 0.5 offset.
     // the 0.5 is because I'm assuming the calibration is given such that the pixel at (0,0)
     // contains the integral over intensity over [0,0]-[1,1], whereas I assume the pixel (0,0)
     // to contain a sample of the intensity ot [0,0], which is best approximated by the integral over
     // [-0.5,-0.5]-[0.5,0.5]. Thus, the shift by -0.5.
-    parsOrg[0] = parsOrg[0] * wOrg;
-    parsOrg[1] = parsOrg[1] * hOrg;
-    parsOrg[2] = parsOrg[2] * wOrg - 0.5;
-    parsOrg[3] = parsOrg[3] * hOrg - 0.5;
+    fx = fx * wOrg;
+    fy = fy * hOrg;
+    cx = cx * wOrg - 0.5;
+    cy = cy * hOrg - 0.5;
+}
+
+
+// FIXME this is same as readFOVParameters_
+int readOutputParameters_(float &fx, float &fy, float &cx, float &cy, float &r,
+                          const std::string &line) {
+    if(std::sscanf(line.c_str(), "%f %f %f %f %f",
+                   &fx, &fy, &cx, &cy, &r) == 5) {
+        return 0;
+    }
+    return -1;
+}
+
+
+int readOutputParameters(Mat33f &K, int w, int h, const std::string &line) {
+    float fx, fy, cx, cy, r;
+
+    std::cout << "called readOutputParameters" << std::endl;
+
+    if(readOutputParameters_(fx, fy, cx, cy, r, line) != 0) {
+        return -1;
+    }
+
+    if(!isRelativeFormat(cx, cy)) {
+        return -1;
+    }
+
+    std::cout << "output " << std::endl;
+    std::cout << "fx, fy, cx, cy, r" << " "
+              << fx << " " << fy << " "
+              << cx << " " << cy << " " << r << " " << std::endl;
+
+    relativeToAbsolute(fx, fy, cx, cy, w, h);
+
+    std::cout << "output " << std::endl;
+    std::cout << "fx, fy, cx, cy, r" << " "
+              << fx << " " << fy << " "
+              << cx << " " << cy << " " << r << " " << std::endl;
+    K = initializeCameraMatrix(fx, fy, cx, cy);
+    return 0;
+}
+
+
+int readFOVParameters_(float &fx, float &fy, float &cx, float &cy, float &dist,
+                       const std::string &line) {
+    char buf[1000];
+    snprintf(buf, 1000, "%%f %%f %%f %%f %%f");
+
+    if(std::sscanf(line.c_str(), buf, &fx, &fy, &cx, &cy, &dist) == 5) {
+        return 0;
+    }
+    return -1;
+}
+
+
+int readRadTanParameters_(float &fx, float &fy, float &cx, float &cy,
+                          float &k1, float &k2, float &r1, float &r2,
+                          const std::string &line) {
+    char buf[1000];
+    snprintf(buf, 1000, "%%f %%f %%f %%f %%f %%f %%f %%f %%f %%f");
+    if(std::sscanf(line.c_str(), buf,
+                   &fx, &fy, &cx, &cy, &k1, &k2, &r1, &r2) == 8) {
+        return 0;
+    }
+    return -1;
+}
+
+
+int readFOVParameters(float &fx, float &fy, float &cx, float &cy, float &dist,
+                      int wOrg, int hOrg,
+                      const std::string &line) {
+    if(readFOVParameters_(fx, fy, cx, cy, dist, line) != 0) {
+        return -1;
+    }
+    if(isRelativeFormat(cx, cy)) {
+        relativeToAbsolute(fx, fy, cx, cy, wOrg, hOrg);
+    }
+    return 0;
+}
+
+
+int readRadTanParameters(float &fx, float &fy, float &cx, float &cy,
+                         float &k1, float &k2, float &r1, float &r2,
+                         int wOrg, int hOrg,
+                         const std::string &line) {
+    if(readRadTanParameters_(fx, fy, cx, cy, k1, k2, r1, r2, line) != 0) {
+        return -1;
+    }
+    if(isRelativeFormat(cx, cy)) {
+        relativeToAbsolute(fx, fy, cx, cy, wOrg, hOrg);
+    }
+    return 0;
 }
 
 
@@ -298,132 +373,76 @@ Undistort::~Undistort()
     if(remapY != 0) delete[] remapY;
 }
 
-Undistort* Undistort::getUndistorterForFile(std::string configFilename)
-{
-    printf("Reading Calibration from file %s",configFilename.c_str());
 
-    std::ifstream f(configFilename.c_str());
-    if (!f.good())
-    {
-        f.close();
+Undistort* getUndistorterForFile(std::string configFilename) {
+    printf("Reading Calibration from file %s", configFilename.c_str());
+
+    // read parameters
+    std::ifstream infile(configFilename);
+    assert(infile.good());
+
+    std::string l1, l2, l3, l4;
+
+    std::getline(infile, l1);
+    std::getline(infile, l2);
+    std::getline(infile, l3);
+    std::getline(infile, l4);
+
+    if (!infile.good()) {
         printf(" ... not found. Cannot operate without calibration, shutting down.\n");
-        f.close();
+        infile.close();
         return 0;
     }
 
-    printf(" ... found!\n");
-    std::string l1;
-    std::getline(f,l1);
-    f.close();
+    infile.close();
 
-    float ic[10];
+    Mat33f K;
 
-    Undistort* u;
+    int wOrg, hOrg, w, h;
 
-    // for backwards-compatibility: Use RadTan model for 8 parameters.
-    if(std::sscanf(l1.c_str(), "%f %f %f %f %f %f %f %f",
-                   &ic[0], &ic[1], &ic[2], &ic[3],
-                   &ic[4], &ic[5], &ic[6], &ic[7]) == 8)
-    {
+    // read image sizes first
+    if(readImageSize(wOrg, hOrg, l2) != 0) {
+        printf("Failed to read input image size\n");
+        return 0;
+    }
+
+    if(readImageSize(w, h, l4) != 0) {
+        printf("Failed to read output image size\n");
+        return 0;
+    }
+
+    if(readOutputParameters(K, w, h, l3) != 0) {
+        printf("Failed to read output camera parameters\n");
+        return 0;
+    }
+
+    if(isRadTanParameters(l1)) {
         printf("found RadTan (OpenCV) camera model, building rectifier.\n");
-        u = new UndistortRadTan(configFilename.c_str());
-        if(!u->isValid()) {
-            delete u;
-            return 0;
-        }
+        float fx, fy, cx, cy, k1, k2, r1, r2;
+        readRadTanParameters(fx, fy, cx, cy, k1, k2, r1, r2, wOrg, hOrg, l1);
+        return new UndistortRadTan(K, wOrg, hOrg, w, h, fx, fy, cx, cy, k1, k2, r1, r2);
     }
 
-    // for backwards-compatibility: Use Pinhole / FoV model for 5 parameter.
-    else if(std::sscanf(l1.c_str(), "%f %f %f %f %f",
-                        &ic[0], &ic[1], &ic[2], &ic[3], &ic[4]) == 5)
-    {
-        if(ic[4]==0)
-        {
-            printf("found PINHOLE camera model, building rectifier.\n");
-            u = new UndistortPinhole(configFilename.c_str());
-            if(!u->isValid()) {
-                delete u;
-                return 0;
-            }
-        }
-        else
-        {
-            printf("found ATAN camera model, building rectifier.\n");
-            u = new UndistortFOV(configFilename.c_str());
-            if(!u->isValid()) {
-                delete u;
-                return 0;
-            }
-        }
+    if(isFOVParameters(l1)) {
+        printf("found FOV camera model, building rectifier.\n");
+        float fx, fy, cx, cy, dist;
+        readFOVParameters(fx, fy, cx, cy, dist, wOrg, hOrg, l1);
+        std::cout << "fx, fy, cx, cy, dist" << " "
+                  << fx << " " << fy << " "
+                  << cx << " " << cy << " " << dist << " " << std::endl;
+        std::cout << "wOrg, hOrg, w, h" << " "
+                  <<  wOrg << " " << hOrg << " "
+                  << w << " " << h << " " << std::endl;
+        std::cout << "K" << std::endl;
+        std::cout << K << std::endl;
+        return new UndistortFOV(K, wOrg, hOrg, w, h, fx, fy, cx, cy, dist);
     }
 
-    /*
-    // clean model selection implementation.
-    else if(std::sscanf(l1.c_str(), "KannalaBrandt %f %f %f %f %f %f %f %f",
-                        &ic[0], &ic[1], &ic[2], &ic[3],
-                        &ic[4], &ic[5], &ic[6], &ic[7]) == 8)
-    {
-        u = new UndistortKB(configFilename.c_str());
-        if(!u->isValid()) {
-            delete u;
-            return 0;
-        }
-    }
-
-
-    else if(std::sscanf(l1.c_str(), "RadTan %f %f %f %f %f %f %f %f",
-                        &ic[0], &ic[1], &ic[2], &ic[3],
-                        &ic[4], &ic[5], &ic[6], &ic[7]) == 8)
-    {
-        u = new UndistortRadTan(configFilename.c_str());
-        if(!u->isValid()) {
-            delete u;
-            return 0;
-        }
-    }
-
-
-    else if(std::sscanf(l1.c_str(), "EquiDistant %f %f %f %f %f %f %f %f",
-                        &ic[0], &ic[1], &ic[2], &ic[3],
-                        &ic[4], &ic[5], &ic[6], &ic[7]) == 8)
-    {
-        u = new UndistortEquidistant(configFilename.c_str());
-        if(!u->isValid()) {
-            delete u;
-            return 0;
-        }
-    }
-
-    else if(std::sscanf(l1.c_str(), "FOV %f %f %f %f %f",
-                        &ic[0], &ic[1], &ic[2], &ic[3],
-                        &ic[4]) == 5)
-    {
-        u = new UndistortFOV(configFilename.c_str());
-        if(!u->isValid()) {
-            delete u;
-            return 0;
-        }
-    }
-
-    else if(std::sscanf(l1.c_str(), "Pinhole %f %f %f %f %f",
-                        &ic[0], &ic[1], &ic[2], &ic[3],
-                        &ic[4]) == 5)
-    {
-        u = new UndistortPinhole(configFilename.c_str());
-        if(!u->isValid()) {
-            delete u;
-            return 0;
-        }
-    }
-    */
-
-    else {
-        printf("could not read calib file! exit.");
-        exit(1);
-    }
-
-    return u;
+    printf("could not read calib file! exit.");
+    return 0;
 }
+
+
 
 template<typename T>
 ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
@@ -591,69 +610,9 @@ void makeRoundingResistant(float* remapX, float* remapY, int w, int h, int wOrg,
 }
 
 
-int Undistort::readFromFile(const char* configFileName, int nPars) {
-    parsOrg = VecX(nPars);
-
-    // read parameters
-    std::ifstream infile(configFileName);
-    assert(infile.good());
-
-    std::string l1, l2, l3, l4;
-
-    std::getline(infile, l1);
-    std::getline(infile, l2);
-    std::getline(infile, l3);
-    std::getline(infile, l4);
-
-    // l1 & l2
-    if(nPars == 5) {
-        // fov model
-        if(readFOVParameters(parsOrg, l1) != 0) {
-            printf("Failed to read input camera parameters\n");
-            infile.close();
-            return -1;
-        }
-    } else if(nPars == 8) {
-        // KB, equi & radtan model
-        if(readRadTanParameters(parsOrg, l1) != 0) {
-            printf("Failed to read input camera parameters\n");
-            infile.close();
-            return -1;
-        }
-    }
-
-    if(readImageSize(wOrg, hOrg, l2) != 0) {
-        printf("Failed to read input image size\n");
-        infile.close();
-        return -1;
-    }
-
-    if(isRelativeFormat(parsOrg)) {
-        relativeToAbsolute(parsOrg, wOrg, hOrg);
-    }
-
-    VecX outputCalibration = VecX(5);
-    if(readOutputParameters(outputCalibration, l3) != 0) {
-        printf("Failed to read output camera parameters\n");
-        infile.close();
-        return -1;
-    }
-
-    if(readImageSize(w, h, l4) != 0) {
-        printf("Failed to read output image size\n");
-        infile.close();
-        return -1;
-    }
-
-    if(!isRelativeFormat(outputCalibration)) {
-        printf("\n\n\nWARNING: given output calibration seems wrong. "
-               "It needs to be relative to image width / height!\n\n\n");
-    }
-
-    relativeToAbsolute(outputCalibration, w, h);
-    K = initializeCameraMatrix(outputCalibration[0], outputCalibration[1],
-                               outputCalibration[2], outputCalibration[3]);
-
+Undistort::Undistort(Mat33f &K_, int wOrg_, int hOrg_, int w_, int h_) :
+    K(K_), wOrg(wOrg_), hOrg(hOrg_), w(w_), h(h_)
+{
     remapX = new float[w*h];
     remapY = new float[w*h];
     for(int y=0; y<h; y++) {
@@ -662,37 +621,28 @@ int Undistort::readFromFile(const char* configFileName, int nPars) {
             remapY[y*w+x] = y;
         }
     }
+}
 
-    printf("\nRectified Kamera Matrix:\n");
-    std::cout << K << "\n\n";
+
+UndistortFOV::UndistortFOV(Mat33f &K_,
+                           int wOrg_, int hOrg_, int w_, int h_,
+                           float fx_, float fy_,
+                           float cx_, float cy_, float dist_) :
+    Undistort(K_, wOrg_, hOrg_, w_, h_),
+    fx(fx_), fy(fy_), cx(cx_), cy(cy_), dist(dist_) {
+    printf("Creating FOV undistorter\n");
 
     distortCoordinates(remapX, remapY, remapX, remapY, h*w);
     makeRoundingResistant(remapX, remapY, w, h, wOrg, hOrg);
-    return 0;
 }
 
-
-UndistortFOV::UndistortFOV(const char* configFileName) {
-    printf("Creating FOV undistorter\n");
-
-    if(readFromFile(configFileName, 5) != 0) {
-        printf("Failed to read camera calibration (invalid format?)\n");
-        exit(-1);
-    }
-}
 
 UndistortFOV::~UndistortFOV() {}
 
+
 void UndistortFOV::distortCoordinates(float* in_x, float* in_y, float* out_x,
                                       float* out_y, int n) const {
-    float dist = parsOrg[4];
     float d2t = 2.0f * tan(dist / 2.0f);
-
-    // current camera parameters
-    float fx = parsOrg[0];
-    float fy = parsOrg[1];
-    float cx = parsOrg[2];
-    float cy = parsOrg[3];
 
     float ofx = K(0,0);
     float ofy = K(1,1);
@@ -713,29 +663,25 @@ void UndistortFOV::distortCoordinates(float* in_x, float* in_y, float* out_x,
     }
 }
 
-UndistortRadTan::UndistortRadTan(const char* configFileName) {
+UndistortRadTan::UndistortRadTan(Mat33f &K_,
+                                 int wOrg_, int hOrg_, int w_, int h_,
+                                 float fx_, float fy_,
+                                 float cx_, float cy_,
+                                 float k1_, float k2_,
+                                 float r1_, float r2_) :
+    Undistort(K_, wOrg_, hOrg_, w_, h_),
+    fx(fx_), fy(fy_), cx(cx_), cy(cy_), k1(k1_), k2(k2_), r1(r1_), r2(r2_) {
+
     printf("Creating RadTan undistorter\n");
 
-    if(readFromFile(configFileName, 8) != 0) {
-        printf("Failed to read camera calibration (invalid format?)\n");
-        exit(-1);
-    }
+    distortCoordinates(remapX, remapY, remapX, remapY, h*w);
+    makeRoundingResistant(remapX, remapY, w, h, wOrg, hOrg);
 }
 
 UndistortRadTan::~UndistortRadTan() {}
 
 void UndistortRadTan::distortCoordinates(float* in_x, float* in_y,
-        float* out_x, float* out_y, int n) const {
-    // RADTAN
-    float fx = parsOrg[0];
-    float fy = parsOrg[1];
-    float cx = parsOrg[2];
-    float cy = parsOrg[3];
-    float k1 = parsOrg[4];
-    float k2 = parsOrg[5];
-    float r1 = parsOrg[6];
-    float r2 = parsOrg[7];
-
+                                         float* out_x, float* out_y, int n) const {
     float ofx = K(0,0);
     float ofy = K(1,1);
     float ocx = K(0,2);
@@ -759,44 +705,6 @@ void UndistortRadTan::distortCoordinates(float* in_x, float* in_y,
                        (rho2_u + 2.0 * my2_u);
         out_x[i] = fx*x_dist+cx;
         out_y[i] = fy*y_dist+cy;
-    }
-}
-
-UndistortPinhole::UndistortPinhole(const char* configFileName) {
-    printf("Creating RadTan undistorter\n");
-
-    if(readFromFile(configFileName, 5) != 0) {
-        printf("Failed to read camera calibration (invalid format?)\n");
-        exit(-1);
-    }
-}
-
-UndistortPinhole::~UndistortPinhole() {}
-
-void UndistortPinhole::distortCoordinates(float* in_x, float* in_y,
-        float* out_x, float* out_y, int n) const
-{
-    // current camera parameters
-    float fx = parsOrg[0];
-    float fy = parsOrg[1];
-    float cx = parsOrg[2];
-    float cy = parsOrg[3];
-
-    float ofx = K(0,0);
-    float ofy = K(1,1);
-    float ocx = K(0,2);
-    float ocy = K(1,2);
-
-    for(int i=0; i<n; i++)
-    {
-        float x = in_x[i];
-        float y = in_y[i];
-        float ix = (x - ocx) / ofx;
-        float iy = (y - ocy) / ofy;
-        ix = fx*ix+cx;
-        iy = fy*iy+cy;
-        out_x[i] = ix;
-        out_y[i] = iy;
     }
 }
 
