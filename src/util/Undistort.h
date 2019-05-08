@@ -52,8 +52,7 @@ public:
     void unMapFloatImage(float* image);
 
     float* getG() {
-        if(!valid) return 0;
-        else return G;
+        return G;
     };
 private:
     float G[256*256];
@@ -88,10 +87,8 @@ public:
         return Eigen::Vector2i(wOrg, hOrg);
     };
     inline bool isValid() {
-        return valid;
+        return true;
     };
-
-    void makeRoundingResistant(float* remapX, float* remapY);
 
     template<typename T>
     ImageAndExposure* undistort(const MinimalImage<T>* image_raw, float exposure=0,
@@ -109,7 +106,6 @@ protected:
     int upsampleUndistFactor;
     Mat33f K;
     VecX parsOrg;
-    bool valid;
 
     float* remapX;
     float* remapY;
@@ -119,7 +115,7 @@ protected:
     void makeOptimalK_crop();
     void makeOptimalK_full();
 
-    void readFromFile(const char* configFileName, int nPars);
+    int readFromFile(const char* configFileName, int nPars);
 };
 
 class UndistortFOV : public Undistort

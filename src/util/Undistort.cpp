@@ -100,7 +100,6 @@ PhotometricUndistorter::PhotometricUndistorter(
     std::string noiseImage,
     std::string vignetteImage,
     int w_, int h_) {
-    valid = false;
     vignetteMap=0;
     vignetteMapInv=0;
     w = w_;
@@ -119,9 +118,10 @@ PhotometricUndistorter::PhotometricUndistorter(
 
     {
         std::string line;
-        std::getline( f, line );
-        std::istringstream l1i( line );
-        std::vector<float> Gvec = std::vector<float>( std::istream_iterator<float>
+        std::getline(f, line);
+        std::istringstream l1i(line);
+        std::vector<float> Gvec = std::vector<float>(
+            std::istream_iterator<float>
                                   (l1i), std::istream_iterator<float>() );
 
         GDepth = Gvec.size();
@@ -147,8 +147,9 @@ PhotometricUndistorter::PhotometricUndistorter(
 
         float min=G[0];
         float max=G[GDepth-1];
-        for(int i=0; i<GDepth;
-                i++) G[i] = 255.0 * (G[i] - min) / (max-min);			// make it to 0..255 => 0..255.
+        for(int i=0; i<GDepth; i++) {
+            G[i] = 255.0 * (G[i] - min) / (max-min);			// make it to 0..255 => 0..255.
+        }
     }
 
     if(setting_photometricCalibration==0) {
@@ -215,8 +216,8 @@ PhotometricUndistorter::PhotometricUndistorter(
 
 
     printf("Successfully read photometric calibration!\n");
-    valid = true;
 }
+
 PhotometricUndistorter::~PhotometricUndistorter() {
     if(vignetteMap != 0) delete[] vignetteMap;
     if(vignetteMapInv != 0) delete[] vignetteMapInv;
@@ -258,8 +259,8 @@ template<typename T> ImageAndExposure* PhotometricUndistorter::processFrame(
     assert(output->w == w && output->h == h);
     assert(data != 0);
 
-    if(!valid || exposure_time <= 0
-            || setting_photometricCalibration==0) { // disable full photometric calibration.
+    if(exposure_time <= 0 ||
+       setting_photometricCalibration==0) { // disable full photometric calibration.
         for(int i=0; i<wh; i++) {
             data[i] = factor*image_in[i];
         }
@@ -585,7 +586,7 @@ void Undistort::applyBlurNoise(float* img) const
 }
 
 // TODO take w and h as args or make them cost members
-void Undistort::makeRoundingResistant(float* remapX, float* remapY) {
+void makeRoundingResistant(float* remapX, float* remapY, int w, int h, int wOrg, int hOrg) {
     for(int y=0; y<h; y++) {
         for(int x=0; x<w; x++) {
             // make rounding resistant.
@@ -608,9 +609,9 @@ void Undistort::makeRoundingResistant(float* remapX, float* remapY) {
     }
 }
 
-void Undistort::readFromFile(const char* configFileName, int nPars) {
+
+int Undistort::readFromFile(const char* configFileName, int nPars) {
     photometricUndist=0;
-    valid = false;
 
     parsOrg = VecX(nPars);
 
@@ -628,46 +629,27 @@ void Undistort::readFromFile(const char* configFileName, int nPars) {
     // l1 & l2
     if(nPars == 5) {
         // fov model
-        if(readFOVParameters(parsOrg, l1) == 0 &&
-           readImageSize(wOrg, hOrg, l2) == 0)
-        {
-            printf("Input resolution: %d %d\n",wOrg, hOrg);
-            printf("In: %f %f %f %f %f\n",
-                   parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3], parsOrg[4]);
-        } else {
-            printf("Failed to read camera calibration "
-                   "(invalid format?)\nCalibration file: %s\n",
-                   configFileName);
+        if(readFOVParameters(parsOrg, l1) != 0) {
+            printf("Failed to read input camera parameters\n");
             infile.close();
-            return;
+            return -1;
         }
     } else if(nPars == 8) {
         // KB, equi & radtan model
-        if(readRadTanParameters(parsOrg, l1) == 0 &&
-           readImageSize(wOrg, hOrg, l2) == 0) {
-            printf("Input resolution: %d %d\n", wOrg, hOrg);
-            printf("In: %f %f %f %f %f %f %f %f\n",
-                   parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3],
-                   parsOrg[4], parsOrg[5], parsOrg[6], parsOrg[7]);
-        } else {
-            printf("Failed to read camera calibration (invalid format?)\nCalibration file: %s\n",
-                   configFileName);
+        if(readRadTanParameters(parsOrg, l1) != 0) {
+            printf("Failed to read input camera parameters\n");
             infile.close();
-            return;
+            return -1;
         }
-    } else {
-        printf("called with invalid number of parameters.... forgot to implement me?\n");
+    }
+
+    if(readImageSize(wOrg, hOrg, l2) != 0) {
+        printf("Failed to read input image size\n");
         infile.close();
-        return;
+        return -1;
     }
 
     if(isRelativeFormat(parsOrg)) {
-        printf("\n\nFound fx=%f, fy=%f, cx=%f, cy=%f.\n I'm assuming this is the \"relative\" calibration file format,"
-               "and will rescale this by image width / height to fx=%f, fy=%f, cx=%f, cy=%f.\n\n",
-               parsOrg[0], parsOrg[1], parsOrg[2], parsOrg[3],
-               parsOrg[0] * wOrg, parsOrg[1] * hOrg, parsOrg[2] * wOrg - 0.5,
-               parsOrg[3] * hOrg - 0.5 );
-
         // rescale and substract 0.5 offset.
         // the 0.5 is because I'm assuming the calibration is given such that the pixel at (0,0)
         // contains the integral over intensity over [0,0]-[1,1], whereas I assume the pixel (0,0)
@@ -677,34 +659,21 @@ void Undistort::readFromFile(const char* configFileName, int nPars) {
     }
 
     VecX outputCalibration = VecX(5);
-
-    if(readOutputParameters(outputCalibration, l3) == 0) {
-        printf("Out: %f %f %f %f %f\n",
-               outputCalibration[0], outputCalibration[1], outputCalibration[2],
-               outputCalibration[3], outputCalibration[4]);
-    } else {
-        printf("Out: Failed to Read Output pars... not rectifying.\n");
+    if(readOutputParameters(outputCalibration, l3) != 0) {
+        printf("Failed to read output camera parameters\n");
         infile.close();
-        return;
+        return -1;
     }
 
-    // TODO
-    // make w and h constant in the cleass
-    // separate file io to another function or class
-
-    if(readImageSize(w, h, l4) == 0) {
-        printf("Output resolution: %d %d\n",w, h);
-    } else {
-        printf("Out: Failed to Read Output resolution... not rectifying.\n");
-        valid = false;
+    if(readImageSize(w, h, l4) != 0) {
+        printf("Failed to read output image size\n");
+        infile.close();
+        return -1;
     }
 
-    // if(!isRelativeFormat(outputCalibration)) {
-    if(outputCalibration[2] > 1 || outputCalibration[3] > 1) {
-        printf("\n\n\nWARNING: given output calibration (%f %f %f %f) seems wrong. "
-               "It needs to be relative to image width / height!\n\n\n",
-               outputCalibration[0], outputCalibration[1],
-               outputCalibration[2], outputCalibration[3]);
+    if(!isRelativeFormat(outputCalibration)) {
+        printf("\n\n\nWARNING: given output calibration seems wrong. "
+               "It needs to be relative to image width / height!\n\n\n");
     }
 
     relativeToAbsolute(outputCalibration, w, h);
@@ -720,24 +689,25 @@ void Undistort::readFromFile(const char* configFileName, int nPars) {
         }
     }
 
-    distortCoordinates(remapX, remapY, remapX, remapY, h*w);
-    makeRoundingResistant(remapX, remapY);
-
-    valid = true;
-
     printf("\nRectified Kamera Matrix:\n");
     std::cout << K << "\n\n";
+
+    distortCoordinates(remapX, remapY, remapX, remapY, h*w);
+    makeRoundingResistant(remapX, remapY, w, h, wOrg, hOrg);
+    return 0;
 }
 
 
 UndistortFOV::UndistortFOV(const char* configFileName) {
     printf("Creating FOV undistorter\n");
 
-    readFromFile(configFileName, 5);
+    if(readFromFile(configFileName, 5) != 0) {
+        printf("Failed to read camera calibration (invalid format?)\n");
+        exit(-1);
+    }
 }
-UndistortFOV::~UndistortFOV()
-{
-}
+
+UndistortFOV::~UndistortFOV() {}
 
 void UndistortFOV::distortCoordinates(float* in_x, float* in_y, float* out_x,
                                       float* out_y, int n) const {
@@ -771,7 +741,11 @@ void UndistortFOV::distortCoordinates(float* in_x, float* in_y, float* out_x,
 
 UndistortRadTan::UndistortRadTan(const char* configFileName) {
     printf("Creating RadTan undistorter\n");
-    readFromFile(configFileName, 8);
+
+    if(readFromFile(configFileName, 8) != 0) {
+        printf("Failed to read camera calibration (invalid format?)\n");
+        exit(-1);
+    }
 }
 
 UndistortRadTan::~UndistortRadTan() {}
@@ -815,8 +789,14 @@ void UndistortRadTan::distortCoordinates(float* in_x, float* in_y,
 }
 
 UndistortPinhole::UndistortPinhole(const char* configFileName) {
-    readFromFile(configFileName, 5);
+    printf("Creating RadTan undistorter\n");
+
+    if(readFromFile(configFileName, 5) != 0) {
+        printf("Failed to read camera calibration (invalid format?)\n");
+        exit(-1);
+    }
 }
+
 UndistortPinhole::~UndistortPinhole()
 {
 }

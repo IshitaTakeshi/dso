@@ -64,6 +64,7 @@ void createCameraParameterPyramid(int w, int h, const Eigen::Matrix3f &K) {
 void setGlobalCalib(int w, int h, const Eigen::Matrix3f &K) {
     int wlvl=w;
     int hlvl=h;
+
     pyrLevelsUsed=1;
     while(wlvl%2==0 && hlvl%2==0 &&
           wlvl*hlvl > MIN_IMAGE_PIXELS && pyrLevelsUsed < PYR_LEVELS) {
