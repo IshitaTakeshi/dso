@@ -321,12 +321,12 @@ struct CalibHessian {
     inline ~CalibHessian() {
     }
 
-    inline CalibHessian() {
+    inline CalibHessian(const Eigen::Matrix3f &K) {
         VecC initial_value = VecC::Zero();
-        initial_value[0] = fxG[0];
-        initial_value[1] = fyG[0];
-        initial_value[2] = cxG[0];
-        initial_value[3] = cyG[0];
+        initial_value[0] = K(0,0);
+        initial_value[1] = K(1,1);
+        initial_value[2] = K(0,2);
+        initial_value[3] = K(1,2);
 
         this->value_scaled = initial_value;
         this->value_zero = this->value = inv_scale(initial_value);

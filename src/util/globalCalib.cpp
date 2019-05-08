@@ -34,8 +34,7 @@ const int MIN_IMAGE_PIXELS = 5000;
 
 // TODO make them members of some class
 int wG[PYR_LEVELS], hG[PYR_LEVELS];
-float fxG[PYR_LEVELS], fyG[PYR_LEVELS],
-      cxG[PYR_LEVELS], cyG[PYR_LEVELS];
+float fxG, fyG, cxG, cyG;
 
 float wM3G;
 float hM3G;
@@ -44,19 +43,10 @@ float hM3G;
 void createCameraParameterPyramid(int w, int h, const Eigen::Matrix3f &K) {
     wG[0] = w;
     hG[0] = h;
-    fxG[0] = K(0,0);
-    fyG[0] = K(1,1);
-    cxG[0] = K(0,2);
-    cyG[0] = K(1,2);
 
     for (int level = 1; level < pyrLevelsUsed; ++ level) {
         wG[level] = w >> level;
         hG[level] = h >> level;
-
-        fxG[level] = fxG[level-1] * 0.5;
-        fyG[level] = fyG[level-1] * 0.5;
-        cxG[level] = (cxG[0] + 0.5) / ((int)1<<level) - 0.5;
-        cyG[level] = (cyG[0] + 0.5) / ((int)1<<level) - 0.5;
     }
 }
 
