@@ -337,28 +337,28 @@ struct CalibHessian {
     }
 
     // normal mode: use the optimized parameters everywhere!
-    inline float const fxl() {
+    inline float fxl() const {
         return (float)(this->value_scaled[0]);
     }
-    inline float const fyl() {
+    inline float fyl() const {
         return (float)(this->value_scaled[1]);
     }
-    inline float const cxl() {
+    inline float cxl() const {
         return (float)(this->value_scaled[2]);
     }
-    inline float const cyl() {
+    inline float cyl() const {
         return (float)(this->value_scaled[3]);
     }
-    inline float const fxli() {
+    inline float const fxli() const {
         return 1.0f / fxl();
     }
-    inline float const fyli() {
+    inline float const fyli() const {
         return 1.0f / fyl();
     }
-    inline float const cxli() {
+    inline float const cxli() const {
         return -cxl() / fxl();
     }
-    inline float const cyli() {
+    inline float const cyli() const {
         return -cyl() / fyl();
     }
 
