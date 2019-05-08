@@ -128,18 +128,13 @@ inline bool eigenTestNan(const MatXX &m, std::string msg)
     return foundNan;
 }
 
-
-
-// set precalc values.
-void setPrecalcValues(std::vector<FrameHessian*> frameHessians,
-                      CalibHessian &HCalib);
-
+void setPrecalcValues(std::vector<FrameHessian*> frameHessians, CalibHessian &HCalib);
 
 class FullSystem {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    FullSystem(float *BInv);
+    FullSystem(float *gammaInverse, const Mat33f &K, const float playbackSpeed);
     virtual ~FullSystem();
 
     // adds a new frame, and creates point & residual structs.
@@ -162,7 +157,7 @@ public:
     bool isLost;
     bool initFailed;
     bool initialized;
-    bool linearizeOperation;
+    const bool linearizeOperation;
 
 private:
     const Gamma gamma;

@@ -61,7 +61,8 @@
 namespace dso {
 
 
-FullSystem::FullSystem(float *gammaInverse) : gamma(Gamma(gammaInverse)) {
+FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbackSpeed) :
+    gamma(Gamma(gammaInverse)), HCalib(CalibHessian(K)), linearizeOperation(playbackSpeed==0) {
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -84,7 +85,6 @@ FullSystem::FullSystem(float *gammaInverse) : gamma(Gamma(gammaInverse)) {
 
     needNewKFAfter = -1;
 
-    linearizeOperation=true;
     runMapping = true;
     mappingThread = boost::thread(&FullSystem::mappingLoop, this);
     lastRefStopID = 0;

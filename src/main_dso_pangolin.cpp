@@ -234,7 +234,8 @@ int main( int argc, char** argv )
     // hook crtl+C.
     boost::thread exThread = boost::thread(exitThread);
 
-    ImageFolderReader* reader = new ImageFolderReader(source, calib, gammaCalib, vignette);
+    Undistort *undistort = Undistort::getUndistorterForFile(calib, gammaCalib, vignette);
+    ImageFolderReader* reader = new ImageFolderReader(source, undistort);
     reader->setGlobalCalibration();
 
     if(setting_photometricCalibration > 0 && reader->getPhotometricGamma() == 0) {
@@ -245,9 +246,9 @@ int main( int argc, char** argv )
         exit(1);
     }
 
-    FullSystem* fullSystem = new FullSystem(reader->getPhotometricGamma());
-
-    fullSystem->linearizeOperation = (playbackSpeed==0);
+    FullSystem* fullSystem = new FullSystem(reader->getPhotometricGamma(),
+                                            undistort->getK(),
+                                            playbackSpeed);
 
     IOWrap::PangolinDSOViewer* viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], false);
     fullSystem->outputWrapper.push_back(viewer);
@@ -276,9 +277,9 @@ int main( int argc, char** argv )
                         ow->reset();
                     }
 
-                    fullSystem = new FullSystem(reader->getPhotometricGamma());
-                    fullSystem->linearizeOperation = (playbackSpeed==0);
-
+                    fullSystem = new FullSystem(reader->getPhotometricGamma(),
+                                                undistort->getK(),
+                                                playbackSpeed);
                     fullSystem->outputWrapper = wraps;
 
                     setting_fullResetRequested=false;

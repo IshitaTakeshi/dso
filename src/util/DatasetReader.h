@@ -101,9 +101,9 @@ struct PrepImageItem
 class ImageFolderReader
 {
 public:
-    ImageFolderReader(std::string path, std::string calibFile,
-                      std::string gammaFile, std::string vignetteFile) :
-        undistort(Undistort::getUndistorterForFile(calibFile, gammaFile, vignetteFile)),
+    //TODO remove undistort from class members
+    ImageFolderReader(std::string path, Undistort* undistort_) :
+        undistort(undistort_),
         filenames(getdir(path)) {
 
         if(filenames.size() == 0) {
@@ -127,9 +127,7 @@ public:
 
     // TODO remove this function
     void setGlobalCalibration() {
-        setGlobalCalib(undistort->getSize()[0],
-                       undistort->getSize()[1],
-                       undistort->getK().cast<float>());
+        setGlobalCalib(undistort->getSize()[0], undistort->getSize()[1]);
     }
 
     int getNumImages() {
@@ -144,7 +142,6 @@ public:
     }
 
     inline float* getPhotometricGamma() {
-        if(undistort==0 || undistort->photometricUndist==0) return 0;
         return undistort->photometricUndist->getG();
     }
 

@@ -40,7 +40,7 @@ float wM3G;
 float hM3G;
 
 
-void createCameraParameterPyramid(int w, int h, const Eigen::Matrix3f &K) {
+void createCameraParameterPyramid(int w, int h) {
     wG[0] = w;
     hG[0] = h;
 
@@ -51,7 +51,7 @@ void createCameraParameterPyramid(int w, int h, const Eigen::Matrix3f &K) {
 }
 
 
-void setGlobalCalib(int w, int h, const Eigen::Matrix3f &K) {
+void setGlobalCalib(int w, int h) {
     int wlvl=w;
     int hlvl=h;
 
@@ -77,7 +77,7 @@ void setGlobalCalib(int w, int h, const Eigen::Matrix3f &K) {
 
     wM3G = w-3;
     hM3G = h-3;
-    createCameraParameterPyramid(w, h, K);
+    createCameraParameterPyramid(w, h);
 }
 
 
