@@ -133,13 +133,16 @@ PhotometricUndistorter::PhotometricUndistorter(
 
         if(GDepth < 256)
         {
-            printf("PhotometricUndistorter: invalid format! got %d entries in first line, expected at least 256!\n",
+            printf("PhotometricUndistorter: invalid format! "
+                   "got %d entries in first line, expected at least 256!\n",
                    (int)Gvec.size());
             return;
         }
 
 
-        for(int i=0; i<GDepth; i++) G[i] = Gvec[i];
+        for(int i=0; i<GDepth; i++) {
+            G[i] = Gvec[i];
+        }
 
         for(int i=0; i<GDepth-1; i++)
         {
@@ -162,8 +165,7 @@ PhotometricUndistorter::PhotometricUndistorter(
     }
 
     printf("Reading Vignette Image from %s\n",vignetteImage.c_str());
-    MinimalImage<unsigned short>* vm16 = IOWrap::readImageBW_16U(
-            vignetteImage.c_str());
+    MinimalImage<unsigned short>* vm16 = IOWrap::readImageBW_16U(vignetteImage.c_str());
     MinimalImageB* vm8 = IOWrap::readImageBW_8U(vignetteImage.c_str());
     vignetteMap = new float[w*h];
     vignetteMapInv = new float[w*h];
@@ -627,11 +629,6 @@ int Undistort::readFromFile(const char* configFileName, int nPars) {
     }
 
     if(isRelativeFormat(parsOrg)) {
-        // rescale and substract 0.5 offset.
-        // the 0.5 is because I'm assuming the calibration is given such that the pixel at (0,0)
-        // contains the integral over intensity over [0,0]-[1,1], whereas I assume the pixel (0,0)
-        // to contain a sample of the intensity ot [0,0], which is best approximated by the integral over
-        // [-0.5,-0.5]-[0.5,0.5]. Thus, the shift by -0.5.
         relativeToAbsolute(parsOrg, wOrg, hOrg);
     }
 
@@ -774,9 +771,7 @@ UndistortPinhole::UndistortPinhole(const char* configFileName) {
     }
 }
 
-UndistortPinhole::~UndistortPinhole()
-{
-}
+UndistortPinhole::~UndistortPinhole() {}
 
 void UndistortPinhole::distortCoordinates(float* in_x, float* in_y,
         float* out_x, float* out_y, int n) const

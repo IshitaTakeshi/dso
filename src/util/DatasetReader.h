@@ -77,27 +77,6 @@ inline std::vector<std::string> getdir(std::string dirname) {
 }
 
 
-struct PrepImageItem
-{
-    int id;
-    bool isQueud;
-    ImageAndExposure* pt;
-
-    inline PrepImageItem(int _id)
-    {
-        id=_id;
-        isQueud = false;
-        pt=0;
-    }
-
-    inline void release()
-    {
-        if(pt!=0) delete pt;
-        pt=0;
-    }
-};
-
-
 class ImageFolderReader {
 public:
     //TODO remove undistort from class members
@@ -117,14 +96,6 @@ public:
     ~ImageFolderReader() {
         delete undistort;
     };
-
-    Eigen::VectorXf getOriginalCalib() {
-        return undistort->getOriginalParameter().cast<float>();
-    }
-
-    Eigen::Vector2i getOriginalDimensions() {
-        return undistort->getOriginalSize();
-    }
 
     // TODO remove this function
     void setGlobalCalibration() {
@@ -152,10 +123,6 @@ public:
         delete minimg;
         delete output;
         return ret2;
-    }
-
-    inline float* getPhotometricGamma() {
-        return undistort->photometricUndist->getG();
     }
 
 private:

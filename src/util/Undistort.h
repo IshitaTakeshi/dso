@@ -54,6 +54,7 @@ public:
     float* getG() {
         return G;
     };
+
 private:
     float G[256*256];
     int GDepth;
