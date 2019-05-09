@@ -101,19 +101,11 @@ public:
     FrameHessian* firstFrame;
     FrameHessian* newFrame;
 private:
-    Mat33 K[PYR_LEVELS];
-    Mat33 Ki[PYR_LEVELS];
-    double fx[PYR_LEVELS];
-    double fy[PYR_LEVELS];
-    double fxi[PYR_LEVELS];
-    double fyi[PYR_LEVELS];
-    double cx[PYR_LEVELS];
-    double cy[PYR_LEVELS];
-    double cxi[PYR_LEVELS];
-    double cyi[PYR_LEVELS];
+    Mat33f Ki[PYR_LEVELS];
+    Mat33f K[PYR_LEVELS];
     int w[PYR_LEVELS];
     int h[PYR_LEVELS];
-    void makeK(CalibHessian* HCalib);
+    void makeK(CalibHessian* HCalib, int w_, int h_);
 
     bool snapped;
     int snappedAt;

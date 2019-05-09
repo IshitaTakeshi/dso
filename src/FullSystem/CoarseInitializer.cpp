@@ -36,6 +36,7 @@
 #include "FullSystem/PixelSelector.h"
 #include "FullSystem/PixelSelector2.h"
 #include "util/nanoflann.h"
+#include "util/camera_matrix.h"
 
 
 #if !defined(__SSE3__) && !defined(__SSE2__) && !defined(__SSE1__)
@@ -342,15 +343,15 @@ Vec3f CoarseInitializer::calcResAndGS(
     Eigen::Vector3f* colorRef = firstFrame->dIp[lvl];
     Eigen::Vector3f* colorNew = newFrame->dIp[lvl];
 
-    Mat33f RKi = (refToNew.rotationMatrix() * Ki[lvl]).cast<float>();
+    Mat33f RKi = (refToNew.rotationMatrix() * Ki[lvl].cast<double>()).cast<float>();
     Vec3f t = refToNew.translation().cast<float>();
     Eigen::Vector2f r2new_aff = Eigen::Vector2f(exp(refToNew_aff.a),
                                 refToNew_aff.b);
 
-    float fxl = fx[lvl];
-    float fyl = fy[lvl];
-    float cxl = cx[lvl];
-    float cyl = cy[lvl];
+    float fxl = K[lvl](0, 0);
+    float fyl = K[lvl](1, 1);
+    float cxl = K[lvl](0, 2);
+    float cyl = K[lvl](1, 2);
 
     Accumulator11 E;
     acc9.initialize();
@@ -724,10 +725,9 @@ void CoarseInitializer::makeGradients(Eigen::Vector3f** data)
         }
     }
 }
-void CoarseInitializer::setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian)
-{
 
-    makeK(HCalib);
+void CoarseInitializer::setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian) {
+    makeK(HCalib, wG[0], hG[0]);
     firstFrame = newFrameHessian;
 
     PixelSelector sel(w[0],h[0]);
@@ -888,35 +888,19 @@ void CoarseInitializer::applyStep(int lvl)
     std::swap<Vec10f*>(JbBuffer, JbBuffer_new);
 }
 
-void CoarseInitializer::makeK(CalibHessian* HCalib)
-{
-    w[0] = wG[0];
-    h[0] = hG[0];
+void CoarseInitializer::makeK(CalibHessian* HCalib, int w_, int h_) {
+    for (int level = 0; level < pyrLevelsUsed; ++ level) {
+        w[level] = w_ >> level;
+        h[level] = h_ >> level;
 
-    fx[0] = HCalib->fxl();
-    fy[0] = HCalib->fyl();
-    cx[0] = HCalib->cxl();
-    cy[0] = HCalib->cyl();
+        float L = std::pow(2, level);
+        float fx = HCalib->fxl() / L;
+        float fy = HCalib->fyl() / L;
+        float cx = (HCalib->cxl() + 0.5) / L - 0.5;
+        float cy = (HCalib->cyl() + 0.5) / L - 0.5;
 
-    for (int level = 1; level < pyrLevelsUsed; ++ level)
-    {
-        w[level] = w[0] >> level;
-        h[level] = h[0] >> level;
-        fx[level] = fx[level-1] * 0.5;
-        fy[level] = fy[level-1] * 0.5;
-        cx[level] = (cx[0] + 0.5) / ((int)1<<level) - 0.5;
-        cy[level] = (cy[0] + 0.5) / ((int)1<<level) - 0.5;
-    }
-
-    for (int level = 0; level < pyrLevelsUsed; ++ level)
-    {
-        K[level]  << fx[level], 0.0, cx[level], 0.0, fy[level], cy[level], 0.0, 0.0,
-        1.0;
+        K[level] = initializeCameraMatrix(fx, fy, cx, cy);
         Ki[level] = K[level].inverse();
-        fxi[level] = Ki[level](0,0);
-        fyi[level] = Ki[level](1,1);
-        cxi[level] = Ki[level](0,2);
-        cyi[level] = Ki[level](1,2);
     }
 }
 
