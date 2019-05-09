@@ -105,8 +105,8 @@ private:
     Mat33f K[PYR_LEVELS];
     int w[PYR_LEVELS];
     int h[PYR_LEVELS];
-    void makeK(CalibHessian* HCalib, int w_, int h_);
-
+    void makeK(Mat33f K[], Mat33f Ki[],
+               const CalibHessian* HCalib, const int w_, const int h_);
     bool snapped;
     int snappedAt;
 

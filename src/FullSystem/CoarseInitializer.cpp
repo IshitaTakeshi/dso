@@ -726,7 +726,7 @@ void CoarseInitializer::makeGradients(Eigen::Vector3f** data)
 }
 
 void CoarseInitializer::setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian) {
-    makeK(HCalib, wG[0], hG[0]);
+    makeK(K, Ki, HCalib, wG[0], hG[0]);
     firstFrame = newFrameHessian;
 
     PixelSelector sel(w[0],h[0]);
@@ -887,7 +887,9 @@ void CoarseInitializer::applyStep(int lvl)
     std::swap<Vec10f*>(JbBuffer, JbBuffer_new);
 }
 
-void CoarseInitializer::makeK(CalibHessian* HCalib, int w_, int h_) {
+
+void CoarseInitializer::makeK(Mat33f K[], Mat33f Ki[],
+                              const CalibHessian* HCalib, const int w_, const int h_) {
     for (int level = 0; level < pyrLevelsUsed; ++ level) {
         w[level] = w_ >> level;
         h[level] = h_ >> level;
@@ -913,8 +915,7 @@ void CoarseInitializer::makeNN() {
     // build indices
     FLANNPointcloud pcs[PYR_LEVELS];
     KDTree* indexes[PYR_LEVELS];
-    for(int i=0; i<pyrLevelsUsed; i++)
-    {
+    for(int i=0; i<pyrLevelsUsed; i++) {
         pcs[i] = FLANNPointcloud(numPoints[i], points[i]);
         indexes[i] = new KDTree(2, pcs[i],
                                 nanoflann::KDTreeSingleIndexAdaptorParams(5) );
