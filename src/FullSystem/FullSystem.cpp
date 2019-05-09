@@ -667,7 +667,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
         if(coarseInitializer == 0) {
             // TODO remove the setter from coarseInitializer
             // first frame set. fh is kept by coarseInitializer.
-            coarseInitializer = new CoarseInitializer(&HCalib, fh, wG[0], hG[0]);
+            coarseInitializer = new CoarseInitializer(fh, &HCalib, wG[0], hG[0]);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {
             // if SNAPPED
             initializeFromInitializer(fh);

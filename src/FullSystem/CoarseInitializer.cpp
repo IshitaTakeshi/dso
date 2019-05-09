@@ -44,8 +44,9 @@
 #endif
 
 namespace dso {
-CoarseInitializer::CoarseInitializer(CalibHessian* HCalib, FrameHessian* newFrameHessian,
-                                     int ww, int hh) :
+CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
+                                     const CalibHessian* HCalib,
+                                     const int ww, const int hh) :
     thisToNext_aff(0,0), thisToNext(SE3()) {
 
     for(int lvl=0; lvl<pyrLevelsUsed; lvl++) {

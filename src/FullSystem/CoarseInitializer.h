@@ -79,10 +79,11 @@ public:
 class CoarseInitializer {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    CoarseInitializer(CalibHessian* HCalib, FrameHessian* newFrameHessian,
-                      int ww, int hh);
-    ~CoarseInitializer();
 
+    CoarseInitializer(FrameHessian* newFrameHessian,
+                      const CalibHessian* HCalib,
+                      const int ww, const int hh);
+    ~CoarseInitializer();
 
     void setFirst(FrameHessian* newFrameHessian);
     bool trackFrame(FrameHessian* newFrameHessian,
@@ -98,7 +99,7 @@ public:
     AffLight thisToNext_aff;
     SE3 thisToNext;
 
-
+    // TODO make this const
     FrameHessian* firstFrame;
     FrameHessian* newFrame;
 private:
