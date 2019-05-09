@@ -665,11 +665,12 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     if(!initialized) {
         // use initializer!
         if(coarseInitializer == 0) {
-            // TODO remove the setter from coarseInitializer
             // first frame set. fh is kept by coarseInitializer.
             coarseInitializer = new CoarseInitializer(fh, &HCalib, wG[0], hG[0]);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {
             // if SNAPPED
+            // FIXME maybe better to create a new CoarseInitializer instance
+            // than editing member variables of the existing one
             initializeFromInitializer(fh);
             lock.unlock();
             deliverTrackedFrame(fh, true);
