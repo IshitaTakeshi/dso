@@ -374,7 +374,7 @@ Undistort::~Undistort()
 }
 
 
-Undistort* getUndistorterForFile(std::string configFilename) {
+Undistort* getUndistorterFromFile(std::string configFilename) {
     printf("Reading Calibration from file %s", configFilename.c_str());
 
     // read parameters

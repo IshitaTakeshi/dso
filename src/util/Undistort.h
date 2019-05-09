@@ -112,7 +112,7 @@ protected:
 };
 
 
-Undistort* getUndistorterForFile(std::string configFilename);
+Undistort* getUndistorterFromFile(std::string configFilename);
 
 
 class UndistortFOV : public Undistort

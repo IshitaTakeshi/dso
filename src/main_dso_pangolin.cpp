@@ -234,7 +234,7 @@ int main( int argc, char** argv )
     // hook crtl+C.
     boost::thread exThread = boost::thread(exitThread);
 
-    Undistort *undistort = getUndistorterForFile(calib);
+    Undistort *undistort = getUndistorterFromFile(calib);
     if(undistort == 0) {
         exit(-1);
     }
