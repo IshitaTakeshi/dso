@@ -46,16 +46,13 @@
 namespace dso {
 CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
                                      const CalibHessian* HCalib,
-                                     const int ww, const int hh) :
-    thisToNext_aff(0,0), thisToNext(SE3()) {
+                                     const int ww_, const int hh_) :
+    thisToNext_aff(0,0), thisToNext(SE3()), ww(ww_), hh(hh_) {
 
     for(int level=0; level<pyrLevelsUsed; level++) {
         points[level] = 0;
         numPoints[level] = 0;
     }
-
-    JbBuffer = new Vec10f[ww*hh];
-    JbBuffer_new = new Vec10f[ww*hh];
 
     frameID=-1;
     fixAffine=true;
@@ -76,9 +73,6 @@ CoarseInitializer::~CoarseInitializer() {
             delete[] points[level];
         }
     }
-
-    delete[] JbBuffer;
-    delete[] JbBuffer_new;
 }
 
 
@@ -111,6 +105,10 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
         }
     }
 
+    // temporary buffers for H and b.
+    // 0-7: sum(dd * dp). 8: sum(res*dd). 9: 1/(1+sum(dd*dd))=inverse hessian entry.
+    Vec10f* JbBuffer_new = new Vec10f[ww*hh];
+    Vec10f* JbBuffer = new Vec10f[ww*hh];
 
     SE3 refToNew_current = thisToNext;
     AffLight refToNew_aff_current = thisToNext_aff;
@@ -128,10 +126,10 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
         Mat88f H,Hsc;
         Vec8f b,bsc;
         resetPoints(level);
-        Vec3f resOld = calcResAndGS(level, H, b, Hsc, bsc,
+        Vec3f resOld = calcResAndGS(JbBuffer_new, level, H, b, Hsc, bsc,
                                     refToNew_current,  refToNew_aff_current,
                                     couplingWeight, alphaW, alphaK, false);
-        applyStep(level);
+        applyStep(JbBuffer, JbBuffer_new, level);
 
         float lambda = 0.1;
         float eps = 1e-4;
@@ -152,6 +150,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
             std::cout << refToNew_current.log().transpose() << " AFF " <<
                       refToNew_aff_current.vec().transpose() <<"\n";
         }
+
 
         int iteration=0;
         while(true)
@@ -180,12 +179,11 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
             AffLight refToNew_aff_new = refToNew_aff_current;
             refToNew_aff_new.a += inc[6];
             refToNew_aff_new.b += inc[7];
-            doStep(level, lambda, inc);
-
+            doStep(JbBuffer, level, lambda, inc);
 
             Mat88f H_new, Hsc_new;
             Vec8f b_new, bsc_new;
-            Vec3f resNew = calcResAndGS(level, H_new, b_new, Hsc_new, bsc_new,
+            Vec3f resNew = calcResAndGS(JbBuffer_new, level, H_new, b_new, Hsc_new, bsc_new,
                                         refToNew_new, refToNew_aff_new,
                                         couplingWeight, alphaW, alphaK, false);
             Vec3f regEnergy = calcEC(level, couplingWeight);
@@ -226,7 +224,9 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
                 resOld = resNew;
                 refToNew_aff_current = refToNew_aff_new;
                 refToNew_current = refToNew_new;
-                applyStep(level);
+
+                applyStep(JbBuffer, JbBuffer_new, level);
+
                 optReg(level);
                 lambda *= 0.5;
                 fails=0;
@@ -257,6 +257,8 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
     }
 
+    delete[] JbBuffer_new;
+    delete[] JbBuffer;
 
 
     thisToNext = refToNew_current;
@@ -265,20 +267,13 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
     for(int i=0; i<pyrLevelsUsed-1; i++)
         propagateUp(i);
 
-
-
-
     frameID++;
     if(!snapped) snappedAt=0;
 
     if(snapped && snappedAt==0)
         snappedAt = frameID;
 
-
-
     debugPlot(0,wraps);
-
-
 
     return snapped && frameID > snappedAt+5;
 }
@@ -336,6 +331,7 @@ void CoarseInitializer::debugPlot(int level,
 
 // calculates residual, Hessian and Hessian-block neede for re-substituting depth.
 Vec3f CoarseInitializer::calcResAndGS(
+    Vec10f* JbBuffer_new,
     int level, Mat88f &H_out, Vec8f &b_out,
     Mat88f &H_out_sc, Vec8f &b_out_sc,
     const SE3 &refToNew, AffLight refToNew_aff,
@@ -543,7 +539,6 @@ Vec3f CoarseInitializer::calcResAndGS(
             (float)JbBuffer_new[i][8],(float)JbBuffer_new[i][9]);
     }
     acc9SC.finish();
-
 
     //printf("nelements in H: %d, in E: %d, in Hsc: %d / 9!\n", (int)acc9.num, (int)E.num, (int)acc9SC.num*9);
     H_out = acc9.H.topLeftCorner<8,8>();// / acc9.num;
@@ -836,9 +831,10 @@ void CoarseInitializer::resetPoints(int level)
         }
     }
 }
-void CoarseInitializer::doStep(int level, float lambda, Vec8f inc)
-{
 
+
+
+void CoarseInitializer::doStep(Vec10f* JbBuffer, const int level, const float lambda, const Vec8f inc) {
     const float maxPixelStep = 0.25;
     const float idMaxStep = 1e10;
     Pnt* pts = points[level];
@@ -865,7 +861,9 @@ void CoarseInitializer::doStep(int level, float lambda, Vec8f inc)
     }
 
 }
-void CoarseInitializer::applyStep(int level)
+
+
+void CoarseInitializer::applyStep(Vec10f* JbBuffer, Vec10f* JbBuffer_new, const int level)
 {
     Pnt* pts = points[level];
     int npts = numPoints[level];

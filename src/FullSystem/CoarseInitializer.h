@@ -82,7 +82,7 @@ public:
 
     CoarseInitializer(FrameHessian* newFrameHessian,
                       const CalibHessian* HCalib,
-                      const int ww, const int hh);
+                      const int ww_, const int hh_);
     ~CoarseInitializer();
 
     void setFirst(FrameHessian* newFrameHessian);
@@ -107,6 +107,8 @@ private:
     Mat33f K[PYR_LEVELS];
     int w[PYR_LEVELS];
     int h[PYR_LEVELS];
+    const int ww; // ugly name
+    const int hh; // ugly name
     void makeK(Mat33f K[], Mat33f Ki[],
                const CalibHessian* HCalib, const int w_, const int h_);
     bool snapped;
@@ -118,12 +120,8 @@ private:
 
     Eigen::DiagonalMatrix<float, 8> wM;
 
-    // temporary buffers for H and b.
-    Vec10f* JbBuffer;			// 0-7: sum(dd * dp). 8: sum(res*dd). 9: 1/(1+sum(dd*dd))=inverse hessian entry.
-    Vec10f* JbBuffer_new;
-
     Vec3f calcResAndGS(
-        int lvl,
+        Vec10f* JbBuffer_new, int lvl,
         Mat88f &H_out, Vec8f &b_out,
         Mat88f &H_out_sc, Vec8f &b_out_sc,
         const SE3 &refToNew, AffLight refToNew_aff,
@@ -136,8 +134,9 @@ private:
     float rescale();
 
     void resetPoints(int lvl);
-    void doStep(int lvl, float lambda, Vec8f inc);
-    void applyStep(int lvl);
+
+    void doStep(Vec10f* JbBuffer, const int level, const float lambda, const Vec8f inc);
+    void applyStep(Vec10f* JbBuffer, Vec10f* JbBuffer_new, const int level);
 
     void makeGradients(Eigen::Vector3f** data);
 
