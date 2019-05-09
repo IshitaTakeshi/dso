@@ -656,11 +656,8 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     boost::unique_lock<boost::mutex> lock(trackMutex);
 
     // =========================== add into allFrameHistory =========================
-    FrameShell* shell = new FrameShell();
-
     // no lock required, as fh is not used anywhere yet.
-    shell->marginalizedAt = shell->id = allFrameHistory.size();
-    shell->incoming_id = id;
+    FrameShell* shell = new FrameShell(allFrameHistory.size(), id);
 
     allFrameHistory.push_back(shell);
 

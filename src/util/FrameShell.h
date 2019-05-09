@@ -31,8 +31,7 @@ namespace dso
 {
 
 
-class FrameShell
-{
+class FrameShell {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     int id; 			// INTERNAL ID, starting at zero.
@@ -50,16 +49,7 @@ public:
     int marginalizedAt;
     double movedByOpt;
 
-    inline FrameShell()
-    {
-        id=0;
-        poseValid=true;
-        camToWorld = SE3();
-        marginalizedAt=-1;
-        movedByOpt=0;
-        trackingRef=0;
-        camToTrackingRef = SE3();
-    }
+    FrameShell(int marginalizedAt_, int incoming_id_);
 };
 
 }
