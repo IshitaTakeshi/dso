@@ -69,7 +69,7 @@ FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbac
     coarseDistanceMap = new CoarseDistanceMap(wG[0], hG[0]);
     coarseTracker = new CoarseTracker(wG[0], hG[0]);
     coarseTracker_forNewKF = new CoarseTracker(wG[0], hG[0]);
-    coarseInitializer = new CoarseInitializer(wG[0], hG[0]);
+    coarseInitializer = 0;
     pixelSelector = new PixelSelector(wG[0], hG[0]);
 
     lastCoarseRMSE.setConstant(100);
@@ -664,10 +664,10 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
 
     if(!initialized) {
         // use initializer!
-        if(coarseInitializer->frameID < 0) {
+        if(coarseInitializer == 0) {
             // TODO remove the setter from coarseInitializer
             // first frame set. fh is kept by coarseInitializer.
-            coarseInitializer->setFirst(&HCalib, fh);
+            coarseInitializer = new CoarseInitializer(&HCalib, fh, wG[0], hG[0]);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {
             // if SNAPPED
             initializeFromInitializer(fh);

@@ -44,8 +44,10 @@
 #endif
 
 namespace dso {
-CoarseInitializer::CoarseInitializer(int ww, int hh) :
+CoarseInitializer::CoarseInitializer(CalibHessian* HCalib, FrameHessian* newFrameHessian,
+                                     int ww, int hh) :
     thisToNext_aff(0,0), thisToNext(SE3()) {
+
     for(int lvl=0; lvl<pyrLevelsUsed; lvl++) {
         points[lvl] = 0;
         numPoints[lvl] = 0;
@@ -62,6 +64,8 @@ CoarseInitializer::CoarseInitializer(int ww, int hh) :
     wM.diagonal()[3] = wM.diagonal()[4] = wM.diagonal()[5] = SCALE_XI_TRANS;
     wM.diagonal()[6] = SCALE_A;
     wM.diagonal()[7] = SCALE_B;
+
+    setFirst(HCalib, newFrameHessian);
 }
 
 CoarseInitializer::~CoarseInitializer() {

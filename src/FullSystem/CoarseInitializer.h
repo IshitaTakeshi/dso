@@ -79,7 +79,8 @@ public:
 class CoarseInitializer {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    CoarseInitializer(int w, int h);
+    CoarseInitializer(CalibHessian* HCalib, FrameHessian* newFrameHessian,
+                      int ww, int hh);
     ~CoarseInitializer();
 
 
