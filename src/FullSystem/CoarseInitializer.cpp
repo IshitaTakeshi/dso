@@ -92,10 +92,9 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
     int maxIterations[] = {5,5,10,30,50};
 
-    alphaK = 2.5*2.5;
-    alphaW = 150*150;
-    regWeight = 0.8;
-    couplingWeight = 1;
+    float couplingWeight = 1;
+    float alphaW = 150*150;
+    float alphaK = 2.5*2.5;
 
     if(!snapped) {
         thisToNext.translation().setZero();
@@ -122,19 +121,16 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
 
     Vec3f latestRes = Vec3f::Zero();
-    for(int level=pyrLevelsUsed-1; level>=0; level--)
-    {
-
-
-
+    for(int level=pyrLevelsUsed-1; level>=0; level--) {
         if(level<pyrLevelsUsed-1)
             propagateDown(level+1);
 
         Mat88f H,Hsc;
         Vec8f b,bsc;
         resetPoints(level);
-        Vec3f resOld = calcResAndGS(level, H, b, Hsc, bsc, refToNew_current,
-                                    refToNew_aff_current, false);
+        Vec3f resOld = calcResAndGS(level, H, b, Hsc, bsc,
+                                    refToNew_current,  refToNew_aff_current,
+                                    couplingWeight, alphaW, alphaK, false);
         applyStep(level);
 
         float lambda = 0.1;
@@ -189,9 +185,10 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
             Mat88f H_new, Hsc_new;
             Vec8f b_new, bsc_new;
-            Vec3f resNew = calcResAndGS(level, H_new, b_new, Hsc_new, bsc_new, refToNew_new,
-                                        refToNew_aff_new, false);
-            Vec3f regEnergy = calcEC(level);
+            Vec3f resNew = calcResAndGS(level, H_new, b_new, Hsc_new, bsc_new,
+                                        refToNew_new, refToNew_aff_new,
+                                        couplingWeight, alphaW, alphaK, false);
+            Vec3f regEnergy = calcEC(level, couplingWeight);
 
             float eTotalNew = (resNew[0]+resNew[1]+regEnergy[1]);
             float eTotalOld = (resOld[0]+resOld[1]+regEnergy[0]);
@@ -342,7 +339,7 @@ Vec3f CoarseInitializer::calcResAndGS(
     int level, Mat88f &H_out, Vec8f &b_out,
     Mat88f &H_out_sc, Vec8f &b_out_sc,
     const SE3 &refToNew, AffLight refToNew_aff,
-    bool plot) {
+    float couplingWeight, float alphaW, float alphaK, bool plot) {
     int wl = w[level], hl = h[level];
     Eigen::Vector3f* colorRef = firstFrame->dIp[level];
     Eigen::Vector3f* colorNew = newFrame->dIp[level];
@@ -572,8 +569,7 @@ float CoarseInitializer::rescale()
 }
 
 
-Vec3f CoarseInitializer::calcEC(int level)
-{
+Vec3f CoarseInitializer::calcEC(int level, float couplingWeight) {
     if(!snapped) return Vec3f(0,0,numPoints[level]);
     AccumulatorX<2> E;
     E.initialize();
@@ -590,11 +586,11 @@ Vec3f CoarseInitializer::calcEC(int level)
     }
     E.finish();
 
-    //printf("ER: %f %f %f!\n", couplingWeight*E.A1m[0], couplingWeight*E.A1m[1], (float)E.num.numIn1m);
     return Vec3f(couplingWeight*E.A1m[0], couplingWeight*E.A1m[1], E.num);
 }
-void CoarseInitializer::optReg(int level)
-{
+
+
+void CoarseInitializer::optReg(int level, float regWeight) {
     int npts = numPoints[level];
     Pnt* ptsl = points[level];
     if(!snapped)

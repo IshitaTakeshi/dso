@@ -128,19 +128,14 @@ private:
 
     Vec3f dGrads[PYR_LEVELS];
 
-    float alphaK;
-    float alphaW;
-    float regWeight;
-    float couplingWeight;
-
     Vec3f calcResAndGS(
         int lvl,
         Mat88f &H_out, Vec8f &b_out,
         Mat88f &H_out_sc, Vec8f &b_out_sc,
         const SE3 &refToNew, AffLight refToNew_aff,
-        bool plot);
-    Vec3f calcEC(int lvl); // returns OLD NERGY, NEW ENERGY, NUM TERMS.
-    void optReg(int lvl);
+        float couplingWeight, float alphaW, float alphaK, bool plot);
+    Vec3f calcEC(int level, float couplingWeight); // returns OLD NERGY, NEW ENERGY, NUM TERMS.
+    void optReg(int lvl, float regWeight = 0.8);
 
     void propagateUp(int srcLvl);
     void propagateDown(int srcLvl);
