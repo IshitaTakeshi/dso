@@ -45,7 +45,7 @@
 
 namespace dso {
 CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
-                                     const CalibHessian* HCalib,
+                                     const CalibHessian &HCalib,
                                      const int ww_, const int hh_) :
     thisToNext_aff(0,0), thisToNext(SE3()), ww(ww_), hh(hh_) {
 
@@ -58,12 +58,7 @@ CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
     fixAffine=true;
     printDebug=false;
 
-    wM.diagonal()[0] = wM.diagonal()[1] = wM.diagonal()[2] = SCALE_XI_ROT;
-    wM.diagonal()[3] = wM.diagonal()[4] = wM.diagonal()[5] = SCALE_XI_TRANS;
-    wM.diagonal()[6] = SCALE_A;
-    wM.diagonal()[7] = SCALE_B;
-
-    makeK(K, Ki, HCalib, wG[0], hG[0]);
+    makeK(K, Ki, w, h, HCalib, wG[0], hG[0]);
     setFirst(newFrameHessian);
 }
 
@@ -73,6 +68,14 @@ CoarseInitializer::~CoarseInitializer() {
             delete[] points[level];
         }
     }
+}
+
+
+void initializeWM(Eigen::DiagonalMatrix<float, 8> &wM) {
+    wM.diagonal()[0] = wM.diagonal()[1] = wM.diagonal()[2] = SCALE_XI_ROT;
+    wM.diagonal()[3] = wM.diagonal()[4] = wM.diagonal()[5] = SCALE_XI_TRANS;
+    wM.diagonal()[6] = SCALE_A;
+    wM.diagonal()[7] = SCALE_B;
 }
 
 
@@ -151,6 +154,8 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
                       refToNew_aff_current.vec().transpose() <<"\n";
         }
 
+        Eigen::DiagonalMatrix<float, 8> wM;
+        initializeWM(wM);
 
         int iteration=0;
         while(true)
@@ -884,17 +889,17 @@ void CoarseInitializer::applyStep(Vec10f* JbBuffer, Vec10f* JbBuffer_new, const 
 }
 
 
-void CoarseInitializer::makeK(Mat33f K[], Mat33f Ki[],
-                              const CalibHessian* HCalib, const int w_, const int h_) {
+void makeK(Mat33f K[], Mat33f Ki[], int w[], int h[],
+           const CalibHessian &HCalib, const int w_, const int h_) {
     for (int level = 0; level < pyrLevelsUsed; ++ level) {
         w[level] = w_ >> level;
         h[level] = h_ >> level;
 
         float L = std::pow(2, level);
-        float fx = HCalib->fxl() / L;
-        float fy = HCalib->fyl() / L;
-        float cx = (HCalib->cxl() + 0.5) / L - 0.5;
-        float cy = (HCalib->cyl() + 0.5) / L - 0.5;
+        float fx = HCalib.fxl() / L;
+        float fy = HCalib.fyl() / L;
+        float cx = (HCalib.cxl() + 0.5) / L - 0.5;
+        float cy = (HCalib.cyl() + 0.5) / L - 0.5;
 
         K[level] = initializeCameraMatrix(fx, fy, cx, cy);
         Ki[level] = K[level].inverse();

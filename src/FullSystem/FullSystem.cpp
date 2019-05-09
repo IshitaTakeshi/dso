@@ -666,7 +666,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
         // use initializer!
         if(coarseInitializer == 0) {
             // first frame set. fh is kept by coarseInitializer.
-            coarseInitializer = new CoarseInitializer(fh, &HCalib, wG[0], hG[0]);
+            coarseInitializer = new CoarseInitializer(fh, HCalib, wG[0], hG[0]);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {
             // if SNAPPED
             // FIXME maybe better to create a new CoarseInitializer instance

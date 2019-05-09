@@ -76,12 +76,15 @@ public:
     float outlierTH;
 };
 
+void makeK(Mat33f K[], Mat33f Ki[], int w[], int h[],
+           const CalibHessian &HCalib, const int w_, const int h_);
+
 class CoarseInitializer {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     CoarseInitializer(FrameHessian* newFrameHessian,
-                      const CalibHessian* HCalib,
+                      const CalibHessian &HCalib,
                       const int ww_, const int hh_);
     ~CoarseInitializer();
 
@@ -109,8 +112,6 @@ private:
     int h[PYR_LEVELS];
     const int ww; // ugly name
     const int hh; // ugly name
-    void makeK(Mat33f K[], Mat33f Ki[],
-               const CalibHessian* HCalib, const int w_, const int h_);
     bool snapped;
     int snappedAt;
 
