@@ -122,12 +122,6 @@ private:
     Vec10f* JbBuffer;			// 0-7: sum(dd * dp). 8: sum(res*dd). 9: 1/(1+sum(dd*dd))=inverse hessian entry.
     Vec10f* JbBuffer_new;
 
-    Accumulator9 acc9;
-    Accumulator9 acc9SC;
-
-
-    Vec3f dGrads[PYR_LEVELS];
-
     Vec3f calcResAndGS(
         int lvl,
         Mat88f &H_out, Vec8f &b_out,

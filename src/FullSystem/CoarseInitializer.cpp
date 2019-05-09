@@ -355,6 +355,7 @@ Vec3f CoarseInitializer::calcResAndGS(
     float cyl = K[level](1, 2);
 
     Accumulator11 E;
+    Accumulator9 acc9;
     acc9.initialize();
     E.initialize();
 
@@ -514,7 +515,7 @@ Vec3f CoarseInitializer::calcResAndGS(
         alphaOpt = alphaW;
     }
 
-
+    Accumulator9 acc9SC;
     acc9SC.initialize();
     for(int i=0; i<npts; i++)
     {
@@ -805,10 +806,6 @@ void CoarseInitializer::setFirst(FrameHessian* newFrameHessian) {
     thisToNext=SE3();
     snapped = false;
     frameID = snappedAt = 0;
-
-    for(int i=0; i<pyrLevelsUsed; i++)
-        dGrads[i].setZero();
-
 }
 
 void CoarseInitializer::resetPoints(int level)
