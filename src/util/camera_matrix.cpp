@@ -16,7 +16,7 @@ Mat33f initializeCameraMatrix(const float fx, const float fy,
 }
 
 
-Mat33f createCameraMatrixFromCalibHessian(CalibHessian &HCalib) {
+Mat33f createCameraMatrixFromCalibHessian(const CalibHessian &HCalib) {
     return initializeCameraMatrix(HCalib.fxl(), HCalib.fyl(),
                                   HCalib.cxl(), HCalib.cyl());
 }

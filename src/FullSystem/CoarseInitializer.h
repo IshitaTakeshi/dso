@@ -126,14 +126,16 @@ private:
         Mat88f &H_out_sc, Vec8f &b_out_sc,
         const SE3 &refToNew, AffLight refToNew_aff,
         float couplingWeight, float alphaW, float alphaK, bool plot);
-    Vec3f calcEC(int level, float couplingWeight); // returns OLD NERGY, NEW ENERGY, NUM TERMS.
-    void optReg(int lvl, float regWeight = 0.8);
 
-    void propagateUp(int srcLvl);
-    void propagateDown(int srcLvl);
+    // returns OLD NERGY, NEW ENERGY, NUM TERMS.
+    Vec3f calcEC(const int level, const bool snapped, float couplingWeight);
+    void optReg(const int level, const bool snapped, const float regWeight = 0.8);
+
+    void propagateUp(const int srcLvl, const bool snapped);
+    void propagateDown(const int srcLvl, const bool snapped);
     float rescale();
 
-    void resetPoints(int lvl);
+    void resetPoints(const int level);
 
     void doStep(Vec10f* JbBuffer, const int level, const float lambda, const Vec8f inc);
     void applyStep(Vec10f* JbBuffer, Vec10f* JbBuffer_new, const int level);

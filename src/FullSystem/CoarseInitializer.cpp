@@ -121,7 +121,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
     Vec3f latestRes = Vec3f::Zero();
     for(int level=pyrLevelsUsed-1; level>=0; level--) {
         if(level<pyrLevelsUsed-1)
-            propagateDown(level+1);
+            propagateDown(level+1, snapped);
 
         Mat88f H,Hsc;
         Vec8f b,bsc;
@@ -186,7 +186,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
             Vec3f resNew = calcResAndGS(JbBuffer_new, level, H_new, b_new, Hsc_new, bsc_new,
                                         refToNew_new, refToNew_aff_new,
                                         couplingWeight, alphaW, alphaK, false);
-            Vec3f regEnergy = calcEC(level, couplingWeight);
+            Vec3f regEnergy = calcEC(level, snapped, couplingWeight);
 
             float eTotalNew = (resNew[0]+resNew[1]+regEnergy[1]);
             float eTotalOld = (resOld[0]+resOld[1]+regEnergy[0]);
@@ -227,7 +227,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
                 applyStep(JbBuffer, JbBuffer_new, level);
 
-                optReg(level);
+                optReg(level, snapped);
                 lambda *= 0.5;
                 fails=0;
                 if(lambda < 0.0001) lambda = 0.0001;
@@ -265,9 +265,10 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
     thisToNext_aff = refToNew_aff_current;
 
     for(int i=0; i<pyrLevelsUsed-1; i++)
-        propagateUp(i);
+        propagateUp(i, snapped);
 
     frameID++;
+
     if(!snapped) snappedAt=0;
 
     if(snapped && snappedAt==0)
@@ -277,6 +278,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
     return snapped && frameID > snappedAt+5;
 }
+
 
 void CoarseInitializer::debugPlot(int level,
                                   std::vector<IOWrap::Output3DWrapper*> &wraps)
@@ -565,8 +567,11 @@ float CoarseInitializer::rescale()
 }
 
 
-Vec3f CoarseInitializer::calcEC(int level, float couplingWeight) {
-    if(!snapped) return Vec3f(0,0,numPoints[level]);
+Vec3f CoarseInitializer::calcEC(const int level, const bool snapped, float couplingWeight) {
+    if(!snapped) {
+        return Vec3f(0, 0, numPoints[level]);
+    }
+
     AccumulatorX<2> E;
     E.initialize();
     int npts = numPoints[level];
@@ -586,7 +591,7 @@ Vec3f CoarseInitializer::calcEC(int level, float couplingWeight) {
 }
 
 
-void CoarseInitializer::optReg(int level, float regWeight) {
+void CoarseInitializer::optReg(const int level, const bool snapped, const float regWeight) {
     int npts = numPoints[level];
     Pnt* ptsl = points[level];
     if(!snapped)
@@ -623,9 +628,7 @@ void CoarseInitializer::optReg(int level, float regWeight) {
 }
 
 
-
-void CoarseInitializer::propagateUp(int srcLvl)
-{
+void CoarseInitializer::propagateUp(const int srcLvl, const bool snapped) {
     assert(srcLvl+1<pyrLevelsUsed);
     // set idepth of target
 
@@ -662,15 +665,14 @@ void CoarseInitializer::propagateUp(int srcLvl)
         }
     }
 
-    optReg(srcLvl+1);
+    optReg(srcLvl+1, snapped);
 }
 
-void CoarseInitializer::propagateDown(int srcLvl)
-{
+void CoarseInitializer::propagateDown(const int srcLvl, const bool snapped) {
     assert(srcLvl>0);
     // set idepth of target
 
-    int nptst= numPoints[srcLvl-1];
+    int nptst = numPoints[srcLvl-1];
     Pnt* ptss = points[srcLvl];
     Pnt* ptst = points[srcLvl-1];
 
@@ -693,7 +695,7 @@ void CoarseInitializer::propagateDown(int srcLvl)
             point->iR = point->idepth = point->idepth_new = newiR;
         }
     }
-    optReg(srcLvl-1);
+    optReg(srcLvl-1, snapped);
 }
 
 
@@ -803,8 +805,7 @@ void CoarseInitializer::setFirst(FrameHessian* newFrameHessian) {
     frameID = snappedAt = 0;
 }
 
-void CoarseInitializer::resetPoints(int level)
-{
+void CoarseInitializer::resetPoints(const int level) {
     Pnt* pts = points[level];
     int npts = numPoints[level];
     for(int i=0; i<npts; i++)
