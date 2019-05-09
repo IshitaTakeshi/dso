@@ -87,16 +87,11 @@ public:
         }
         printf("ImageFolderReader: got %d files in %s!\n", (int)filenames.size(),
                path.c_str());
-
     }
+
     ~ImageFolderReader() {
         delete undistort;
     };
-
-    // TODO remove this function
-    void setGlobalCalibration() {
-        setGlobalCalib(undistort->getSize()[0], undistort->getSize()[1]);
-    }
 
     int getNumImages() {
         return filenames.size();
@@ -104,7 +99,6 @@ public:
 
     ImageAndExposure* getImage(int id) {
         MinimalImageB* minimg = getImageRaw_internal(id);
-
 
         if(minimg->w != undistort->getOriginalSize()[0] ||
            minimg->h != undistort->getOriginalSize()[1]) {

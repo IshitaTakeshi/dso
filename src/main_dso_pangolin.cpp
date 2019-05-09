@@ -239,12 +239,13 @@ int main( int argc, char** argv )
         exit(-1);
     }
 
-    // TODO make photometricUndist independent from this class
     PhotometricUndistorter *photometricUndist = new PhotometricUndistorter(
         gammaCalib, "", vignette,
         undistort->getOriginalSize()[0], undistort->getOriginalSize()[1]);
     ImageFolderReader* reader = new ImageFolderReader(source, undistort, photometricUndist);
-    reader->setGlobalCalibration();
+
+    // FIXME this function is problematic. setting global variables when called
+    setGlobalCalib(undistort->getSize()[0], undistort->getSize()[1]);
 
     if(setting_photometricCalibration > 0 && photometricUndist->getG() == 0) {
         printf(
