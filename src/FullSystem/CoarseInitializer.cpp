@@ -65,7 +65,8 @@ CoarseInitializer::CoarseInitializer(CalibHessian* HCalib, FrameHessian* newFram
     wM.diagonal()[6] = SCALE_A;
     wM.diagonal()[7] = SCALE_B;
 
-    setFirst(HCalib, newFrameHessian);
+    makeK(K, Ki, HCalib, wG[0], hG[0]);
+    setFirst(newFrameHessian);
 }
 
 CoarseInitializer::~CoarseInitializer() {
@@ -729,8 +730,7 @@ void CoarseInitializer::makeGradients(Eigen::Vector3f** data)
     }
 }
 
-void CoarseInitializer::setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian) {
-    makeK(K, Ki, HCalib, wG[0], hG[0]);
+void CoarseInitializer::setFirst(FrameHessian* newFrameHessian) {
     firstFrame = newFrameHessian;
 
     PixelSelector sel(w[0],h[0]);

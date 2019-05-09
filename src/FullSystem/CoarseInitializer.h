@@ -84,7 +84,7 @@ public:
     ~CoarseInitializer();
 
 
-    void setFirst(	CalibHessian* HCalib, FrameHessian* newFrameHessian);
+    void setFirst(FrameHessian* newFrameHessian);
     bool trackFrame(FrameHessian* newFrameHessian,
                     std::vector<IOWrap::Output3DWrapper*> &wraps);
     void calcTGrads(FrameHessian* newFrameHessian);
