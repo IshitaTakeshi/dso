@@ -252,8 +252,6 @@ struct FrameHessian {
         setStateZero(state);
     };
 
-
-
     inline void setEvalPT_scaled(const SE3 &worldToCam_evalPT,
                                  const AffLight &aff_g2l)
     {

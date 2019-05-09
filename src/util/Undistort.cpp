@@ -107,17 +107,7 @@ int readOutputParameters(Mat33f &K, int w, int h, const std::string &line) {
         return -1;
     }
 
-    std::cout << "output " << std::endl;
-    std::cout << "fx, fy, cx, cy, r" << " "
-              << fx << " " << fy << " "
-              << cx << " " << cy << " " << r << " " << std::endl;
-
     relativeToAbsolute(fx, fy, cx, cy, w, h);
-
-    std::cout << "output " << std::endl;
-    std::cout << "fx, fy, cx, cy, r" << " "
-              << fx << " " << fy << " "
-              << cx << " " << cy << " " << r << " " << std::endl;
     K = initializeCameraMatrix(fx, fy, cx, cy);
     return 0;
 }

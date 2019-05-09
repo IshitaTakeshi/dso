@@ -95,8 +95,7 @@ FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbac
     maxIdJetVisTracker = -1;
 }
 
-FullSystem::~FullSystem()
-{
+FullSystem::~FullSystem() {
     blockUntilMappingIsFinished();
 
     delete[] selectionMap;
@@ -115,8 +114,7 @@ FullSystem::~FullSystem()
 }
 
 
-void FullSystem::printResult(std::string file)
-{
+void FullSystem::printResult(std::string file) {
     boost::unique_lock<boost::mutex> lock(trackMutex);
     boost::unique_lock<boost::mutex> crlock(shellPoseMutex);
 
@@ -666,7 +664,8 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
 
     if(!initialized) {
         // use initializer!
-        if(coarseInitializer->frameID<0) {
+        if(coarseInitializer->frameID < 0) {
+            // TODO remove the setter from coarseInitializer
             // first frame set. fh is kept by coarseInitializer.
             coarseInitializer->setFirst(&HCalib, fh);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {

@@ -337,8 +337,7 @@ Vec3f CoarseInitializer::calcResAndGS(
     int lvl, Mat88f &H_out, Vec8f &b_out,
     Mat88f &H_out_sc, Vec8f &b_out_sc,
     const SE3 &refToNew, AffLight refToNew_aff,
-    bool plot)
-{
+    bool plot) {
     int wl = w[lvl], hl = h[lvl];
     Eigen::Vector3f* colorRef = firstFrame->dIp[lvl];
     Eigen::Vector3f* colorNew = newFrame->dIp[lvl];
@@ -904,11 +903,7 @@ void CoarseInitializer::makeK(CalibHessian* HCalib, int w_, int h_) {
     }
 }
 
-
-
-
-void CoarseInitializer::makeNN()
-{
+void CoarseInitializer::makeNN() {
     const float NNDistFactor=0.05;
 
     typedef nanoflann::KDTreeSingleIndexAdaptor<
