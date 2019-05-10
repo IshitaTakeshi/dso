@@ -96,11 +96,6 @@ public:
         ImmaturePointTemporaryResidual* tmpRes,
         float idepth);
 
-    float calcResidual(
-        CalibHessian *  HCalib, const float outlierTHSlack,
-        ImmaturePointTemporaryResidual* tmpRes,
-        float idepth);
-
 private:
 };
 

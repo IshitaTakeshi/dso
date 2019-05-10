@@ -456,50 +456,6 @@ float ImmaturePoint::getdPixdd(
 }
 
 
-float ImmaturePoint::calcResidual(
-    CalibHessian *  HCalib, const float outlierTHSlack,
-    ImmaturePointTemporaryResidual* tmpRes,
-    float idepth)
-{
-    FrameFramePrecalc* precalc = &(host->targetPrecalc[tmpRes->target->idx]);
-
-    float energyLeft=0;
-    const Eigen::Vector3f* dIl = tmpRes->target->dI;
-    const Mat33f &PRE_KRKiTll = precalc->PRE_KRKiTll;
-    const Vec3f &PRE_KtTll = precalc->PRE_KtTll;
-    Vec2f affLL = precalc->PRE_aff_mode;
-
-    for(int idx=0; idx<patternNum; idx++)
-    {
-        float Ku, Kv;
-        if(!projectPoint(this->u+patternP[idx][0], this->v+patternP[idx][1], idepth,
-                         PRE_KRKiTll, PRE_KtTll, Ku, Kv))
-        {
-            return 1e10;
-        }
-
-        Vec3f hitColor = (getInterpolatedElement33(dIl, Ku, Kv, wG[0]));
-        if(!std::isfinite((float)hitColor[0])) {
-            return 1e10;
-        }
-        //if(benchmarkSpecialOption==5) hitColor = (getInterpolatedElement13BiCub(tmpRes->target->I, Ku, Kv, wG[0]));
-
-        float residual = hitColor[0] - (affLL[0] * color[idx] + affLL[1]);
-
-        float hw = fabsf(residual) < setting_huberTH ? 1 : setting_huberTH / fabsf(
-                       residual);
-        energyLeft += weights[idx]*weights[idx]*hw *residual*residual*(2-hw);
-    }
-
-    if(energyLeft > energyTH*outlierTHSlack)
-    {
-        energyLeft = energyTH*outlierTHSlack;
-    }
-    return energyLeft;
-}
-
-
-
 
 double ImmaturePoint::linearizeResidual(
     CalibHessian *  HCalib, const float outlierTHSlack,
