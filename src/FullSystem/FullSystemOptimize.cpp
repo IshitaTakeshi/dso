@@ -117,15 +117,15 @@ void FullSystem::setNewFrameEnergyTH(
     assert(nthIdx < (int)allResVec.size());
     assert(setting_frameEnergyTHN < 1);
 
-    std::nth_element(allResVec.begin(), allResVec.begin()+nthIdx, allResVec.end());
+    std::nth_element(allResVec.begin(), allResVec.begin() + nthIdx, allResVec.end());
     float nthElement = sqrtf(allResVec[nthIdx]);
 
-    newFrame->frameEnergyTH = nthElement*setting_frameEnergyTHFacMedian;
-    newFrame->frameEnergyTH = 26.0f*setting_frameEnergyTHConstWeight +
-                              newFrame->frameEnergyTH*(1-setting_frameEnergyTHConstWeight);
-    newFrame->frameEnergyTH = newFrame->frameEnergyTH*newFrame->frameEnergyTH;
-    newFrame->frameEnergyTH *=
-        setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
+    float frameEnergyTH = nthElement*setting_frameEnergyTHFacMedian;
+    frameEnergyTH = 26.0f*setting_frameEnergyTHConstWeight
+                  + frameEnergyTH*(1-setting_frameEnergyTHConstWeight);
+    frameEnergyTH = frameEnergyTH*frameEnergyTH;
+    frameEnergyTH *= setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
+    newFrame->frameEnergyTH = frameEnergyTH;
 }
 
 double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
