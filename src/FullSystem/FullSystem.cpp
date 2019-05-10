@@ -380,7 +380,7 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
             host->aff_g2l(), fh->aff_g2l()).cast<float>();
 
         for(ImmaturePoint* ph : host->immaturePoints) {
-            ph->traceOn(fh, KRKi, Kt, aff, &HCalib, false);
+            ph->traceOn(fh, KRKi, Kt, aff, &HCalib);
         }
     }
 }

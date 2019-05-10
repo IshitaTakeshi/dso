@@ -73,27 +73,13 @@ ImmaturePoint::~ImmaturePoint()
  */
 ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         const Mat33f &hostToFrame_KRKi, const Vec3f &hostToFrame_Kt,
-        const Vec2f& hostToFrame_affine, CalibHessian* HCalib, bool debugPrint)
-{
-    if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) return lastTraceStatus;
+        const Vec2f& hostToFrame_affine, CalibHessian* HCalib) {
+    if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) {
+        return lastTraceStatus;
+    }
 
-
-    debugPrint = false;//rand()%100==0;
     float maxPixSearch = (wG[0]+hG[0])*setting_maxPixSearch;
 
-    if(debugPrint)
-        printf("trace pt (%.1f %.1f) from frame %d to %d. Range %f -> %f. t %f %f %f!\n",
-               u,v,
-               host->shell->id, frame->shell->id,
-               idepth_min, idepth_max,
-               hostToFrame_Kt[0],hostToFrame_Kt[1],hostToFrame_Kt[2]);
-
-//	const float stepsize = 1.0;				// stepsize for initial discrete search.
-//	const int GNIterations = 3;				// max # GN iterations
-//	const float GNThreshold = 0.1;				// GN stop after this stepsize.
-//	const float extraSlackOnTH = 1.2;			// for energy-based outlier check, be slightly more relaxed by this factor.
-//	const float slackInterval = 0.8;			// if pixel-interval is smaller than this, leave it be.
-//	const float minImprovementFactor = 2;		// if pixel-interval is smaller than this, leave it be.
     // ============== project min and max. return if one of them is OOB ===================
     Vec3f pr = hostToFrame_KRKi * Vec3f(u,v, 1);
     Vec3f ptpMin = pr + hostToFrame_Kt*idepth_min;
@@ -102,8 +88,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 
     if(!(uMin > 4 && vMin > 4 && uMin < wG[0]-5 && vMin < hG[0]-5))
     {
-        if(debugPrint) printf("OOB uMin %f %f - %f %f %f (id %f-%f)!\n",
-                                  u,v,uMin, vMin,  ptpMin[2], idepth_min, idepth_max);
         lastTraceUV = Vec2f(-1,-1);
         lastTracePixelInterval=0;
         return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
@@ -122,7 +106,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 
         if(!(uMax > 4 && vMax > 4 && uMax < wG[0]-5 && vMax < hG[0]-5))
         {
-            if(debugPrint) printf("OOB uMax  %f %f - %f %f!\n",u,v, uMax, vMax);
             lastTraceUV = Vec2f(-1,-1);
             lastTracePixelInterval=0;
             return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
@@ -135,9 +118,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         dist = sqrtf(dist);
         if(dist < setting_trace_slackInterval)
         {
-            if(debugPrint)
-                printf("TOO CERTAIN ALREADY (dist %f)!\n", dist);
-
             lastTraceUV = Vec2f(uMax+uMin, vMax+vMin)*0.5;
             lastTracePixelInterval=dist;
             return lastTraceStatus = ImmaturePointStatus::IPS_SKIPPED;
@@ -165,7 +145,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         // may still be out!
         if(!(uMax > 4 && vMax > 4 && uMax < wG[0]-5 && vMax < hG[0]-5))
         {
-            if(debugPrint) printf("OOB uMax-coarse %f %f %f!\n", uMax, vMax,  ptpMax[2]);
             lastTraceUV = Vec2f(-1,-1);
             lastTracePixelInterval=0;
             return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
@@ -177,7 +156,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     // set OOB if scale change too big.
     if(!(idepth_min<0 || (ptpMin[2]>0.75 && ptpMin[2]<1.5)))
     {
-        if(debugPrint) printf("OOB SCALE %f %f %f!\n", uMax, vMax,  ptpMin[2]);
         lastTraceUV = Vec2f(-1,-1);
         lastTracePixelInterval=0;
         return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
@@ -195,8 +173,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     if(errorInPixel*setting_trace_minImprovementFactor > dist
             && std::isfinite(idepth_max))
     {
-        if(debugPrint)
-            printf("NO SIGNIFICANT IMPROVMENT (%f)!\n", errorInPixel);
         lastTraceUV = Vec2f(uMax+uMin, vMax+vMin)*0.5;
         lastTracePixelInterval=dist;
         return lastTraceStatus = ImmaturePointStatus::IPS_BADCONDITION;
@@ -209,16 +185,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     // ============== do the discrete search ===================
     dx /= dist;
     dy /= dist;
-
-    if(debugPrint)
-        printf("trace pt (%.1f %.1f) from frame %d to %d. Range %f (%.1f %.1f) -> %f (%.1f %.1f)! ErrorInPixel %.1f!\n",
-               u,v,
-               host->shell->id, frame->shell->id,
-               idepth_min, uMin, vMin,
-               idepth_max, uMax, vMax,
-               errorInPixel
-              );
-
 
     if(dist>maxPixSearch)
     {
@@ -278,11 +244,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
                            residual);
             energy += hw *residual*residual*(2-hw);
         }
-
-        if(debugPrint)
-            printf("step %.1f %.1f (id %f): energy = %f!\n",
-                   ptx, pty, 0.0f, energy);
-
 
         errors[i] = energy;
         if(energy < bestEnergy)
@@ -349,10 +310,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             stepBack*=0.5;
             bestU = uBak + stepBack*dx;
             bestV = vBak + stepBack*dy;
-            if(debugPrint)
-                printf("GN BACK %d: E %f, H %f, b %f. id-step %f. UV %f %f -> %f %f.\n",
-                       it, energy, H, b, stepBack,
-                       uBak, vBak, bestU, bestV);
         }
         else
         {
@@ -371,11 +328,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             bestU += step*dx;
             bestV += step*dy;
             bestEnergy = energy;
-
-            if(debugPrint)
-                printf("GN step %d: E %f, H %f, b %f. id-step %f. UV %f %f -> %f %f.\n",
-                       it, energy, H, b, step,
-                       uBak, vBak, bestU, bestV);
         }
 
         if(fabsf(stepBack) < setting_trace_GNThreshold) break;
@@ -388,9 +340,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 //	float absGrad2 = getInterpolatedElement(frame->absSquaredGrad[2],bestU*0.25-0.375, bestV*0.25-0.375, wG[2]);
     if(!(bestEnergy < energyTH*setting_trace_extraSlackOnTH))
     {
-        if(debugPrint)
-            printf("OUTLIER!\n");
-
         lastTracePixelInterval=0;
         lastTraceUV = Vec2f(-1,-1);
         if(lastTraceStatus == ImmaturePointStatus::IPS_OUTLIER)
