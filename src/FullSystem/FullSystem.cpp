@@ -57,6 +57,7 @@
 #include "util/gamma.h"
 
 #include <cmath>
+#include <iostream>
 
 namespace dso {
 
@@ -1004,14 +1005,14 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
         if(rand()/(float)RAND_MAX > keepPercentage) continue;
 
         Pnt* point = coarseInitializer->points[0]+i;
-        ImmaturePoint* pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,
-                                              firstFrame, point->my_type);
-
-        if(!std::isfinite(pt->energyTH)) {
-            delete pt;
+        ImmaturePoint* pt;
+        try {
+            pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,
+                                   firstFrame, point->my_type);
+        } catch(std::exception &e) {
+            std::cerr << e.what() << std::endl;
             continue;
         }
-
 
         pt->idepth_max=pt->idepth_min=1;
         PointHessian* ph = new PointHessian(pt);
@@ -1072,12 +1073,15 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
             int i = y*wG[0] + x;
             if(selectionMap[i]==0) continue;
 
-            ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, selectionMap[i]);
-            if(!std::isfinite(impt->energyTH)) {
-                delete impt;
-            } else {
-                newFrame->immaturePoints.push_back(impt);
+            ImmaturePoint* impt;
+            try {
+                impt = new ImmaturePoint(x, y, newFrame, selectionMap[i]);
+            } catch(std::exception &e) {
+                std::cerr << e.what() << std::endl;
+                continue;
             }
+
+            newFrame->immaturePoints.push_back(impt);
         }
     }
 }

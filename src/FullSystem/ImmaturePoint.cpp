@@ -23,9 +23,11 @@
 
 
 
+#include <iostream>
 #include "FullSystem/ImmaturePoint.h"
 #include "util/FrameShell.h"
 #include "FullSystem/ResidualProjections.h"
+
 
 namespace dso {
 
@@ -48,8 +50,7 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
 
         color[idx] = ptc[0];
         if(!std::isfinite(color[idx])) {
-            energyTH=NAN;
-            return;
+            throw std::runtime_error("Infinite color value detected");
         }
 
         gradH += ptc.tail<2>()  * ptc.tail<2>().transpose();
