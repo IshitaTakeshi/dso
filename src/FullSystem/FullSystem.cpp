@@ -1005,7 +1005,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
 
         Pnt* point = coarseInitializer->points[0]+i;
         ImmaturePoint* pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,
-                                              firstFrame, point->my_type, &HCalib);
+                                              firstFrame, point->my_type);
 
         if(!std::isfinite(pt->energyTH)) {
             delete pt;
@@ -1072,8 +1072,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
             int i = y*wG[0] + x;
             if(selectionMap[i]==0) continue;
 
-            ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, selectionMap[i],
-                                                    &HCalib);
+            ImmaturePoint* impt = new ImmaturePoint(x, y, newFrame, selectionMap[i]);
             if(!std::isfinite(impt->energyTH)) {
                 delete impt;
             } else {

@@ -43,7 +43,6 @@ PointHessian::PointHessian(const ImmaturePoint* const rawPoint) {
     u = rawPoint->u;
     v = rawPoint->v;
     assert(std::isfinite(rawPoint->idepth_max));
-    //idepth_init = rawPoint->idepth_GT;
 
     my_type = rawPoint->my_type;
 

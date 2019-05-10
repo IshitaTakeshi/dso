@@ -75,8 +75,7 @@ public:
 
     float idepth_min;
     float idepth_max;
-    ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
-                  CalibHessian* HCalib);
+    ImmaturePoint(int u_, int v_, FrameHessian* host_, float type);
     ~ImmaturePoint();
 
     ImmaturePointStatus traceOn(FrameHessian* frame,

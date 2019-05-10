@@ -27,17 +27,20 @@
 #include "util/FrameShell.h"
 #include "FullSystem/ResidualProjections.h"
 
-namespace dso
-{
-ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
-                             CalibHessian* HCalib)
+namespace dso {
+
+float calcEneregyThreshold() {
+
+}
+
+
+ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
     : u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN),
       lastTraceStatus(IPS_UNINITIALIZED) {
 
     gradH.setZero();
 
-    for(int idx=0; idx<patternNum; idx++)
-    {
+    for(int idx=0; idx<patternNum; idx++) {
         int dx = patternP[idx][0];
         int dy = patternP[idx][1];
 
@@ -58,7 +61,6 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
     energyTH = patternNum*setting_outlierTH;
     energyTH *= setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
 
-    idepth_GT=0;
     quality=10000;
 }
 
