@@ -963,8 +963,6 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
             i=0;
         }
     }
-
-    //printEigenValLine();
 }
 
 
@@ -1095,43 +1093,6 @@ void setPrecalcValues(std::vector<FrameHessian*> frameHessians, const CalibHessi
             fh->targetPrecalc[i].set(fh, frameHessians[i], K);
         }
     }
-}
-
-
-void FullSystem::printEigenValLine() {
-    if(ef->lastHS.rows() < 12) return;
-
-    MatXX Hp = ef->lastHS.bottomRightCorner(ef->lastHS.cols()-CPARS,
-                                            ef->lastHS.cols()-CPARS);
-    MatXX Ha = ef->lastHS.bottomRightCorner(ef->lastHS.cols()-CPARS,
-                                            ef->lastHS.cols()-CPARS);
-    int n = Hp.cols()/8;
-    assert(Hp.cols()%8==0);
-
-    // sub-select
-    for(int i=0; i<n; i++) {
-        MatXX tmp6 = Hp.block(i*8,0,6,n*8);
-        Hp.block(i*6,0,6,n*8) = tmp6;
-
-        MatXX tmp2 = Ha.block(i*8+6,0,2,n*8);
-        Ha.block(i*2,0,2,n*8) = tmp2;
-    }
-    for(int i=0; i<n; i++) {
-        MatXX tmp6 = Hp.block(0,i*8,n*8,6);
-        Hp.block(0,i*6,n*8,6) = tmp6;
-
-        MatXX tmp2 = Ha.block(0,i*8+6,n*8,2);
-        Ha.block(0,i*2,n*8,2) = tmp2;
-    }
-
-    VecX eigenvaluesAll = ef->lastHS.eigenvalues().real();
-    VecX eigenP = Hp.topLeftCorner(n*6,n*6).eigenvalues().real();
-    VecX eigenA = Ha.topLeftCorner(n*2,n*2).eigenvalues().real();
-    VecX diagonal = ef->lastHS.diagonal();
-
-    std::sort(eigenvaluesAll.data(), eigenvaluesAll.data()+eigenvaluesAll.size());
-    std::sort(eigenP.data(), eigenP.data()+eigenP.size());
-    std::sort(eigenA.data(), eigenA.data()+eigenA.size());
 }
 
 }

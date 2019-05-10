@@ -210,8 +210,6 @@ private:
         std::vector<VecX> &nullspaces_affA,
         std::vector<VecX> &nullspaces_affB);
 
-    void printEigenValLine();
-
     // =================== changed by tracker-thread. protected by trackMutex ============
     boost::mutex trackMutex;
     std::vector<FrameShell*> allFrameHistory;
