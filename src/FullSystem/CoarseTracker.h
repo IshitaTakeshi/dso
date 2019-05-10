@@ -60,7 +60,7 @@ public:
     void makeK(
         CalibHessian* HCalib);
 
-    bool debugPrint, debugPlot;
+    bool debugPrint;
 
     Mat33f K[PYR_LEVELS];
     Mat33f Ki[PYR_LEVELS];
@@ -74,10 +74,6 @@ public:
     float cyi[PYR_LEVELS];
     int w[PYR_LEVELS];
     int h[PYR_LEVELS];
-
-    void debugPlotIDepthMap(float* minID, float* maxID,
-                            std::vector<IOWrap::Output3DWrapper*> &wraps);
-    void debugPlotIDepthMapFloat(std::vector<IOWrap::Output3DWrapper*> &wraps);
 
     FrameHessian* lastRef;
     AffLight lastRef_aff_g2l;

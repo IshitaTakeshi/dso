@@ -88,7 +88,7 @@ CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0,0)
 
     newFrame = 0;
     lastRef = 0;
-    debugPlot = debugPrint = true;
+    debugPrint = true;
     w[0]=h[0]=0;
     refFrameID=-1;
 }
@@ -431,13 +431,6 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
                       -setting_huberTH*setting_huberTH;	// energy for r=setting_coarseCutoffTH.
 
 
-    MinimalImageB3* resImage = 0;
-    if(debugPlot)
-    {
-        resImage = new MinimalImageB3(wl,hl);
-        resImage->setConst(Vec3b(255,255,255));
-    }
-
     int nl = pc_n[lvl];
     float* lpc_u = pc_u[lvl];
     float* lpc_v = pc_v[lvl];
@@ -505,16 +498,12 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
 
         if(fabs(residual) > cutoffTH)
         {
-            if(debugPlot) resImage->setPixel4(lpc_u[i], lpc_v[i], Vec3b(0,0,255));
             E += maxEnergy;
             numTermsInE++;
             numSaturated++;
         }
         else
         {
-            if(debugPlot) resImage->setPixel4(lpc_u[i], lpc_v[i], Vec3b(residual+128,
-                                                  residual+128,residual+128));
-
             E += hw *residual*residual*(2-hw);
             numTermsInE++;
 
@@ -543,14 +532,6 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
         numTermsInWarped++;
     }
     buf_warped_n = numTermsInWarped;
-
-
-    if(debugPlot)
-    {
-        IOWrap::displayImage("RES", resImage, false);
-        IOWrap::waitKey(0);
-        delete resImage;
-    }
 
     Vec6 rs;
     rs[0] = E;
@@ -590,7 +571,6 @@ bool CoarseTracker::trackNewestCoarse(
     Vec5 minResForAbort,
     IOWrap::Output3DWrapper* wrap)
 {
-    debugPlot = setting_render_displayCoarseTrackingFull;
     debugPrint = false;
 
     assert(coarsestLvl < 5 && coarsestLvl < pyrLevelsUsed);
@@ -778,144 +758,6 @@ bool CoarseTracker::trackNewestCoarse(
 
     return true;
 }
-
-
-
-void CoarseTracker::debugPlotIDepthMap(float* minID_pt, float* maxID_pt,
-                                       std::vector<IOWrap::Output3DWrapper*> &wraps)
-{
-    if(w[1] == 0) return;
-
-
-    int lvl = 0;
-
-    {
-        std::vector<float> allID;
-        for(int i=0; i<h[lvl]*w[lvl]; i++)
-        {
-            if(idepth[lvl][i] > 0)
-                allID.push_back(idepth[lvl][i]);
-        }
-        std::sort(allID.begin(), allID.end());
-        int n = allID.size()-1;
-
-        float minID_new = allID[(int)(n*0.05)];
-        float maxID_new = allID[(int)(n*0.95)];
-
-        float minID, maxID;
-        minID = minID_new;
-        maxID = maxID_new;
-        if(minID_pt!=0 && maxID_pt!=0)
-        {
-            if(*minID_pt < 0 || *maxID_pt < 0)
-            {
-                *maxID_pt = maxID;
-                *minID_pt = minID;
-            }
-            else
-            {
-
-                // slowly adapt: change by maximum 10% of old span.
-                float maxChange = 0.3*(*maxID_pt - *minID_pt);
-
-                if(minID < *minID_pt - maxChange)
-                    minID = *minID_pt - maxChange;
-                if(minID > *minID_pt + maxChange)
-                    minID = *minID_pt + maxChange;
-
-
-                if(maxID < *maxID_pt - maxChange)
-                    maxID = *maxID_pt - maxChange;
-                if(maxID > *maxID_pt + maxChange)
-                    maxID = *maxID_pt + maxChange;
-
-                *maxID_pt = maxID;
-                *minID_pt = minID;
-            }
-        }
-
-
-        MinimalImageB3 mf(w[lvl], h[lvl]);
-        mf.setBlack();
-        for(int i=0; i<h[lvl]*w[lvl]; i++)
-        {
-            int c = lastRef->dIp[lvl][i][0]*0.9f;
-            if(c>255) c=255;
-            mf.at(i) = Vec3b(c,c,c);
-        }
-        int wl = w[lvl];
-        for(int y=3; y<h[lvl]-3; y++)
-            for(int x=3; x<wl-3; x++)
-            {
-                int idx=x+y*wl;
-                float sid=0, nid=0;
-                float* bp = idepth[lvl]+idx;
-
-                if(bp[0] > 0) {
-                    sid+=bp[0];
-                    nid++;
-                }
-                if(bp[1] > 0) {
-                    sid+=bp[1];
-                    nid++;
-                }
-                if(bp[-1] > 0) {
-                    sid+=bp[-1];
-                    nid++;
-                }
-                if(bp[wl] > 0) {
-                    sid+=bp[wl];
-                    nid++;
-                }
-                if(bp[-wl] > 0) {
-                    sid+=bp[-wl];
-                    nid++;
-                }
-
-                if(bp[0] > 0 || nid >= 3)
-                {
-                    float id = ((sid / nid)-minID) / ((maxID-minID));
-                    mf.setPixelCirc(x,y,makeJet3B(id));
-                    //mf.at(idx) = makeJet3B(id);
-                }
-            }
-        //IOWrap::displayImage("coarseDepth LVL0", &mf, false);
-
-
-        for(IOWrap::Output3DWrapper* ow : wraps)
-            ow->pushDepthImage(&mf);
-
-        if(debugSaveImages)
-        {
-            char buf[1000];
-            snprintf(buf, 1000, "images_out/predicted_%05d_%05d.png", lastRef->shell->id,
-                     refFrameID);
-            IOWrap::writeImage(buf,&mf);
-        }
-
-    }
-}
-
-
-
-void CoarseTracker::debugPlotIDepthMapFloat(
-    std::vector<IOWrap::Output3DWrapper*> &wraps)
-{
-    if(w[1] == 0) return;
-    int lvl = 0;
-    MinimalImageF mim(w[lvl], h[lvl], idepth[lvl]);
-    for(IOWrap::Output3DWrapper* ow : wraps)
-        ow->pushDepthImageFloat(&mim, lastRef);
-}
-
-
-
-
-
-
-
-
-
 
 
 CoarseDistanceMap::CoarseDistanceMap(int ww, int hh)

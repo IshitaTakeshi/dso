@@ -935,10 +935,6 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
         coarseTracker_forNewKF->makeK(&HCalib);
         coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians);
-
-        coarseTracker_forNewKF->debugPlotIDepthMap(&minIdJetVisTracker,
-                &maxIdJetVisTracker, outputWrapper);
-        coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
     }
 
     // =========================== (Activate-)Marginalize Points =========================
