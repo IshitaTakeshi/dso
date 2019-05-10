@@ -209,10 +209,6 @@ private:
         std::vector<VecX> &nullspaces_affA,
         std::vector<VecX> &nullspaces_affB);
 
-    float calcNewFrameEnergyTH(
-        const std::vector<PointFrameResidual*> activeResiduals,
-        const FrameHessian* newFrame);
-
     void printEigenValLine();
 
     // =================== changed by tracker-thread. protected by trackMutex ============
@@ -235,11 +231,6 @@ private:
     // ONLY changed in marginalizeFrame and addFrame.
     std::vector<FrameHessian*> frameHessians;
     float currentMinActDist;
-
-
-    std::vector<float> allResVec;
-
-
 
     // mutex etc. for tracker exchange.
     boost::mutex

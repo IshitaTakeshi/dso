@@ -92,12 +92,12 @@ void applyRes_Reductor(std::vector<PointFrameResidual*> activeResiduals,
     }
 }
 
-float FullSystem::calcNewFrameEnergyTH(
+float calcNewFrameEnergyTH(
     const std::vector<PointFrameResidual*> activeResiduals,
     const FrameHessian* newFrame) {
 
     // collect all residuals and make decision on TH.
-    allResVec.clear();
+    std::vector<float> allResVec;
     allResVec.reserve(activeResiduals.size()*2);
 
     for(PointFrameResidual* r : activeResiduals) {
