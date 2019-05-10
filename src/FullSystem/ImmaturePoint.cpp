@@ -59,9 +59,6 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
                              (setting_outlierTHSumComponent + ptc.tail<2>().squaredNorm()));
     }
 
-    energyTH = patternNum*setting_outlierTH;
-    energyTH *= setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
-
     quality=10000;
 }
 
