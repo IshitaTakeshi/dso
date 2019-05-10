@@ -36,6 +36,8 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
     : u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN),
       lastTraceStatus(IPS_UNINITIALIZED) {
 
+    // TODO make this a function
+    // this may be rewritten in numpy style
     gradH.setZero();
 
     for(int idx=0; idx<patternNum; idx++) {
@@ -44,13 +46,13 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
 
         Vec3f ptc = getInterpolatedElement33BiLin(host->dI, u+dx, v+dy,wG[0]);
 
-        color[idx] = ptc[0];
-
-        if(!std::isfinite(color[idx])) {
+        if(!std::isfinite(ptc[0])) {
             throw std::runtime_error("Infinite color value detected");
         }
 
-        gradH += ptc.tail<2>()  * ptc.tail<2>().transpose();
+        color[idx] = ptc[0];
+
+        gradH += ptc.tail<2>() * ptc.tail<2>().transpose();
 
         weights[idx] = sqrtf(setting_outlierTHSumComponent /
                              (setting_outlierTHSumComponent + ptc.tail<2>().squaredNorm()));

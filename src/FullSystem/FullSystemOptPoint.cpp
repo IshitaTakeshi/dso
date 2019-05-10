@@ -47,7 +47,6 @@ namespace dso
 {
 
 
-
 PointHessian* FullSystem::optimizeImmaturePoint(
     ImmaturePoint* point, int minObs,
     ImmaturePointTemporaryResidual* residuals)
@@ -73,14 +72,9 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     float lastbd=0;
     float currentIdepth=(point->idepth_max+point->idepth_min)*0.5f;
 
-
-
-
-
-
     for(int i=0; i<nres; i++)
     {
-        lastEnergy += point->linearizeResidual(&HCalib, 1000, residuals+i,lastHdd,
+        lastEnergy += point->linearizeResidual(&HCalib, 1000, residuals+i, lastHdd,
                                                lastbd, currentIdepth);
         residuals[i].state_state = residuals[i].state_NewState;
         residuals[i].state_energy = residuals[i].state_NewEnergy;
@@ -151,12 +145,11 @@ PointHessian* FullSystem::optimizeImmaturePoint(
             break;
     }
 
-    if(!std::isfinite(currentIdepth))
-    {
+    if(!std::isfinite(currentIdepth)) {
         printf("MAJOR ERROR! point idepth is nan after initialization (%f).\n",
                currentIdepth);
-        return (PointHessian*)((long)(
-                                   -1));		// yeah I'm like 99% sure this is OK on 32bit systems.
+        // yeah I'm like 99% sure this is OK on 32bit systems.
+        return (PointHessian*)((long)(-1));
     }
 
 
@@ -187,8 +180,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     for(int i=0; i<nres; i++)
         if(residuals[i].state_state == ResState::IN)
         {
-            PointFrameResidual* r = new PointFrameResidual(p, p->host,
-                    residuals[i].target);
+            PointFrameResidual* r = new PointFrameResidual(p, p->host, residuals[i].target);
             r->state_NewEnergy = r->state_energy = 0;
             r->state_NewState = ResState::OUTLIER;
             r->setState(ResState::IN);
