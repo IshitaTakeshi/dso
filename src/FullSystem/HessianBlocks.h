@@ -173,7 +173,6 @@ struct FrameHessian {
     Vec10 state_scaled;
     Vec10 state;	// [0-5: worldToCam-leftEps. 6-7: a,b]
     Vec10 step;
-    Vec10 step_backup;
     Vec10 state_backup;
 
 
@@ -380,7 +379,7 @@ struct PointHessian
 
     float u,v;
     int idx;
-    float energyTH;
+    float energyTH; // TODO make this const
     FrameHessian* host;
     bool hasDepthPrior;
 

@@ -187,16 +187,17 @@ private:
     // solce. eventually migrate to ef.
     VecC solveSystem(int iteration, double lambda);
     double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
-                        bool fixLinearization);
-    bool doStepFromBackup(VecC step, VecC value_backup,
+                        const bool fixLinearization);
+    bool doStepFromBackup(VecC step, Vec10 step_backup, VecC value_backup,
                           float stepfacC, float stepfacT, float stepfacR,
                           float stepfacA, float stepfacD);
-    void backupState(bool backupLastStep);
+    void backupState(Vec10 &step_backup, const bool backupLastStep);
     void loadSateBackup();
-    void linearizeAll_Reductor(bool fixLinearization,
+
+    void linearizeAll_Reductor(const bool fixLinearization,
                                std::vector<PointFrameResidual*>* toRemove,
                                const std::vector<PointFrameResidual*> activeResiduals,
-                               int min, int max, Vec10* stats, int tid);
+                               const int min, const int max, Vec10* stats, const int tid);
     void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,
                                    std::vector<ImmaturePoint*>* toOptimize,
                                    int min, int max, Vec10* stats, int tid);

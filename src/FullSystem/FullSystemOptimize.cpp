@@ -45,10 +45,10 @@
 
 namespace dso {
 
-void FullSystem::linearizeAll_Reductor(bool fixLinearization,
+void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                                        std::vector<PointFrameResidual*>* toRemove,
                                        const std::vector<PointFrameResidual*> activeResiduals,
-                                       int min, int max, Vec10* stats, int tid) {
+                                       const int min, const int max, Vec10* stats, const int tid) {
     for(int k=min; k<max; k++) {
         PointFrameResidual* r = activeResiduals[k];
         (*stats)[0] += r->linearize(&HCalib);
@@ -110,7 +110,6 @@ float calcNewFrameEnergyTH(
         return 12*12*patternNum;
     }
 
-
     int nthIdx = setting_frameEnergyTHN*allResVec.size();
 
     assert(nthIdx < (int)allResVec.size());
@@ -128,7 +127,7 @@ float calcNewFrameEnergyTH(
 }
 
 double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
-                                bool fixLinearization) {
+                                const bool fixLinearization) {
     double lastEnergyP = 0;
 
     std::vector<PointFrameResidual*> toRemove[NUM_THREADS];
@@ -190,7 +189,7 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 
 
 // applies step to linearization point.
-bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
+bool FullSystem::doStepFromBackup(VecC step, Vec10 step_backup, VecC value_backup,
                                   float stepfacC, float stepfacT, float stepfacR,
                                   float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
@@ -209,7 +208,7 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
         HCalib.setValue(value_backup + step);
         for(FrameHessian* fh : frameHessians) {
             Vec10 step = fh->step;
-            step.head<6>() += 0.5f*(fh->step_backup.head<6>());
+            step.head<6>() += 0.5f*(step_backup.head<6>());
 
             fh->setState(fh->state_backup + step);
             sumA += step[6]*step[6];
@@ -272,38 +271,29 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 
 
 // sets linearization point.
-void FullSystem::backupState(bool backupLastStep) {
-    if(setting_solverMode & SOLVER_MOMENTUM)
-    {
-        if(backupLastStep)
-        {
-            for(FrameHessian* fh : frameHessians)
-            {
-                fh->step_backup = fh->step;
+void FullSystem::backupState(Vec10 &step_backup, const bool backupLastStep) {
+    if(setting_solverMode & SOLVER_MOMENTUM) {
+        if(backupLastStep) {
+            for(FrameHessian* fh : frameHessians) {
+                step_backup = fh->step;
                 fh->state_backup = fh->get_state();
-                for(PointHessian* ph : fh->pointHessians)
-                {
+                for(PointHessian* ph : fh->pointHessians) {
                     ph->idepth_backup = ph->idepth;
                     ph->step_backup = ph->step;
                 }
             }
-        }
-        else
-        {
-            for(FrameHessian* fh : frameHessians)
-            {
-                fh->step_backup.setZero();
+        } else {
+            for(FrameHessian* fh : frameHessians) {
+                step_backup.setZero();
                 fh->state_backup = fh->get_state();
-                for(PointHessian* ph : fh->pointHessians)
-                {
+                for(PointHessian* ph : fh->pointHessians) {
                     ph->idepth_backup = ph->idepth;
-                    ph->step_backup=0;
+                    ph->step_backup = 0;
                 }
             }
         }
     } else {
-        for(FrameHessian* fh : frameHessians)
-        {
+        for(FrameHessian* fh : frameHessians) {
             fh->state_backup = fh->get_state();
             for(PointHessian* ph : fh->pointHessians)
                 ph->idepth_backup = ph->idepth;
@@ -390,10 +380,11 @@ float FullSystem::optimize(int mnumOptIts) {
     for(int iteration=0; iteration<mnumOptIts; iteration++) {
         // solve!
 
+        // FIXME HCalib shoudn't hold states
         VecC value_backup = HCalib.value;
 
-        backupState(iteration!=0);
-        //solveSystemNew(0);
+        Vec10 step_backup;
+        backupState(step_backup, iteration!=0);
 
         step = solveSystem(iteration, lambda);
 
@@ -411,7 +402,7 @@ float FullSystem::optimize(int mnumOptIts) {
             stepsize = clamp(stepsize, 0.25, 2.0);
         }
 
-        bool canbreak = doStepFromBackup(step, value_backup,
+        bool canbreak = doStepFromBackup(step, step_backup, value_backup,
                                          stepsize, stepsize, stepsize, stepsize, stepsize);
 
         // eval new energy!
