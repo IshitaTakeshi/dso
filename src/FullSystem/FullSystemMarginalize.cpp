@@ -53,9 +53,9 @@
 namespace dso
 {
 
-double calcDistanceScore(FrameHessian* fh, FrameHessian* latest) {
+double calcDistanceScore(const FrameHessian* fh, const FrameHessian* latest) {
     double score = 0;
-    for(FrameFramePrecalc &ffh : fh->targetPrecalc)  {
+    for(const FrameFramePrecalc &ffh : fh->targetPrecalc)  {
         if(ffh.target->frameID > latest->frameID - setting_minFrameAge + 1 ||
            ffh.target == ffh.host) {
             continue;
