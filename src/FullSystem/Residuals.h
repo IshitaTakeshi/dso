@@ -69,8 +69,8 @@ public:
     }
 
     PointHessian* point;
-    FrameHessian* host;
-    FrameHessian* target;
+    const FrameHessian* host;
+    const FrameHessian* target;
     RawResidualJacobian* J;
 
     bool isNew;
@@ -80,8 +80,9 @@ public:
 
     ~PointFrameResidual();
     PointFrameResidual();
-    PointFrameResidual(PointHessian* point_, FrameHessian* host_,
-                       FrameHessian* target_);
+    PointFrameResidual(PointHessian* point_,
+                       const FrameHessian* host_,
+                       const FrameHessian* target_);
     double linearize(CalibHessian* HCalib);
 
 

@@ -61,7 +61,8 @@ PointFrameResidual::~PointFrameResidual() {
 }
 
 PointFrameResidual::PointFrameResidual(PointHessian* point_,
-                                       FrameHessian* host_, FrameHessian* target_) :
+                                       const FrameHessian* host_,
+                                       const FrameHessian* target_) :
     point(point_),
     host(host_),
     target(target_)
@@ -83,7 +84,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
         return state_energy;
     }
 
-    FrameFramePrecalc* precalc = &(host->targetPrecalc[target->idx]);
+    const FrameFramePrecalc* precalc = &(host->targetPrecalc[target->idx]);
     float energyLeft=0;
     const Eigen::Vector3f* dIl = target->dI;
     //const float* const Il = target->I;
@@ -125,8 +126,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
 
         // diff calib
         d_C_x[2] = drescale*(PRE_RTll_0(2,0)*u-PRE_RTll_0(0,0));
-        d_C_x[3] = HCalib->fxl() * drescale*(PRE_RTll_0(2,1)*u-PRE_RTll_0(0,
-                                             1)) * HCalib->fyli();
+        d_C_x[3] = HCalib->fxl() * drescale*(PRE_RTll_0(2, 1)*u-PRE_RTll_0(0, 1)) * HCalib->fyli();
         d_C_x[0] = KliP[0]*d_C_x[2];
         d_C_x[1] = KliP[1]*d_C_x[3];
 
