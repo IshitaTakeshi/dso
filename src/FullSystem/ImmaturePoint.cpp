@@ -31,10 +31,6 @@
 
 namespace dso {
 
-float calcEneregyThreshold() {
-
-}
-
 
 ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
     : u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN),
@@ -49,6 +45,7 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type)
         Vec3f ptc = getInterpolatedElement33BiLin(host->dI, u+dx, v+dy,wG[0]);
 
         color[idx] = ptc[0];
+
         if(!std::isfinite(color[idx])) {
             throw std::runtime_error("Infinite color value detected");
         }
@@ -310,7 +307,9 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             secondBest = errors[i];
     }
     float newQuality = secondBest / bestEnergy;
-    if(newQuality < quality || numSteps > 10) quality = newQuality;
+    if(newQuality < quality || numSteps > 10) {
+        quality = newQuality;
+    }
 
 
     // ============== do GN optimization ===================
@@ -445,7 +444,7 @@ float ImmaturePoint::getdPixdd(
     float Ku, Kv;
     Vec3f KliP;
 
-    projectPoint(this->u,this->v, idepth, 0, 0,HCalib,
+    projectPoint(this->u,this->v, idepth, 0, 0, HCalib,
                  precalc->PRE_RTll,PRE_tTll, drescale, u, v, Ku, Kv, KliP, new_idepth);
 
     float dxdd = (PRE_tTll[0]-PRE_tTll[2]*u)*HCalib->fxl();

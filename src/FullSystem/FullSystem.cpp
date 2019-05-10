@@ -1005,6 +1005,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
         if(rand()/(float)RAND_MAX > keepPercentage) continue;
 
         Pnt* point = coarseInitializer->points[0]+i;
+
+        // TODO Not necessary to create an object
         ImmaturePoint* pt;
         try {
             pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,

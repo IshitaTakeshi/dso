@@ -94,8 +94,6 @@ extern float setting_thOptIterations;
 extern float setting_outlierTH;
 extern float setting_outlierTHSumComponent;
 
-
-
 extern int setting_pattern;
 extern float setting_margWeightFac;
 extern int setting_GNItsOnPointActivation;

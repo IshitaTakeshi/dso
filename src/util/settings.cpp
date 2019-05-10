@@ -92,16 +92,17 @@ float setting_thOptIterations=
 
 
 /* Outlier Threshold on photometric energy */
-float setting_outlierTH = 12*12;					// higher -> less strict
-float setting_outlierTHSumComponent =
-    50*50; 		// higher -> less strong gradient-based reweighting .
+// higher -> less strict
+float setting_outlierTH = 12*12;
+// higher -> less strong gradient-based reweighting .
+float setting_outlierTHSumComponent = 50*50;
 
 
 
 
 int setting_pattern = 8;						// point pattern used. DISABLED.
-float setting_margWeightFac =
-    0.5*0.5;          // factor on hessian when marginalizing, to account for inaccurate linearization points.
+// factor on hessian when marginalizing, to account for inaccurate linearization points.
+float setting_margWeightFac = 0.5*0.5;
 
 
 /* when to re-track a frame */
@@ -194,7 +195,6 @@ float freeDebugParam2 = 1;
 float freeDebugParam3 = 1;
 float freeDebugParam4 = 1;
 float freeDebugParam5 = 1;
-
 
 
 bool disableReconfigure=false;
