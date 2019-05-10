@@ -209,7 +209,9 @@ private:
         std::vector<VecX> &nullspaces_affA,
         std::vector<VecX> &nullspaces_affB);
 
-    void setNewFrameEnergyTH(const std::vector<PointFrameResidual*> activeResiduals);
+    float calcNewFrameEnergyTH(
+        const std::vector<PointFrameResidual*> activeResiduals,
+        const FrameHessian* newFrame);
 
     void printEigenValLine();
 

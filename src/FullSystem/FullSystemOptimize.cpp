@@ -92,13 +92,13 @@ void applyRes_Reductor(std::vector<PointFrameResidual*> activeResiduals,
     }
 }
 
-void FullSystem::setNewFrameEnergyTH(
-    const std::vector<PointFrameResidual*> activeResiduals) {
+float FullSystem::calcNewFrameEnergyTH(
+    const std::vector<PointFrameResidual*> activeResiduals,
+    const FrameHessian* newFrame) {
 
     // collect all residuals and make decision on TH.
     allResVec.clear();
     allResVec.reserve(activeResiduals.size()*2);
-    FrameHessian* newFrame = frameHessians.back();
 
     for(PointFrameResidual* r : activeResiduals) {
         if(r->state_NewEnergyWithOutlier >= 0 && r->target == newFrame) {
@@ -107,8 +107,7 @@ void FullSystem::setNewFrameEnergyTH(
     }
 
     if(allResVec.size() == 0) {
-        newFrame->frameEnergyTH = 12*12*patternNum;
-        return;		// should never happen, but lets make sure.
+        return 12*12*patternNum;
     }
 
 
@@ -125,7 +124,7 @@ void FullSystem::setNewFrameEnergyTH(
                   + frameEnergyTH*(1-setting_frameEnergyTHConstWeight);
     frameEnergyTH = frameEnergyTH*frameEnergyTH;
     frameEnergyTH *= setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
-    newFrame->frameEnergyTH = frameEnergyTH;
+    return frameEnergyTH;
 }
 
 double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
@@ -150,7 +149,8 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
         lastEnergyP = stats[0];
     }
 
-    setNewFrameEnergyTH(activeResiduals);
+    frameHessians.back()->frameEnergyTH = calcNewFrameEnergyTH(
+        activeResiduals, frameHessians.back());
 
     if(fixLinearization) {
         for(PointFrameResidual* r : activeResiduals) {
