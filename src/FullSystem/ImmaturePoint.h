@@ -61,10 +61,6 @@ public:
     float color[MAX_RES_PER_POINT];
     float weights[MAX_RES_PER_POINT];
 
-
-
-
-
     Mat22f gradH;
     Vec2f gradH_ev;
     Mat22f gradH_eig;
@@ -90,8 +86,6 @@ public:
     ImmaturePointStatus lastTraceStatus;
     Vec2f lastTraceUV;
     float lastTracePixelInterval;
-
-    float idepth_GT;
 
     double linearizeResidual(
         CalibHessian *  HCalib, const float outlierTHSlack,

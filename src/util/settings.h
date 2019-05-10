@@ -199,32 +199,13 @@ void handleKey(char k);
 
 
 
-extern int staticPattern[10][40][2];
+extern const int staticPattern[10][40][2];
 extern int staticPatternNum[10];
 extern int staticPatternPadding[10];
-
-
-
-
-//#define patternNum staticPatternNum[setting_pattern]
-//#define patternP staticPattern[setting_pattern]
-//#define patternPadding staticPatternPadding[setting_pattern]
 
 //
 #define patternNum 8
 #define patternP staticPattern[8]
 #define patternPadding 2
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
