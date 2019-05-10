@@ -1092,7 +1092,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
 }
 
 
-void setPrecalcValues(std::vector<FrameHessian*> frameHessians, CalibHessian &HCalib) {
+void setPrecalcValues(std::vector<FrameHessian*> frameHessians, const CalibHessian &HCalib) {
     const Mat33f K = createCameraMatrixFromCalibHessian(HCalib);
 
     for(FrameHessian* fh : frameHessians) {
