@@ -286,36 +286,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
 
 
 
-void PointFrameResidual::debugPlot()
-{
-    if(state_state==ResState::OOB) return;
-    Vec3b cT = Vec3b(0,0,0);
-
-    if(freeDebugParam5==0)
-    {
-        float rT = 20*sqrt(state_energy/9);
-        if(rT<0) rT=0;
-        if(rT>255)rT=255;
-        cT = Vec3b(0,255-rT,rT);
-    }
-    else
-    {
-        if(state_state == ResState::IN) cT = Vec3b(255,0,0);
-        else if(state_state == ResState::OOB) cT = Vec3b(255,255,0);
-        else if(state_state == ResState::OUTLIER) cT = Vec3b(0,0,255);
-        else cT = Vec3b(255,255,255);
-    }
-
-    for(int i=0; i<patternNum; i++)
-    {
-        if((projectedTo[i][0] > 2 && projectedTo[i][1] > 2
-                && projectedTo[i][0] < wG[0]-3 && projectedTo[i][1] < hG[0]-3 ))
-            target->debugImage->setPixel1((float)projectedTo[i][0],
-                                          (float)projectedTo[i][1],cT);
-    }
-}
-
-
 void PointFrameResidual::applyRes() {
     if(state_state == ResState::OOB) {
         assert(!efResidual->isActiveAndIsGoodNEW);

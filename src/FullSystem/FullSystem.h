@@ -148,7 +148,6 @@ public:
 
     void printResult(std::string file);
 
-    void debugPlot(std::string name);
 
     // contains pointers to active frames
 
@@ -203,8 +202,6 @@ private:
                                    int min, int max, Vec10* stats, int tid);
     void printOptRes(const Vec3 &res, double resL, double resM, double resPrior,
                      double LExact, float a, float b);
-
-    void debugPlotTracking();
 
     std::vector<VecX> getNullspaces(
         std::vector<VecX> &nullspaces_pose,

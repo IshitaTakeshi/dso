@@ -941,8 +941,6 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
         coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
     }
 
-    debugPlot("post Optimize");
-
     // =========================== (Activate-)Marginalize Points =========================
     flagPointsForRemoval();
     ef->dropPointsF();

@@ -95,8 +95,6 @@ public:
 
     void applyRes();
 
-    void debugPlot();
-
     void printRows(std::vector<VecX> &v, VecX &r, int nFrames, int nPoints, int M,
                    int res);
 };

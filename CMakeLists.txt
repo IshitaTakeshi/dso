@@ -38,7 +38,6 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/FullSystem/FullSystem.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/FullSystemOptimize.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/FullSystemOptPoint.cpp
-  ${PROJECT_SOURCE_DIR}/src/FullSystem/FullSystemDebugStuff.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/FullSystemMarginalize.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/Residuals.cpp
   ${PROJECT_SOURCE_DIR}/src/FullSystem/CoarseTracker.cpp
