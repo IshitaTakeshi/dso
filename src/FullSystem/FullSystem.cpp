@@ -1014,13 +1014,9 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
             continue;
         }
 
-        pt->idepth_max=pt->idepth_min=1;
-        PointHessian* ph = new PointHessian(pt);
+        PointHessian* ph = new PointHessian(pt->u, pt->v, pt->my_type, pt->host,
+                                            pt->color, pt->weights, 1.0, 1.0);
         delete pt;
-        if(!std::isfinite(ph->energyTH)) {
-            delete ph;
-            continue;
-        }
 
         ph->setIdepthScaled(point->iR*rescaleFactor);
         ph->setIdepthZero(ph->idepth);

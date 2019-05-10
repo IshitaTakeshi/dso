@@ -57,8 +57,6 @@ class ImmaturePoint
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    const float energyTH = patternNum * setting_outlierTH
-                         * setting_overallEnergyTHWeight * setting_overallEnergyTHWeight;
     // static values
     float color[MAX_RES_PER_POINT];
     float weights[MAX_RES_PER_POINT];

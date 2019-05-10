@@ -148,6 +148,8 @@ float setting_overallEnergyTHWeight = 1;
 float setting_coarseCutoffTH = 20;
 
 
+const float energyTH = patternNum * setting_outlierTH
+                     * setting_overallEnergyTHWeight * setting_overallEnergyTHWeight;
 
 
 

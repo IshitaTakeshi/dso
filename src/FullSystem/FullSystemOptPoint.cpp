@@ -172,12 +172,9 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     }
 
 
-
-    PointHessian* p = new PointHessian(point);
-    if(!std::isfinite(p->energyTH)) {
-        delete p;
-        return (PointHessian*)((long)(-1));
-    }
+    PointHessian* p = new PointHessian(
+        point->u, point->v, point->my_type, point->host,
+        point->color, point->weights, point->idepth_min, point->idepth_max);
 
     p->lastResiduals[0].first = 0;
     p->lastResiduals[0].second = ResState::OOB;

@@ -31,28 +31,25 @@
 namespace dso {
 
 
-PointHessian::PointHessian(const ImmaturePoint* const rawPoint) {
-    host = rawPoint->host;
+// FIXME passing the reference of 'host'. Dengerous
+PointHessian::PointHessian(const float u_, const float v_,
+                           const float my_type_, FrameHessian* host_,
+                           const float color_[], const float weights_[],
+                           const float idepth_min, const float idepth_max) :
+    u(u_), v(v_), my_type(my_type_), host(host_) {
+
+    assert(std::isfinite(idepth_max));
     hasDepthPrior=false;
 
     idepth_hessian=0;
     maxRelBaseline=0;
     numGoodResiduals=0;
 
-    // set static values & initialization.
-    u = rawPoint->u;
-    v = rawPoint->v;
-    assert(std::isfinite(rawPoint->idepth_max));
-
-    my_type = rawPoint->my_type;
-
-    setIdepthScaled((rawPoint->idepth_max + rawPoint->idepth_min)*0.5);
+    setIdepthScaled((idepth_max + idepth_min)*0.5);
     setPointStatus(PointHessian::INACTIVE);
 
-    int n = patternNum;
-    memcpy(color, rawPoint->color, sizeof(float)*n);
-    memcpy(weights, rawPoint->weights, sizeof(float)*n);
-    energyTH = rawPoint->energyTH;
+    memcpy(color, color_, sizeof(float)*patternNum);
+    memcpy(weights, weights_, sizeof(float)*patternNum);
 
     efPoint=0;
 }

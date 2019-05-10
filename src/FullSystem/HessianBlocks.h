@@ -428,7 +428,11 @@ struct PointHessian
 
 
     void release();
-    PointHessian(const ImmaturePoint* const rawPoint);
+
+    PointHessian(const float u_, const float v_,
+                 const float my_type_, FrameHessian* host_,
+                 const float color_[], const float weights_[],
+                 const float idepth_min, const float idepth_max);
     inline ~PointHessian() {
         assert(efPoint==0);
         release();

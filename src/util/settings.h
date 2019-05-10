@@ -208,4 +208,5 @@ extern int staticPatternPadding[10];
 #define patternP staticPattern[8]
 #define patternPadding 2
 
+extern const float energyTH;
 }
