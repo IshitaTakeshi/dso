@@ -420,12 +420,11 @@ struct PointHessian
         nullspaces_scale = -(idepth*1.001 - idepth/1.001)*500;
     }
 
-
-    std::vector<PointFrameResidual*>
-    residuals;					// only contains good residuals (not OOB and not OUTLIER). Arbitrary order.
-    std::pair<PointFrameResidual*, ResState>
-    lastResiduals[2]; 	// contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
-
+    // only contains good residuals (not OOB and not OUTLIER). Arbitrary order.
+    std::vector<PointFrameResidual*> residuals;
+    // contains information about residuals to the last two (!) frames.
+    // ([0] = latest, [1] = the one before).
+    std::pair<PointFrameResidual*, ResState> lastResiduals[2];
 
     void release();
 
@@ -444,25 +443,35 @@ struct PointHessian
     {
 
         int visInToMarg = 0;
-        for(PointFrameResidual* r : residuals)
-        {
-            if(r->state_state != ResState::IN) continue;
-            for(FrameHessian* k : toMarg)
-                if(r->target == k) visInToMarg++;
+        for(PointFrameResidual* r : residuals) {
+            if(r->state_state != ResState::IN) {
+                continue;
+            }
+            for(FrameHessian* k : toMarg) {
+                if(r->target == k) {
+                    visInToMarg++;
+                }
+            }
         }
         if((int)residuals.size() >= setting_minGoodActiveResForMarg &&
-                numGoodResiduals > setting_minGoodResForMarg+10 &&
-                (int)residuals.size()-visInToMarg < setting_minGoodActiveResForMarg)
+           numGoodResiduals > setting_minGoodResForMarg+10 &&
+           (int)residuals.size()-visInToMarg < setting_minGoodActiveResForMarg) {
             return true;
+        }
 
+        if(lastResiduals[0].second == ResState::OOB) {
+            return true;
+        }
 
+        if(residuals.size() < 2) {
+            return false;
+        }
 
+        if(lastResiduals[0].second == ResState::OUTLIER &&
+           lastResiduals[1].second == ResState::OUTLIER) {
+            return true;
+        }
 
-
-        if(lastResiduals[0].second == ResState::OOB) return true;
-        if(residuals.size() < 2) return false;
-        if(lastResiduals[0].second == ResState::OUTLIER
-                && lastResiduals[1].second == ResState::OUTLIER) return true;
         return false;
     }
 

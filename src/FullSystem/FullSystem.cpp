@@ -968,6 +968,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
 
     // add firstframe.
     FrameHessian* firstFrame = coarseInitializer->firstFrame;
+
     firstFrame->idx = frameHessians.size();
     frameHessians.push_back(firstFrame);
     firstFrame->frameID = allKeyFramesHistory.size();
