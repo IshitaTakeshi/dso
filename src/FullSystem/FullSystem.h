@@ -197,7 +197,7 @@ private:
     void linearizeAll_Reductor(const bool fixLinearization,
                                std::vector<PointFrameResidual*>* toRemove,
                                const std::vector<PointFrameResidual*> activeResiduals,
-                               const int min, const int max, Vec10* stats, const int tid);
+                               Vec10* stats);
     void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,
                                    std::vector<ImmaturePoint*>* toOptimize,
                                    int min, int max, Vec10* stats, int tid);

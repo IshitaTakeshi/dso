@@ -48,9 +48,9 @@ namespace dso {
 void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                                        std::vector<PointFrameResidual*>* toRemove,
                                        const std::vector<PointFrameResidual*> activeResiduals,
-                                       const int min, const int max, Vec10* stats, const int tid) {
-    for(int k=min; k<max; k++) {
-        PointFrameResidual* r = activeResiduals[k];
+                                       Vec10* stats) {
+
+    for(PointFrameResidual* r : activeResiduals) {
         (*stats)[0] += r->linearize(&HCalib);
 
         if(fixLinearization) {
@@ -79,7 +79,7 @@ void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                     p->numGoodResiduals++;
                 }
             } else {
-                toRemove[tid].push_back(activeResiduals[k]);
+                toRemove[0].push_back(r);
             }
         }
     }
@@ -136,8 +136,7 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
     }
 
     Vec10 stats;
-    linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals,
-                          0, activeResiduals.size(), &stats, 0);
+    linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals, &stats);
     lastEnergyP = stats[0];
 
     frameHessians.back()->frameEnergyTH = calcNewFrameEnergyTH(
