@@ -160,7 +160,6 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
                 ph->lastResiduals[1].second = r->state_state;
         }
 
-        int nResRemoved=0;
         for(int i=0; i<NUM_THREADS; i++) {
             for(PointFrameResidual* r : toRemove[i]) {
                 PointHessian* ph = r->point;
@@ -174,7 +173,6 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
                     if(ph->residuals[k] == r) {
                         ef->dropResidual(r->efResidual);
                         deleteOut<PointFrameResidual>(ph->residuals,k);
-                        nResRemoved++;
                         break;
                     }
                 }

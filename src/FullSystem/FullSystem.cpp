@@ -675,10 +675,6 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
             initializeFromInitializer(fh);
             lock.unlock();
             deliverTrackedFrame(fh, true);
-        } else {
-            // if still initializing
-            fh->shell->poseValid = false;
-            delete fh;
         }
         return;
     }
