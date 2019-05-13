@@ -135,18 +135,10 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
         toRemove[i].clear();
     }
 
-    if(multiThreading) {
-        treadReduce.reduce(
-            boost::bind(&FullSystem::linearizeAll_Reductor, this,
-                        fixLinearization, toRemove, activeResiduals, _1, _2, _3, _4),
-            0, activeResiduals.size(), 0);
-        lastEnergyP = treadReduce.stats[0];
-    } else {
-        Vec10 stats;
-        linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals,
-                              0, activeResiduals.size(), &stats, 0);
-        lastEnergyP = stats[0];
-    }
+    Vec10 stats;
+    linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals,
+                          0, activeResiduals.size(), &stats, 0);
+    lastEnergyP = stats[0];
 
     frameHessians.back()->frameEnergyTH = calcNewFrameEnergyTH(
         activeResiduals, frameHessians.back());
@@ -362,13 +354,7 @@ float FullSystem::optimize(int mnumOptIts) {
     double lastEnergyL = ef->calcLEnergyF_MT();
     double lastEnergyM = ef->calcMEnergyF();
 
-    if(multiThreading)
-        treadReduce.reduce(
-            boost::bind(applyRes_Reductor, activeResiduals, _1, _2, _3, _4),
-            0, activeResiduals.size(), 50
-        );
-    else
-        applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
+    applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
 
     double lambda = 1e-1;
     float stepsize = 1;
@@ -411,12 +397,7 @@ float FullSystem::optimize(int mnumOptIts) {
         if(setting_forceAceptStep
                 || (newEnergy + newEnergyL + newEnergyM <
                     lastEnergy + lastEnergyL + lastEnergyM)) {
-            if(multiThreading)
-                treadReduce.reduce(
-                    boost::bind(applyRes_Reductor, activeResiduals, _1, _2, _3, _4),
-                    0, activeResiduals.size(), 50);
-            else
-                applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
+            applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
 
             lastEnergy = newEnergy;
             lastEnergyL = newEnergyL;
