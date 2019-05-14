@@ -130,10 +130,8 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
                                 const bool fixLinearization) {
     double lastEnergyP = 0;
 
-    std::vector<PointFrameResidual*> toRemove[NUM_THREADS];
-    for(int i=0; i<NUM_THREADS; i++) {
-        toRemove[i].clear();
-    }
+    std::vector<PointFrameResidual*> toRemove[1];
+    toRemove[0].clear();
 
     Vec10 stats;
     linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals, &stats);
@@ -151,21 +149,19 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
                 ph->lastResiduals[1].second = r->state_state;
         }
 
-        for(int i=0; i<NUM_THREADS; i++) {
-            for(PointFrameResidual* r : toRemove[i]) {
-                PointHessian* ph = r->point;
+        for(PointFrameResidual* r : toRemove[0]) {
+            PointHessian* ph = r->point;
 
-                if(ph->lastResiduals[0].first == r)
-                    ph->lastResiduals[0].first=0;
-                else if(ph->lastResiduals[1].first == r)
-                    ph->lastResiduals[1].first=0;
+            if(ph->lastResiduals[0].first == r)
+                ph->lastResiduals[0].first=0;
+            else if(ph->lastResiduals[1].first == r)
+                ph->lastResiduals[1].first=0;
 
-                for(unsigned int k=0; k<ph->residuals.size(); k++) {
-                    if(ph->residuals[k] == r) {
-                        ef->dropResidual(r->efResidual);
-                        deleteOut<PointFrameResidual>(ph->residuals,k);
-                        break;
-                    }
+            for(unsigned int k=0; k<ph->residuals.size(); k++) {
+                if(ph->residuals[k] == r) {
+                    ef->dropResidual(r->efResidual);
+                    deleteOut<PointFrameResidual>(ph->residuals,k);
+                    break;
                 }
             }
         }
