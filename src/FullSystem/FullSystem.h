@@ -192,7 +192,6 @@ private:
                           float stepfacC, float stepfacT, float stepfacR,
                           float stepfacA, float stepfacD);
     void backupState(const bool backupLastStep);
-    void loadSateBackup();
 
     void linearizeAll_Reductor(const bool fixLinearization,
                                std::vector<PointFrameResidual*> toRemove,

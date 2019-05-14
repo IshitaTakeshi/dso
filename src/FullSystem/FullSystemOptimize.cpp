@@ -240,20 +240,14 @@ void FullSystem::backupState(const bool backupLastStep) {
 }
 
 // sets linearization point.
-void FullSystem::loadSateBackup() {
+void loadSateBackup(std::vector<FrameHessian*> &frameHessians) {
     for(FrameHessian* fh : frameHessians) {
         fh->setState(fh->state_backup);
         for(PointHessian* ph : fh->pointHessians) {
             ph->setIdepth(ph->idepth_backup);
             ph->setIdepthZero(ph->idepth_backup);
         }
-
     }
-
-    EFDeltaValid=false;
-
-    ef->setDeltaF(HCalib.value);
-    setPrecalcValues(frameHessians, HCalib);
 }
 
 
@@ -353,7 +347,12 @@ float FullSystem::optimize(int mnumOptIts) {
         } else {
             HCalib.setValue(value_backup);
 
-            loadSateBackup();
+            loadSateBackup(frameHessians);
+
+            EFDeltaValid=false;
+
+            ef->setDeltaF(HCalib.value);
+            setPrecalcValues(frameHessians, HCalib);
 
             lastEnergy = linearizeAll(activeResiduals, false);
             lastEnergyL = ef->calcLEnergyF_MT();
