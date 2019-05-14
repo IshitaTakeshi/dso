@@ -191,7 +191,6 @@ private:
     bool doStepFromBackup(VecC step, VecC value_backup,
                           float stepfacC, float stepfacT, float stepfacR,
                           float stepfacA, float stepfacD);
-    void backupState(const bool backupLastStep);
 
     void linearizeAll_Reductor(const bool fixLinearization,
                                std::vector<PointFrameResidual*> toRemove,

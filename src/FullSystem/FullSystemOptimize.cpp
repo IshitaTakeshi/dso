@@ -229,9 +229,8 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 }
 
 
-
 // sets linearization point.
-void FullSystem::backupState(const bool backupLastStep) {
+void backupState(std::vector<FrameHessian*> &frameHessians) {
     for(FrameHessian* fh : frameHessians) {
         fh->state_backup = fh->get_state();
         for(PointHessian* ph : fh->pointHessians)
@@ -309,7 +308,7 @@ float FullSystem::optimize(int mnumOptIts) {
         // FIXME HCalib shoudn't hold states
         VecC value_backup = current_camera_parameters;
 
-        backupState(iteration!=0);
+        backupState(frameHessians);
 
         step = solveSystem(iteration, lambda);
 
