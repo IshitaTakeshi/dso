@@ -85,12 +85,13 @@ void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
     }
 }
 
-void applyRes_Reductor(std::vector<PointFrameResidual*> activeResiduals,
-                       int min, int max, Vec10* stats, int tid) {
-    for(int k=min; k<max; k++) {
-        activeResiduals[k]->applyRes();
+
+void applyRes_Reductor(std::vector<PointFrameResidual*> activeResiduals) {
+    for(PointFrameResidual* r : activeResiduals) {
+        r->applyRes();
     }
 }
+
 
 float calcNewFrameEnergyTH(
     const std::vector<PointFrameResidual*> activeResiduals,
@@ -349,7 +350,7 @@ float FullSystem::optimize(int mnumOptIts) {
     double lastEnergyL = ef->calcLEnergyF_MT();
     double lastEnergyM = ef->calcMEnergyF();
 
-    applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
+    applyRes_Reductor(activeResiduals);
 
     double lambda = 1e-1;
     float stepsize = 1;
@@ -392,7 +393,7 @@ float FullSystem::optimize(int mnumOptIts) {
         if(setting_forceAceptStep
                 || (newEnergy + newEnergyL + newEnergyM <
                     lastEnergy + lastEnergyL + lastEnergyM)) {
-            applyRes_Reductor(activeResiduals, 0, activeResiduals.size(), 0, 0);
+            applyRes_Reductor(activeResiduals);
 
             lastEnergy = newEnergy;
             lastEnergyL = newEnergyL;
