@@ -195,7 +195,7 @@ private:
     void loadSateBackup();
 
     void linearizeAll_Reductor(const bool fixLinearization,
-                               std::vector<PointFrameResidual*>* toRemove,
+                               std::vector<PointFrameResidual*> toRemove,
                                const std::vector<PointFrameResidual*> activeResiduals,
                                Vec10* stats);
     void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,
