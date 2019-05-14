@@ -299,14 +299,8 @@ struct CalibHessian {
     }
 
     inline CalibHessian(const Eigen::Matrix3f &K) {
-        VecC initial_value = VecC::Zero();
-        initial_value[0] = K(0,0);
-        initial_value[1] = K(1,1);
-        initial_value[2] = K(0,2);
-        initial_value[3] = K(1,2);
-
-        this->value_scaled = initial_value;
-        this->value_zero = this->value = inv_scale_camera_parameters(initial_value);
+        this->value_scaled << K(0,0), K(1,1), K(0,2), K(1,2);
+        this->value_zero = this->value = inv_scale_camera_parameters(this->value_scaled);
     };
 
     inline VecC valueMinusValueZero() {
