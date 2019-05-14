@@ -108,7 +108,12 @@ void EnergyFunctional::setAdjointsF() {
 }
 
 
-EnergyFunctional::EnergyFunctional() {
+EnergyFunctional::EnergyFunctional(const Mat33f &K) {
+    // FIXME this is a duplicate of the constructor of 'CalibHessian'
+    VecC camera_parameters;
+    camera_parameters << K(0,0), K(1,1), K(0,2), K(1,2);
+    this->inital_inv_scaled_camera_parameters = inv_scale_camera_parameters(camera_parameters);
+
     adHost=0;
     adTarget=0;
 
@@ -158,7 +163,7 @@ EnergyFunctional::~EnergyFunctional() {
 }
 
 
-void EnergyFunctional::setDeltaF(VecCf cDeltaF_) {
+void EnergyFunctional::setDeltaF(VecC inv_scaled_camera_parameters) {
     if(adHTdeltaF != 0) {
         delete[] adHTdeltaF;
     }
@@ -176,7 +181,10 @@ void EnergyFunctional::setDeltaF(VecCf cDeltaF_) {
                 * adTargetF[idx];
         }
     }
-    this->cDeltaF = cDeltaF_;
+
+    this->cDeltaF =
+        (inv_scaled_camera_parameters - this->inital_inv_scaled_camera_parameters).cast<float>();
+
     for(EFFrame* f : frames) {
         f->delta = f->data->get_state_minus_stateZero().head<8>();
         f->delta_prior = (f->data->get_state() - f->data->getPriorZero()).head<8>();

@@ -78,7 +78,7 @@ FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbac
     currentMinActDist=2;
     initialized=false;
 
-    ef = new EnergyFunctional();
+    ef = new EnergyFunctional(K);
     ef->red = &this->treadReduce;
 
     isLost=false;
@@ -890,7 +890,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     fh->frameID = allKeyFramesHistory.size();
     allKeyFramesHistory.push_back(fh->shell);
     ef->insertFrame(fh);
-    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
+    ef->setDeltaF(HCalib.value);
 
     setPrecalcValues(frameHessians, HCalib);
 
@@ -975,7 +975,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     allKeyFramesHistory.push_back(firstFrame->shell);
 
     ef->insertFrame(firstFrame);
-    ef->setDeltaF(HCalib.valueMinusValueZero().cast<float>());
+    ef->setDeltaF(HCalib.value);
 
     setPrecalcValues(frameHessians, HCalib);
 

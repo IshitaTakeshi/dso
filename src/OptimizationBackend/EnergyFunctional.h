@@ -67,7 +67,7 @@ public:
     friend class AccumulatedSCHessian;
     friend class AccumulatedSCHessianSSE;
 
-    EnergyFunctional();
+    EnergyFunctional(const Mat33f &K);
     ~EnergyFunctional();
 
     EFResidual* insertResidual(PointFrameResidual* r);
@@ -86,7 +86,7 @@ public:
 
     void makeIDX();
 
-    void setDeltaF(VecCf cDeltaF_);
+    void setDeltaF(VecC inv_scaled_camera_parameters);
 
     void setAdjointsF();
 
@@ -137,6 +137,9 @@ private:
 
     Mat88f* adHostF;
     Mat88f* adTargetF;
+
+    // I know this name is too long, but it is because of the ugly code design
+    VecC inital_inv_scaled_camera_parameters;
 
     VecC cPrior;
     VecCf cDeltaF;

@@ -291,7 +291,6 @@ struct FrameHessian {
 struct CalibHessian {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    VecC value_zero;
     VecC value_scaled;
     VecC value;
 
@@ -300,12 +299,8 @@ struct CalibHessian {
 
     inline CalibHessian(const Eigen::Matrix3f &K) {
         this->value_scaled << K(0,0), K(1,1), K(0,2), K(1,2);
-        this->value_zero = this->value = inv_scale_camera_parameters(this->value_scaled);
+        this->value = inv_scale_camera_parameters(this->value_scaled);
     };
-
-    inline VecC valueMinusValueZero() {
-        return this->value - this->value_zero;
-    }
 
     // normal mode: use the optimized parameters everywhere!
     inline float fxl() const {
