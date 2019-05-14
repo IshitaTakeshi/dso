@@ -214,16 +214,14 @@ bool FullSystem::doStepFromBackup(VecC step, Vec10 step_backup, VecC value_backu
         }
     } else {
         HCalib.setValue(value_backup + stepfacC*step);
-        for(FrameHessian* fh : frameHessians)
-        {
+        for(FrameHessian* fh : frameHessians) {
             fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
             sumA += fh->step[6]*fh->step[6];
             sumB += fh->step[7]*fh->step[7];
             sumT += fh->step.segment<3>(0).squaredNorm();
             sumR += fh->step.segment<3>(3).squaredNorm();
 
-            for(PointHessian* ph : fh->pointHessians)
-            {
+            for(PointHessian* ph : fh->pointHessians) {
                 ph->setIdepth(ph->idepth_backup + stepfacD*ph->step);
                 sumID += ph->step*ph->step;
                 sumNID += fabsf(ph->idepth_backup);
@@ -257,7 +255,7 @@ bool FullSystem::doStepFromBackup(VecC step, Vec10 step_backup, VecC value_backu
 
 
 // sets linearization point.
-void FullSystem::backupState(Vec10 &step_backup, const bool backupLastStep) {
+void FullSystem::backupState(const bool backupLastStep) {
     if(setting_solverMode & SOLVER_MOMENTUM) {
         if(backupLastStep) {
             for(FrameHessian* fh : frameHessians) {
@@ -390,9 +388,8 @@ float FullSystem::optimize(int mnumOptIts) {
         double newEnergyL = ef->calcLEnergyF_MT();
         double newEnergyM = ef->calcMEnergyF();
 
-        if(setting_forceAceptStep
-                || (newEnergy + newEnergyL + newEnergyM <
-                    lastEnergy + lastEnergyL + lastEnergyM)) {
+        if(setting_forceAceptStep ||
+           (newEnergy + newEnergyL + newEnergyM < lastEnergy + lastEnergyL + lastEnergyM)) {
             applyRes_Reductor(activeResiduals);
 
             lastEnergy = newEnergy;
