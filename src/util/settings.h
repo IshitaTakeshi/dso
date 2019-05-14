@@ -117,11 +117,6 @@ extern float setting_affineOptModeB;
 extern int setting_gammaWeightsPixelSelect;
 
 
-
-extern bool setting_forceAceptStep;
-
-
-
 extern float setting_huberTH;
 
 

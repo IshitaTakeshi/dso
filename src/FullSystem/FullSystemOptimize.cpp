@@ -335,8 +335,7 @@ float FullSystem::optimize(int mnumOptIts) {
         double newEnergyL = ef->calcLEnergyF_MT();
         double newEnergyM = ef->calcMEnergyF();
 
-        if(setting_forceAceptStep ||
-           (newEnergy + newEnergyL + newEnergyM < lastEnergy + lastEnergyL + lastEnergyM)) {
+        if(newEnergy + newEnergyL + newEnergyM < lastEnergy + lastEnergyL + lastEnergyM) {
             applyRes_Reductor(activeResiduals);
 
             lastEnergy = newEnergy;
