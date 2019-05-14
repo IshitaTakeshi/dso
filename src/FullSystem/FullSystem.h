@@ -188,10 +188,10 @@ private:
     VecC solveSystem(int iteration, double lambda);
     double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
                         const bool fixLinearization);
-    bool doStepFromBackup(VecC step, Vec10 step_backup, VecC value_backup,
+    bool doStepFromBackup(VecC step, VecC value_backup,
                           float stepfacC, float stepfacT, float stepfacR,
                           float stepfacA, float stepfacD);
-    void backupState(Vec10 &step_backup, const bool backupLastStep);
+    void backupState(const bool backupLastStep);
     void loadSateBackup();
 
     void linearizeAll_Reductor(const bool fixLinearization,
