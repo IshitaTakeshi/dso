@@ -170,7 +170,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
     for(unsigned int i=0; i<frameHessians.size(); i++)
         frameHessians[i]->idx = i;
 
-    ef->setDeltaF(HCalib.value);
+    ef->setDeltaF(current_camera_parameters);
     setPrecalcValues(frameHessians, HCalib);
 
     ef->setAdjointsF();

@@ -190,7 +190,7 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 
     float sumNID=0;
 
-    HCalib.setValue(value_backup + stepfacC*step);
+    HCalib.setValue(scale_camera_parameters(value_backup + stepfacC*step));
     for(FrameHessian* fh : frameHessians) {
         fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
         sumA += fh->step[6]*fh->step[6];
@@ -216,7 +216,7 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
     sumNID /= numID;
 
     EFDeltaValid=false;
-    ef->setDeltaF(HCalib.value);
+    ef->setDeltaF(current_camera_parameters);
     setPrecalcValues(frameHessians, HCalib);
 
     return sqrtf(sumA) < 0.0005*setting_thOptIterations &&
@@ -307,7 +307,7 @@ float FullSystem::optimize(int mnumOptIts) {
         // solve!
 
         // FIXME HCalib shoudn't hold states
-        VecC value_backup = HCalib.value;
+        VecC value_backup = current_camera_parameters;
 
         backupState(iteration!=0);
 
@@ -344,13 +344,14 @@ float FullSystem::optimize(int mnumOptIts) {
 
             lambda *= 0.25;
         } else {
-            HCalib.setValue(value_backup);
+            current_camera_parameters = value_backup;
+            HCalib.setValue(scale_camera_parameters(current_camera_parameters));
 
             loadSateBackup(frameHessians);
 
             EFDeltaValid=false;
 
-            ef->setDeltaF(HCalib.value);
+            ef->setDeltaF(current_camera_parameters);
             setPrecalcValues(frameHessians, HCalib);
 
             lastEnergy = linearizeAll(activeResiduals, false);
@@ -372,7 +373,7 @@ float FullSystem::optimize(int mnumOptIts) {
     EFDeltaValid=false;
     EFAdjointsValid=false;
     ef->setAdjointsF();
-    ef->setDeltaF(HCalib.value);
+    ef->setDeltaF(current_camera_parameters);
     setPrecalcValues(frameHessians, HCalib);
 
     lastEnergy = linearizeAll(activeResiduals, true);

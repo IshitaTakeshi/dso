@@ -73,6 +73,7 @@ FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbac
     coarseInitializer = 0;
     pixelSelector = new PixelSelector(wG[0], hG[0]);
 
+    current_camera_parameters = inv_scale_camera_parameters(HCalib.get());
     lastCoarseRMSE.setConstant(100);
 
     currentMinActDist=2;
@@ -890,7 +891,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     fh->frameID = allKeyFramesHistory.size();
     allKeyFramesHistory.push_back(fh->shell);
     ef->insertFrame(fh);
-    ef->setDeltaF(HCalib.value);
+    ef->setDeltaF(current_camera_parameters);
 
     setPrecalcValues(frameHessians, HCalib);
 
@@ -975,7 +976,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     allKeyFramesHistory.push_back(firstFrame->shell);
 
     ef->insertFrame(firstFrame);
-    ef->setDeltaF(HCalib.value);
+    ef->setDeltaF(current_camera_parameters);
 
     setPrecalcValues(frameHessians, HCalib);
 

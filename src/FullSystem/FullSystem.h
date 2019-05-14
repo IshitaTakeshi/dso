@@ -240,7 +240,7 @@ private:
     float minIdJetVisTracker, maxIdJetVisTracker;
     float minIdJetVisDebug, maxIdJetVisDebug;
 
-
+    VecC current_camera_parameters;
 
 
 
