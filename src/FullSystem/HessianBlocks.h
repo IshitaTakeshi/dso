@@ -35,6 +35,7 @@
 #include "util/NumType.h"
 #include "util/gamma.h"
 #include "util/math.h"
+#include "util/scale.h"
 #include "FullSystem/Residuals.h"
 #include "util/ImageAndExposure.h"
 
@@ -77,28 +78,6 @@ class EFPoint;
 #define SCALE_A_INVERSE (1.0f / SCALE_A)
 #define SCALE_B_INVERSE (1.0f / SCALE_B)
 
-
-
-// TODO return reference for performance improvement
-inline VecC scale(const VecC &value) {
-    VecC scaled;
-    scaled[0] = SCALE_F * value[0];
-    scaled[1] = SCALE_F * value[1];
-    scaled[2] = SCALE_C * value[2];
-    scaled[3] = SCALE_C * value[3];
-    return scaled;
-};
-
-
-// TODO return reference for performance improvement
-inline VecC inv_scale(const VecC &value_scaled) {
-    VecC value;
-    value[0] = SCALE_F_INVERSE * value_scaled[0];
-    value[1] = SCALE_F_INVERSE * value_scaled[1];
-    value[2] = SCALE_C_INVERSE * value_scaled[2];
-    value[3] = SCALE_C_INVERSE * value_scaled[3];
-    return value;
-};
 
 
 struct FrameFramePrecalc {
@@ -327,7 +306,7 @@ struct CalibHessian {
         initial_value[3] = K(1,2);
 
         this->value_scaled = initial_value;
-        this->value_zero = this->value = inv_scale(initial_value);
+        this->value_zero = this->value = inv_scale_camera_parameters(initial_value);
     };
 
     inline VecC valueMinusValueZero() {
@@ -363,7 +342,7 @@ struct CalibHessian {
     inline void setValue(const VecC &value) {
         // [0-3: Kl, 4-7: Kr, 8-12: l2r]
         this->value = value;
-        this->value_scaled = scale(value);
+        this->value_scaled = scale_camera_parameters(value);
     };
 };
 
