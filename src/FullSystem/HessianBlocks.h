@@ -337,8 +337,7 @@ struct CalibHessian {
 
 
 // hessian component associated with one point.
-struct PointHessian
-{
+struct PointHessian {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     EFPoint* efPoint;
 

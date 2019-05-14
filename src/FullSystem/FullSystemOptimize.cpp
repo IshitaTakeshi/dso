@@ -190,45 +190,21 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 
     float sumNID=0;
 
-    if(setting_solverMode & SOLVER_MOMENTUM) {
-        HCalib.setValue(value_backup + step);
-        for(FrameHessian* fh : frameHessians) {
-            Vec10 step = fh->step;
-            step.head<6>() += 0.5f*(fh->step_backup.head<6>());
+    HCalib.setValue(value_backup + stepfacC*step);
+    for(FrameHessian* fh : frameHessians) {
+        fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
+        sumA += fh->step[6]*fh->step[6];
+        sumB += fh->step[7]*fh->step[7];
+        sumT += fh->step.segment<3>(0).squaredNorm();
+        sumR += fh->step.segment<3>(3).squaredNorm();
 
-            fh->setState(fh->state_backup + step);
-            sumA += step[6]*step[6];
-            sumB += step[7]*step[7];
-            sumT += step.segment<3>(0).squaredNorm();
-            sumR += step.segment<3>(3).squaredNorm();
+        for(PointHessian* ph : fh->pointHessians) {
+            ph->setIdepth(ph->idepth_backup + stepfacD*ph->step);
+            sumID += ph->step*ph->step;
+            sumNID += fabsf(ph->idepth_backup);
+            numID++;
 
-            for(PointHessian* ph : fh->pointHessians) {
-                float step = ph->step+0.5f*(ph->step_backup);
-                ph->setIdepth(ph->idepth_backup + step);
-                sumID += step*step;
-                sumNID += fabsf(ph->idepth_backup);
-                numID++;
-
-                ph->setIdepthZero(ph->idepth_backup + step);
-            }
-        }
-    } else {
-        HCalib.setValue(value_backup + stepfacC*step);
-        for(FrameHessian* fh : frameHessians) {
-            fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
-            sumA += fh->step[6]*fh->step[6];
-            sumB += fh->step[7]*fh->step[7];
-            sumT += fh->step.segment<3>(0).squaredNorm();
-            sumR += fh->step.segment<3>(3).squaredNorm();
-
-            for(PointHessian* ph : fh->pointHessians) {
-                ph->setIdepth(ph->idepth_backup + stepfacD*ph->step);
-                sumID += ph->step*ph->step;
-                sumNID += fabsf(ph->idepth_backup);
-                numID++;
-
-                ph->setIdepthZero(ph->idepth_backup + stepfacD*ph->step);
-            }
+            ph->setIdepthZero(ph->idepth_backup + stepfacD*ph->step);
         }
     }
 
@@ -256,32 +232,10 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 
 // sets linearization point.
 void FullSystem::backupState(const bool backupLastStep) {
-    if(setting_solverMode & SOLVER_MOMENTUM) {
-        if(backupLastStep) {
-            for(FrameHessian* fh : frameHessians) {
-                fh->step_backup = fh->step;
-                fh->state_backup = fh->get_state();
-                for(PointHessian* ph : fh->pointHessians) {
-                    ph->idepth_backup = ph->idepth;
-                    ph->step_backup = ph->step;
-                }
-            }
-        } else {
-            for(FrameHessian* fh : frameHessians) {
-                fh->step_backup.setZero();
-                fh->state_backup = fh->get_state();
-                for(PointHessian* ph : fh->pointHessians) {
-                    ph->idepth_backup = ph->idepth;
-                    ph->step_backup = 0;
-                }
-            }
-        }
-    } else {
-        for(FrameHessian* fh : frameHessians) {
-            fh->state_backup = fh->get_state();
-            for(PointHessian* ph : fh->pointHessians)
-                ph->idepth_backup = ph->idepth;
-        }
+    for(FrameHessian* fh : frameHessians) {
+        fh->state_backup = fh->get_state();
+        for(PointHessian* ph : fh->pointHessians)
+            ph->idepth_backup = ph->idepth;
     }
 }
 
