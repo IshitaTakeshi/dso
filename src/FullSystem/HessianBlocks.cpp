@@ -61,6 +61,19 @@ void PointHessian::release()
     residuals.clear();
 }
 
+void FrameHessian::setState(const Vec10 &state) {
+    this->state = state;
+    state_scaled.segment<3>(0) = SCALE_XI_TRANS * state.segment<3>(0);
+    state_scaled.segment<3>(3) = SCALE_XI_ROT * state.segment<3>(3);
+    state_scaled[6] = SCALE_A * state[6];
+    state_scaled[7] = SCALE_B * state[7];
+    state_scaled[8] = SCALE_A * state[8];
+    state_scaled[9] = SCALE_B * state[9];
+
+    PRE_worldToCam = SE3::exp(w2c_leftEps()) * get_worldToCam_evalPT();
+    PRE_camToWorld = PRE_worldToCam.inverse();
+    //setCurrentNullspace();
+};
 
 void FrameHessian::setStateZero(const Vec10 &state_zero) {
     assert(state_zero.head<6>().squaredNorm() < 1e-20);
