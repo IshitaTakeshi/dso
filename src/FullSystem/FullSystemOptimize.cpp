@@ -175,9 +175,8 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 
 
 // applies step to linearization point.
-bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
-                                  float stepfacC, float stepfacT, float stepfacR,
-                                  float stepfacA, float stepfacD) {
+bool doStepFromBackup(std::vector<FrameHessian*> &frameHessians, VecC step, VecC value_backup,
+                      float stepfacT, float stepfacR, float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
 //	meanStepC += step.norm();
 
@@ -190,7 +189,6 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 
     float sumNID=0;
 
-    HCalib.setValue(scale_camera_parameters(value_backup + stepfacC*step));
     for(FrameHessian* fh : frameHessians) {
         fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
         sumA += fh->step[6]*fh->step[6];
@@ -212,10 +210,6 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
     sumR /= frameHessians.size();
     sumT /= frameHessians.size();
     sumNID /= numID;
-
-    EFDeltaValid=false;
-    ef->setDeltaF(current_camera_parameters);
-    setPrecalcValues(frameHessians, HCalib);
 
     return sqrtf(sumA) < 0.0005*setting_thOptIterations &&
            sqrtf(sumB) < 0.00005*setting_thOptIterations &&
@@ -324,8 +318,14 @@ float FullSystem::optimize(int mnumOptIts) {
             stepsize = clamp(stepsize, 0.25, 2.0);
         }
 
-        bool canbreak = doStepFromBackup(step, value_backup,
-                                         stepsize, stepsize, stepsize, stepsize, stepsize);
+        float stepfacC = stepsize;
+        HCalib.setValue(scale_camera_parameters(value_backup + stepfacC*step));
+        bool canbreak = doStepFromBackup(frameHessians, step, value_backup,
+                                         stepsize, stepsize, stepsize, stepsize);
+
+        EFDeltaValid=false;
+        ef->setDeltaF(current_camera_parameters);
+        setPrecalcValues(frameHessians, HCalib);
 
         // eval new energy!
         double newEnergy = linearizeAll(activeResiduals, false);

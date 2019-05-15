@@ -188,9 +188,6 @@ private:
     VecC solveSystem(int iteration, double lambda);
     double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
                         const bool fixLinearization);
-    bool doStepFromBackup(VecC step, VecC value_backup,
-                          float stepfacC, float stepfacT, float stepfacR,
-                          float stepfacA, float stepfacD);
 
     void linearizeAll_Reductor(const bool fixLinearization,
                                std::vector<PointFrameResidual*> toRemove,
