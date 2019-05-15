@@ -26,6 +26,7 @@
 
 #include "util/NumType.h"
 #include "util/settings.h"
+#include "FullSystem/CalibHessian.h"
 
 namespace dso
 {

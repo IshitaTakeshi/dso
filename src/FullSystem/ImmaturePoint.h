@@ -28,6 +28,8 @@
 #include "util/NumType.h"
 
 #include "FullSystem/HessianBlocks.h"
+#include "FullSystem/CalibHessian.h"
+
 namespace dso
 {
 

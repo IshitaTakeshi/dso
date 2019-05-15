@@ -26,6 +26,8 @@
 
 #include "util/NumType.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
+#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/CalibHessian.h"
 #include "IOWrapper/Output3DWrapper.h"
 #include "util/settings.h"
 #include "vector"

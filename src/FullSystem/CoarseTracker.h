@@ -29,6 +29,7 @@
 #include "vector"
 #include <math.h>
 #include "util/settings.h"
+#include "FullSystem/CalibHessian.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "IOWrapper/Output3DWrapper.h"
 

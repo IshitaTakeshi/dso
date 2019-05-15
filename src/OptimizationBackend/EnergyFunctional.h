@@ -27,6 +27,7 @@
 
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
+#include "FullSystem/CalibHessian.h"
 #include "vector"
 #include <math.h>
 #include "map"

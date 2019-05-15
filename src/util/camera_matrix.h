@@ -1,5 +1,6 @@
 #include "util/NumType.h"
-#include "FullSystem/HessianBlocks.h"
+#include "FullSystem/CalibHessian.h"
+
 
 namespace dso {
 Mat33f initializeCameraMatrix(const float fx, const float fy,

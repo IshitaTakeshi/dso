@@ -81,8 +81,7 @@ void FrameHessian::setStateZero(const Vec10 &state_zero) {
     this->state_zero = state_zero;
 
 
-    for(int i=0; i<6; i++)
-    {
+    for(int i=0; i<6; i++) {
         Vec6 eps;
         eps.setZero();
         eps[i] = 1e-3;
