@@ -186,7 +186,7 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
     pstepfac.segment<3>(3).setConstant(stepfacR);
     pstepfac.segment<4>(6).setConstant(stepfacA);
 
-    float sumA=0, sumB=0, sumT=0, sumR=0, sumID=0, numID=0;
+    float sumA=0, sumB=0, sumT=0, sumR=0, numID=0;
 
     float sumNID=0;
 
@@ -200,7 +200,6 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
 
         for(PointHessian* ph : fh->pointHessians) {
             ph->setIdepth(ph->idepth_backup + stepfacD*ph->step);
-            sumID += ph->step*ph->step;
             sumNID += fabsf(ph->idepth_backup);
             numID++;
 
@@ -212,7 +211,6 @@ bool FullSystem::doStepFromBackup(VecC step, VecC value_backup,
     sumB /= frameHessians.size();
     sumR /= frameHessians.size();
     sumT /= frameHessians.size();
-    sumID /= numID;
     sumNID /= numID;
 
     EFDeltaValid=false;
