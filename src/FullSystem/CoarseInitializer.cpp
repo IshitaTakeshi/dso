@@ -308,7 +308,7 @@ void CoarseInitializer::debugPlot(int level,
     float nid = 0, sid=0;
     for(int i=0; i<npts; i++)
     {
-        Pnt* point = points[level]+i;
+        Pnt* point = &points[level][i];
         if(point->isGood)
         {
             nid++;
@@ -321,7 +321,7 @@ void CoarseInitializer::debugPlot(int level,
 
     for(int i=0; i<npts; i++)
     {
-        Pnt* point = points[level]+i;
+        Pnt* point = &points[level][i];
 
         if(!point->isGood)
             iRImg.setPixel9(point->u+0.5f,point->v+0.5f,Vec3b(0,0,0));
@@ -363,9 +363,8 @@ Vec3f CoarseInitializer::calcResAndGS(
     E.initialize();
 
     int npts = numPoints[level];
-    Pnt* ptsl = points[level];
     for(int i=0; i<npts; i++) {
-        Pnt* point = ptsl+i;
+        Pnt* point = &points[level][i];
 
         point->maxstep = 1e10;
         if(!point->isGood)
@@ -498,7 +497,7 @@ Vec3f CoarseInitializer::calcResAndGS(
     EAlpha.initialize();
     for(int i=0; i<npts; i++)
     {
-        Pnt* point = ptsl+i;
+        Pnt* point = &points[level][i];
         if(!point->isGood_new) {
             E.updateSingle((float)(point->energy[1]));
         } else {
@@ -522,7 +521,7 @@ Vec3f CoarseInitializer::calcResAndGS(
     acc9SC.initialize();
     for(int i=0; i<npts; i++)
     {
-        Pnt* point = ptsl+i;
+        Pnt* point = &points[level][i];
         if(!point->isGood_new)
             continue;
 
@@ -582,7 +581,7 @@ Vec3f CoarseInitializer::calcEC(const int level, const bool snapped, float coupl
     int npts = numPoints[level];
     for(int i=0; i<npts; i++)
     {
-        Pnt* point = points[level]+i;
+        Pnt* point = &points[level][i];
         if(!point->isGood_new) continue;
         float rOld = (point->idepth-point->iR);
         float rNew = (point->idepth_new-point->iR);
@@ -639,30 +638,28 @@ void CoarseInitializer::propagateUp(const int srcLvl, const bool snapped) {
 
     int nptss= numPoints[srcLvl];
     int nptst= numPoints[srcLvl+1];
-    Pnt* ptss = points[srcLvl];
-    Pnt* ptst = points[srcLvl+1];
 
     // set to zero.
     for(int i=0; i<nptst; i++)
     {
-        Pnt* parent = ptst+i;
+        Pnt* parent = &points[srcLvl+1][i];
         parent->iR=0;
         parent->iRSumNum=0;
     }
 
     for(int i=0; i<nptss; i++)
     {
-        Pnt* point = ptss+i;
+        Pnt* point = &points[srcLvl][i];
         if(!point->isGood) continue;
 
-        Pnt* parent = ptst + point->parent;
+        Pnt* parent = &points[srcLvl+1][point->parent];
         parent->iR += point->iR * point->lastHessian;
         parent->iRSumNum += point->lastHessian;
     }
 
     for(int i=0; i<nptst; i++)
     {
-        Pnt* parent = ptst+i;
+        Pnt* parent = &points[srcLvl+1][i];
         if(parent->iRSumNum > 0)
         {
             parent->idepth = parent->iR = (parent->iR / parent->iRSumNum);
@@ -678,13 +675,11 @@ void CoarseInitializer::propagateDown(const int srcLvl, const bool snapped) {
     // set idepth of target
 
     int nptst = numPoints[srcLvl-1];
-    Pnt* ptss = points[srcLvl];
-    Pnt* ptst = points[srcLvl-1];
 
     for(int i=0; i<nptst; i++)
     {
-        Pnt* point = ptst+i;
-        Pnt* parent = ptss+point->parent;
+        Pnt* point = &points[srcLvl-1][i];
+        Pnt* parent = &points[srcLvl][point->parent];
 
         if(!parent->isGood || parent->lastHessian < 0.1) continue;
         if(!point->isGood)
