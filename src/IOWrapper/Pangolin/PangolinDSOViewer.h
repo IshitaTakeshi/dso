@@ -23,12 +23,15 @@
 
 
 #pragma once
-#include <pangolin/pangolin.h>
-#include "boost/thread.hpp"
-#include "util/MinimalImage.h"
-#include "IOWrapper/Output3DWrapper.h"
+
 #include <map>
 #include <deque>
+#include <boost/thread.hpp>
+#include <pangolin/pangolin.h>
+
+#include "util/MinimalImage.h"
+#include "util/FrameShell.h"
+#include "IOWrapper/Output3DWrapper.h"
 
 
 namespace dso

@@ -25,11 +25,8 @@
 #pragma once
 
 #include "util/NumType.h"
-#include "algorithm"
 
-namespace dso
-{
-
+namespace dso {
 
 class FrameShell {
 public:

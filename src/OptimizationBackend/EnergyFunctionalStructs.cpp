@@ -24,7 +24,6 @@
 
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 #include "OptimizationBackend/EnergyFunctional.h"
-#include "FullSystem/FullSystem.h"
 #include "FullSystem/HessianBlocks.h"
 #include "FullSystem/Residuals.h"
 

@@ -23,15 +23,10 @@
 
 
 
-#include <stdio.h>
-#include "util/settings.h"
-
-//#include <GL/glx.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-
 #include <pangolin/pangolin.h>
+
 #include "KeyFrameDisplay.h"
+#include "util/settings.h"
 #include "FullSystem/HessianBlocks.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "util/FrameShell.h"

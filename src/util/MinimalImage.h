@@ -24,8 +24,9 @@
 
 #pragma once
 
+#include <algorithm>
 #include "util/NumType.h"
-#include "algorithm"
+
 
 namespace dso
 {

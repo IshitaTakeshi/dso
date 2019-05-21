@@ -1,5 +1,8 @@
 
 #include <Eigen/Core>
+#include <iterator>
+#include <fstream>
+
 #include "util/settings.h"
 #include "util/PhotometricUndistorter.h"
 #include "util/MinimalImage.h"
@@ -7,8 +10,6 @@
 #include "util/NumType.h"
 #include "IOWrapper/ImageRW.h"
 
-#include <iterator>
-#include <fstream>
 
 
 namespace dso {

@@ -25,8 +25,8 @@
 
 #include "FullSystem/HessianBlocks.h"
 #include "util/FrameShell.h"
-#include "FullSystem/ImmaturePoint.h"
-#include "OptimizationBackend/EnergyFunctionalStructs.h"
+#include "util/math.h"
+
 
 namespace dso {
 

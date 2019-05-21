@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "Eigen/Core"
+#include <Eigen/Core>
 #include "sophus/sim3.hpp"
 #include "sophus/se3.hpp"
 

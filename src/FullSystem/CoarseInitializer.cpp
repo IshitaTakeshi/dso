@@ -30,9 +30,7 @@
  */
 
 #include "FullSystem/CoarseInitializer.h"
-#include "FullSystem/FullSystem.h"
 #include "FullSystem/HessianBlocks.h"
-#include "FullSystem/Residuals.h"
 #include "FullSystem/PixelSelector.h"
 #include "FullSystem/PixelSelector2.h"
 #include "util/nanoflann.h"

@@ -24,12 +24,12 @@
 
 #pragma once
 
+#include <vector>
 
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
-#include "vector"
-#include <math.h>
+
 
 namespace dso
 {

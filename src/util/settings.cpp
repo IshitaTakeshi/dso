@@ -164,20 +164,22 @@ bool  setting_selectDirectionDistribution = true;
 
 
 /* settings controling initial immature point tracking */
-float setting_maxPixSearch =
-    0.027; // max length of the ep. line segment searched during immature point tracking. relative to image resolution.
+
+// max length of the ep. line segment searched during immature point tracking.
+// relative to image resolution.
+float setting_maxPixSearch = 0.027;
 float setting_minTraceQuality = 3;
 int setting_minTraceTestRadius = 2;
 int setting_GNItsOnPointActivation = 3;
 float setting_trace_stepsize = 1.0;				// stepsize for initial discrete search.
 int setting_trace_GNIterations = 3;				// max # GN iterations
 float setting_trace_GNThreshold = 0.1;				// GN stop after this stepsize.
-float setting_trace_extraSlackOnTH =
-    1.2;			// for energy-based outlier check, be slightly more relaxed by this factor.
-float setting_trace_slackInterval =
-    1.5;			// if pixel-interval is smaller than this, leave it be.
-float setting_trace_minImprovementFactor =
-    2;		// if pixel-interval is smaller than this, leave it be.
+// for energy-based outlier check, be slightly more relaxed by this factor.
+float setting_trace_extraSlackOnTH = 1.2;
+// if pixel-interval is smaller than this, leave it be.
+float setting_trace_slackInterval = 1.5;
+// if pixel-interval is smaller than this, leave it be.
+float setting_trace_minImprovementFactor = 2;
 
 
 

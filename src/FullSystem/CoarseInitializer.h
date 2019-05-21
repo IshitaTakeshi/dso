@@ -30,10 +30,8 @@
 #include "FullSystem/CalibHessian.h"
 #include "IOWrapper/Output3DWrapper.h"
 #include "util/settings.h"
-#include "vector"
-#include <math.h>
 
-
+#include <vector>
 
 
 namespace dso

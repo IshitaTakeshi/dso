@@ -27,15 +27,10 @@
 
 #include "util/NumType.h"
 
-
-
-
 namespace dso
 {
 
-
 const float minUseGrad_pixsel = 10;
-
 
 template<int pot>
 inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w,

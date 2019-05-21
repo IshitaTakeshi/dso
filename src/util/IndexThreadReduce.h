@@ -24,11 +24,11 @@
 
 
 #pragma once
-#include "util/settings.h"
-#include "boost/thread.hpp"
-#include <stdio.h>
+
+#include <boost/thread.hpp>
 #include <iostream>
 
+#include "util/settings.h"
 
 
 namespace dso

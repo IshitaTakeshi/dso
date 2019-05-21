@@ -34,14 +34,12 @@
 #include "util/globalCalib.h"
 #include "util/NumType.h"
 #include "util/gamma.h"
-#include "FullSystem/Residuals.h"
-#include "FullSystem/HessianBlocks.h"
 #include "util/FrameShell.h"
 #include "util/IndexThreadReduce.h"
 #include "OptimizationBackend/EnergyFunctional.h"
+#include "FullSystem/HessianBlocks.h"
 #include "FullSystem/PixelSelector2.h"
-
-#include <math.h>
+#include "FullSystem/Residuals.h"
 
 namespace dso
 {

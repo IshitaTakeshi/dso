@@ -22,17 +22,12 @@
 */
 
 
-#include "FullSystem/PixelSelector2.h"
-
-//
-
-
-
 #include "util/NumType.h"
 #include "IOWrapper/ImageDisplay.h"
 #include "util/globalCalib.h"
 #include "FullSystem/HessianBlocks.h"
-#include "util/globalFuncs.h"
+#include "FullSystem/PixelSelector2.h"
+
 
 namespace dso
 {

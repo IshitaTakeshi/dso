@@ -23,17 +23,17 @@
 
 
 #pragma once
+
 #include <Eigen/Core>
 #include <cstring>
 #include <iostream>
 
 
-namespace dso
-{
+namespace dso {
 
 
-class ImageAndExposure
-{
+class ImageAndExposure {
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     float* image;			// irradiance. between 0 and 256

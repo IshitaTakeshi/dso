@@ -41,7 +41,6 @@
 #include "util/globalCalib.h"
 #include "FullSystem/PixelSelector.h"
 #include "FullSystem/PixelSelector2.h"
-#include "FullSystem/ResidualProjections.h"
 #include "FullSystem/ImmaturePoint.h"
 
 #include "FullSystem/CoarseTracker.h"

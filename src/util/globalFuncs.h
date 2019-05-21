@@ -24,10 +24,10 @@
 
 
 #pragma once
+
+#include <fstream>
 #include "util/settings.h"
 #include "util/NumType.h"
-#include "IOWrapper/ImageDisplay.h"
-#include "fstream"
 
 namespace dso
 {

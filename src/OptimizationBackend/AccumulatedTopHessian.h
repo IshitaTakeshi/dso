@@ -24,11 +24,10 @@
 
 #pragma once
 
+#include <vector>
 
 #include "util/NumType.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
-#include "vector"
-#include <math.h>
 #include "util/IndexThreadReduce.h"
 
 

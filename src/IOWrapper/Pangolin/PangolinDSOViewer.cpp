@@ -29,8 +29,6 @@
 #include "util/settings.h"
 #include "util/globalCalib.h"
 #include "FullSystem/HessianBlocks.h"
-#include "FullSystem/FullSystem.h"
-#include "FullSystem/ImmaturePoint.h"
 
 namespace dso
 {

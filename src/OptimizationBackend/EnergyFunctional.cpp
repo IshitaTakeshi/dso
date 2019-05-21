@@ -24,7 +24,6 @@
 
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
-#include "FullSystem/FullSystem.h"
 #include "FullSystem/HessianBlocks.h"
 #include "FullSystem/Residuals.h"
 #include "OptimizationBackend/AccumulatedSCHessian.h"
@@ -34,9 +33,7 @@
 #include "SSE2NEON.h"
 #endif
 
-namespace dso
-{
-
+namespace dso {
 
 bool EFAdjointsValid = false;
 bool EFIndicesValid = false;

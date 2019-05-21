@@ -29,10 +29,9 @@
  *      Author: engelj
  */
 
+#include "util/FrameShell.h"
 #include "FullSystem/CoarseTracker.h"
-#include "FullSystem/FullSystem.h"
 #include "FullSystem/HessianBlocks.h"
-#include "FullSystem/Residuals.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 #include "IOWrapper/ImageRW.h"
 #include <algorithm>

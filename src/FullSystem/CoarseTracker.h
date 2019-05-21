@@ -24,10 +24,9 @@
 
 #pragma once
 
+#include <vector>
 
 #include "util/NumType.h"
-#include "vector"
-#include <math.h>
 #include "util/settings.h"
 #include "FullSystem/CalibHessian.h"
 #include "OptimizationBackend/MatrixAccumulators.h"

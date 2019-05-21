@@ -24,17 +24,16 @@
 
 #pragma once
 
+#include <vector>
+#include <map>
 
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
 #include "FullSystem/CalibHessian.h"
-#include "vector"
-#include <math.h>
-#include "map"
+#include "OptimizationBackend/RawResidualJacobian.h"
 
 
-namespace dso
-{
+namespace dso {
 
 class PointFrameResidual;
 class CalibHessian;

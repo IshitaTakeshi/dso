@@ -24,13 +24,11 @@
 
 #pragma once
 
-
 #include "util/NumType.h"
 
-namespace dso
-{
-struct RawResidualJacobian
-{
+namespace dso {
+
+struct RawResidualJacobian {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     // ================== new structure: save independently =============.
     VecNRf resF;

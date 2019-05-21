@@ -25,9 +25,9 @@
 #pragma once
 
 
+#include <vector>
+
 #include "util/NumType.h"
-#include "vector"
-#include <math.h>
 #include "OptimizationBackend/RawResidualJacobian.h"
 
 namespace dso
@@ -42,11 +42,6 @@ class EFResidual;
 class EFPoint;
 class EFFrame;
 class EnergyFunctional;
-
-
-
-
-
 
 class EFResidual {
 public:

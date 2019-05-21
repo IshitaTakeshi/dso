@@ -22,10 +22,10 @@
 */
 
 
+#include <iostream>
 
 #include "util/globalCalib.h"
-#include "stdio.h"
-#include <iostream>
+
 
 namespace dso
 {

@@ -24,12 +24,13 @@
 
 
 #pragma once
+
 #include <vector>
 #include <string>
+#include <map>
 
 #include "util/NumType.h"
 #include "util/MinimalImage.h"
-#include "map"
 
 namespace cv {
 class Mat;

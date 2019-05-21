@@ -24,19 +24,17 @@
 
 #pragma once
 #include "util/settings.h"
-#include "util/globalFuncs.h"
-#include "util/globalCalib.h"
 
 #include <sstream>
 #include <fstream>
 #include <dirent.h>
 #include <algorithm>
+#include <boost/thread.hpp>
 
 #include "util/Undistort.h"
 #include "util/PhotometricUndistorter.h"
 #include "IOWrapper/ImageRW.h"
 
-#include <boost/thread.hpp>
 
 using namespace dso;
 

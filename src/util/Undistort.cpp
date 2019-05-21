@@ -22,19 +22,16 @@
 */
 
 
-
-
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 
 #include <Eigen/Core>
-#include <iterator>
+
+#include "util/Undistort.h"
 #include "util/settings.h"
 #include "util/globalFuncs.h"
-#include "IOWrapper/ImageDisplay.h"
-#include "IOWrapper/ImageRW.h"
-#include "util/Undistort.h"
 #include "util/camera_matrix.h"
 
 
@@ -290,6 +287,7 @@ template ImageAndExposure* Undistort::undistort<unsigned short> (ImageAndExposur
 
 void Undistort::applyBlurNoise(float* img) const
 {
+    assert(benchmark_varBlurNoise >= 0);
     if(benchmark_varBlurNoise==0) return;
 
     int numnoise=(benchmark_noiseGridsize+8)*(benchmark_noiseGridsize+8);
@@ -297,13 +295,10 @@ void Undistort::applyBlurNoise(float* img) const
     float* noiseMapY = new float[numnoise];
     float* blutTmp=new float[w*h];
 
-    if(benchmark_varBlurNoise>0) {
-        for(int i=0; i<numnoise; i++) {
-            noiseMapX[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
-            noiseMapY[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
-        }
+    for(int i=0; i<numnoise; i++) {
+        noiseMapX[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
+        noiseMapY[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
     }
-
 
     float gaussMap[1000];
     for(int i=0; i<1000; i++) {

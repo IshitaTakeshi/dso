@@ -29,22 +29,19 @@
  *      Author: engelj
  */
 
-#include "FullSystem/FullSystem.h"
 
-#include "stdio.h"
-#include "util/globalFuncs.h"
 #include <Eigen/LU>
 #include <algorithm>
-#include "IOWrapper/ImageDisplay.h"
-#include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
 
-#include "FullSystem/ResidualProjections.h"
+#include "IOWrapper/ImageDisplay.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
-
+#include "util/globalCalib.h"
 #include "FullSystem/HessianBlocks.h"
+#include "FullSystem/ResidualProjections.h"
+
 
 namespace dso {
 
