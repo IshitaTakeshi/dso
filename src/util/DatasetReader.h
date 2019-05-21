@@ -33,6 +33,7 @@
 #include <algorithm>
 
 #include "util/Undistort.h"
+#include "util/PhotometricUndistorter.h"
 #include "IOWrapper/ImageRW.h"
 
 #include <boost/thread.hpp>
