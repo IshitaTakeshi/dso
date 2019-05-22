@@ -187,11 +187,6 @@ extern float freeDebugParam4;
 extern float freeDebugParam5;
 
 
-void handleKey(char k);
-
-
-
-
 extern const int staticPattern[10][40][2];
 extern int staticPatternNum[10];
 extern int staticPatternPadding[10];

@@ -733,11 +733,8 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
             {
                 char k = IOWrap::waitKey(0);
                 if(k == ' ') break;
-                handleKey(k);
             }
             lastRefStopID = coarseTracker->refFrameID;
-        } else {
-            handleKey(IOWrap::waitKey(1));
         }
 
         if(needKF) {
