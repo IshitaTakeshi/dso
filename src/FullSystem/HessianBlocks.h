@@ -219,7 +219,7 @@ struct FrameHessian {
     FrameHessian(float* image, FrameShell* shell_,
                  const Gamma &gamma, const float ab_exposure_);
 
-    void makeImages(float* color, const Gamma &gamma);
+    void makeImages(const float* color, const Gamma &gamma);
 
     inline Vec10 getPrior()
     {

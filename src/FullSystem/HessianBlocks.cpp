@@ -167,7 +167,7 @@ FrameHessian::FrameHessian(float* image, FrameShell* shell_,
 };
 
 
-void FrameHessian::makeImages(float* color, const Gamma &gamma) {
+void FrameHessian::makeImages(const float* color, const Gamma &gamma) {
     for(int i=0; i<pyrLevelsUsed; i++) {
         dIp[i] = new Eigen::Vector3f[wG[i]*hG[i]];
         absSquaredGrad[i] = new float[wG[i]*hG[i]];
