@@ -101,7 +101,7 @@ typedef Eigen::Matrix<float,3,1> Vec3f;
 typedef Eigen::Matrix<float,2,1> Vec2f;
 typedef Eigen::Matrix<float,6,1> Vec6f;
 
-
+typedef Eigen::Matrix<unsigned char,3,1> Vec3b;
 
 typedef Eigen::Matrix<double,4,9> Mat49;
 typedef Eigen::Matrix<double,8,9> Mat89;
