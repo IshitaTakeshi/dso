@@ -246,6 +246,12 @@ EIGEN_ALWAYS_INLINE float getInterpolatedElement11BiCub(const float* const mat,
     float dy = y - iy;
     return getInterpolatedElement11Cub(val, dy);
 }
+
+EIGEN_ALWAYS_INLINE float getInterpolatedElement11BiCub(const std::vector<float> mat,
+        const float x, const float y, const int width) {
+    return getInterpolatedElement11BiCub(&mat[0], x, y, width);
+}
+
 EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement13BiCub(
     const float* const mat, const float x, const float y, const int width)
 {

@@ -31,7 +31,7 @@
 
 #include "util/Undistort.h"
 #include "util/settings.h"
-#include "util/globalFuncs.h"
+#include "util/blur_noise.h"
 #include "util/camera_matrix.h"
 
 
@@ -163,8 +163,7 @@ int readRadTanParameters(float &fx, float &fy, float &cx, float &cy,
 
 
 
-Undistort::~Undistort()
-{
+Undistort::~Undistort() {
     if(remapX != 0) delete[] remapX;
     if(remapY != 0) delete[] remapY;
 }
@@ -248,9 +247,6 @@ ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
     float* out_data = result->image;
     float* in_data = output->image;
 
-    float* noiseMapX=0;
-    float* noiseMapY=0;
-
     for(int idx = w*h-1; idx>=0; idx--) {
         // get interp. values
         float xx = remapX[idx];
@@ -276,7 +272,8 @@ ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
         }
     }
 
-    applyBlurNoise(result->image);
+    // TODO separate this function
+    BlurNoise(w, h, 3, 0.8).apply(result->image);
 
     return result;
 }
@@ -284,100 +281,6 @@ ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
 template ImageAndExposure* Undistort::undistort<unsigned char> (ImageAndExposure* output) const;
 template ImageAndExposure* Undistort::undistort<unsigned short> (ImageAndExposure* output) const;
 
-
-void Undistort::applyBlurNoise(float* img) const
-{
-    assert(benchmark_varBlurNoise >= 0);
-    if(benchmark_varBlurNoise==0) return;
-
-    int numnoise=(benchmark_noiseGridsize+8)*(benchmark_noiseGridsize+8);
-    float* noiseMapX = new float[numnoise];
-    float* noiseMapY = new float[numnoise];
-    float* blutTmp=new float[w*h];
-
-    for(int i=0; i<numnoise; i++) {
-        noiseMapX[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
-        noiseMapY[i] =  benchmark_varBlurNoise  * (rand()/(float)RAND_MAX);
-    }
-
-    float gaussMap[1000];
-    for(int i=0; i<1000; i++) {
-        gaussMap[i] = expf((float)(-i*i/(100.0*100.0)));
-    }
-
-    // x-blur.
-    for(int y=0; y<h; y++) {
-        for(int x=0; x<w; x++) {
-            float xBlur = getInterpolatedElement11BiCub(
-                noiseMapX,
-                4+(x/(float)w)*benchmark_noiseGridsize,
-                4+(y/(float)h)*benchmark_noiseGridsize,
-                benchmark_noiseGridsize+8
-            );
-
-            if(xBlur < 0.01) xBlur=0.01;
-
-
-            int kernelSize = 1 + (int)(1.0f+xBlur*1.5);
-            float sumW=0;
-            float sumCW=0;
-            for(int dx=0; dx <= kernelSize; dx++) {
-                int gmid = 100.0f*dx/xBlur + 0.5f;
-                if(gmid > 900) gmid = 900;
-                float gw = gaussMap[gmid];
-
-                if(x+dx>0 && x+dx<w) {
-                    sumW += gw;
-                    sumCW += gw * img[x+dx+y*this->w];
-                }
-
-                if(x-dx>0 && x-dx<w && dx!=0) {
-                    sumW += gw;
-                    sumCW += gw * img[x-dx+y*this->w];
-                }
-            }
-
-            blutTmp[x+y*this->w] = sumCW / sumW;
-        }
-    }
-
-    // y-blur.
-    for(int x=0; x<w; x++) {
-        for(int y=0; y<h; y++)
-        {
-            float yBlur = getInterpolatedElement11BiCub(noiseMapY,
-                          4+(x/(float)w)*benchmark_noiseGridsize,
-                          4+(y/(float)h)*benchmark_noiseGridsize,
-                          benchmark_noiseGridsize+8 );
-
-            if(yBlur < 0.01) yBlur=0.01;
-
-            int kernelSize = 1 + (int)(0.9f+yBlur*2.5);
-            float sumW=0;
-            float sumCW=0;
-            for(int dy=0; dy <= kernelSize; dy++) {
-                int gmid = 100.0f*dy/yBlur + 0.5f;
-                if(gmid > 900 ) gmid = 900;
-                float gw = gaussMap[gmid];
-
-                if(y+dy>0 && y+dy<h) {
-                    sumW += gw;
-                    sumCW += gw * blutTmp[x+(y+dy)*this->w];
-                }
-
-                if(y-dy>0 && y-dy<h && dy!=0)
-                {
-                    sumW += gw;
-                    sumCW += gw * blutTmp[x+(y-dy)*this->w];
-                }
-            }
-            img[x+y*this->w] = sumCW / sumW;
-        }
-    }
-
-    delete[] noiseMapX;
-    delete[] noiseMapY;
-}
 
 // TODO take w and h as args or make them cost members
 void makeRoundingResistant(float* remapX, float* remapY, int w, int h, int wOrg, int hOrg) {

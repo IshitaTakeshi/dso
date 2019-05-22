@@ -52,6 +52,7 @@ set(dso_SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/src/util/settings.cpp
   ${PROJECT_SOURCE_DIR}/src/util/math.cpp
   ${PROJECT_SOURCE_DIR}/src/util/scale.cpp
+  ${PROJECT_SOURCE_DIR}/src/util/blur_noise.cpp
   ${PROJECT_SOURCE_DIR}/src/util/camera_matrix.cpp
   ${PROJECT_SOURCE_DIR}/src/util/gamma.cpp
   ${PROJECT_SOURCE_DIR}/src/util/Undistort.cpp
