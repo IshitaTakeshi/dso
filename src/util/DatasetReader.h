@@ -23,7 +23,9 @@
 
 
 #pragma once
+
 #include "util/settings.h"
+#include "util/blur_noise.h"
 
 #include <sstream>
 #include <fstream>
@@ -107,6 +109,8 @@ public:
 
         float* output = photometricUndist->processFrame<unsigned char>(minimg->data);
         float* ret2 = undistort->undistort<unsigned char>(output);
+
+        BlurNoise(undistort->w, undistort->h, 3, 0.8).apply(ret2);
 
         delete minimg;
         delete output;

@@ -61,8 +61,10 @@ public:
     void loadPhotometricCalibration(std::string file, std::string noiseImage,
                                     std::string vignetteImage);
 
+    const int w, h;
+
 protected:
-    int wOrg, hOrg, w, h, wUp, hUp;
+    int wOrg, hOrg, wUp, hUp;
     int upsampleUndistFactor;
     Mat33f K;
     VecX parsOrg;

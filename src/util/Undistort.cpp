@@ -30,7 +30,6 @@
 #include <Eigen/Core>
 
 #include "util/Undistort.h"
-#include "util/blur_noise.h"
 #include "util/camera_matrix.h"
 
 
@@ -265,9 +264,6 @@ template<typename T> float* Undistort::undistort(float* image) const {
                           + (1-xx) * (1-yy) * src[0];
         }
     }
-
-    // TODO separate this function
-    BlurNoise(w, h, 3, 0.8).apply(result);
 
     return result;
 }
