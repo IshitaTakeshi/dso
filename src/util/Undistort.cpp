@@ -30,7 +30,6 @@
 #include <Eigen/Core>
 
 #include "util/Undistort.h"
-#include "util/settings.h"
 #include "util/blur_noise.h"
 #include "util/camera_matrix.h"
 
