@@ -269,7 +269,7 @@ int main( int argc, char** argv )
     // to make MacOS happy: run this in dedicated thread -- and use this one to run the GUI.
     std::thread runthread([&]() {
         for(int i=0; i < reader->getNumImages(); i+=1) {
-            ImageAndExposure* img = reader->getImage(i);
+            float* img = reader->getImage(i);
 
             fullSystem->addActiveFrame(img, i);
 

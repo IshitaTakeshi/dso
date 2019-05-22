@@ -96,7 +96,7 @@ public:
         return filenames.size();
     }
 
-    ImageAndExposure* getImage(int id) {
+    float* getImage(int id) {
         MinimalImageB* minimg = getImageRaw_internal(id);
 
         if(minimg->w != undistort->getOriginalSize()[0] ||
@@ -105,9 +105,8 @@ public:
             exit(1);
         }
 
-        ImageAndExposure* output = photometricUndist->processFrame<unsigned char>(
-            minimg->data, 1.0f, 1.0f);
-        ImageAndExposure* ret2 = undistort->undistort<unsigned char>(output);
+        float* output = photometricUndist->processFrame<unsigned char>(minimg->data);
+        float* ret2 = undistort->undistort<unsigned char>(output);
 
         delete minimg;
         delete output;

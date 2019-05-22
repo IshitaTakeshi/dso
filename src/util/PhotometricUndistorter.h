@@ -1,4 +1,3 @@
-#include "util/ImageAndExposure.h"
 #include <cstring>
 
 
@@ -15,8 +14,7 @@ public:
     // removes readout noise, and converts to irradiance.
     // affine normalizes values to 0 <= I < 256.
     // raw irradiance = a*I + b.
-    template<typename T> ImageAndExposure* processFrame(T* image_in, float exposure_time,
-                                           float factor=1) const;
+    template<typename T> float* processFrame(T* image_in) const;
     void unMapFloatImage(float* image);
 
     float* getG() {

@@ -55,7 +55,6 @@ struct FrameHessian;
 struct PointHessian;
 class CoarseInitializer;
 struct ImmaturePointTemporaryResidual;
-class ImageAndExposure;
 class CoarseDistanceMap;
 
 class EnergyFunctional;
@@ -136,8 +135,7 @@ public:
     virtual ~FullSystem();
 
     // adds a new frame, and creates point & residual structs.
-    void addActiveFrame(ImageAndExposure* image, int id);
-
+    void addActiveFrame(float* image, int id, const float exposure_time = 1.0);
     // marginalizes a frame. drops / marginalizes points & residuals.
     void marginalizeFrame(FrameHessian* frame);
     void blockUntilMappingIsFinished();

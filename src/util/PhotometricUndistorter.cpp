@@ -6,7 +6,6 @@
 #include "util/settings.h"
 #include "util/PhotometricUndistorter.h"
 #include "util/MinimalImage.h"
-#include "util/ImageAndExposure.h"
 #include "util/NumType.h"
 #include "IOWrapper/ImageRW.h"
 
@@ -170,39 +169,26 @@ void PhotometricUndistorter::unMapFloatImage(float* image)
     }
 }
 
-template<typename T> ImageAndExposure* PhotometricUndistorter::processFrame(
-    T* image_in, float exposure_time, float factor) const {
+template<typename T>
+float* PhotometricUndistorter::processFrame(T* image_in) const {
 
-    int wh=w*h;
+    const int wh = w*h;
 
-    ImageAndExposure *output = new ImageAndExposure(w,h);
-    float* data = output->image;
-    assert(output->w == w && output->h == h);
-    assert(data != 0);
+    float* image = new float[wh];
 
-    if(exposure_time <= 0 ||
-       setting_photometricCalibration==0) { // disable full photometric calibration.
-        for(int i=0; i<wh; i++) {
-            data[i] = factor*image_in[i];
-        }
-    } else {
-        for(int i=0; i<wh; i++) {
-            data[i] = G[image_in[i]];
-        }
-
-        if(setting_photometricCalibration==2) {
-            for(int i=0; i<wh; i++)
-                data[i] *= vignetteMapInv[i];
-        }
+    for(int i=0; i<wh; i++) {
+        image[i] = G[image_in[i]];
     }
 
-    output->exposure_time = exposure_time;
-    return output;
+    if(setting_photometricCalibration==2) {
+        for(int i=0; i<wh; i++)
+            image[i] *= vignetteMapInv[i];
+    }
+
+    return image;
 }
 
-template ImageAndExposure* PhotometricUndistorter::processFrame<unsigned char>
-(unsigned char* image_in, float exposure_time, float factor) const;
-template ImageAndExposure* PhotometricUndistorter::processFrame<unsigned short>
-(unsigned short* image_in, float exposure_time, float factor) const;
+template float* PhotometricUndistorter::processFrame<unsigned char> (unsigned char* image_in) const;
+template float* PhotometricUndistorter::processFrame<unsigned short> (unsigned short* image_in) const;
 
 }

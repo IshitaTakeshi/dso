@@ -26,7 +26,6 @@
 
 #include <Eigen/Core>
 
-#include "util/ImageAndExposure.h"
 #include "util/NumType.h"
 
 
@@ -57,7 +56,7 @@ public:
         return Eigen::Vector2i(wOrg, hOrg);
     };
 
-    template<typename T> ImageAndExposure* undistort(ImageAndExposure* output) const;
+    template<typename T> float* undistort(float* output) const;
 
     void loadPhotometricCalibration(std::string file, std::string noiseImage,
                                     std::string vignetteImage);

@@ -238,13 +238,8 @@ Undistort* getUndistorterFromFile(std::string configFilename) {
 
 
 
-template<typename T>
-ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
-    ImageAndExposure* result = new ImageAndExposure(w, h);
-    output->copyMetaTo(*result);
-
-    float* out_data = result->image;
-    float* in_data = output->image;
+template<typename T> float* Undistort::undistort(float* image) const {
+    float* result = new float[w*h];
 
     for(int idx = w*h-1; idx>=0; idx--) {
         // get interp. values
@@ -252,7 +247,7 @@ ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
         float yy = remapY[idx];
 
         if(xx<0)
-            out_data[idx] = 0;
+            result[idx] = 0;
         else {
             // get integer and rational parts
             int xxi = xx;
@@ -261,10 +256,10 @@ ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
             yy -= yyi;
 
             // get array base pointer
-            const float* src = in_data + xxi + yyi * wOrg;
+            const float* src = image + xxi + yyi * wOrg;
 
             // interpolate (bilinear)
-            out_data[idx] = xx * yy * src[1+wOrg]
+            result[idx] = xx * yy * src[1+wOrg]
                           + (1-xx) * yy * src[wOrg]
                           + xx * (1-yy) * src[1]
                           + (1-xx) * (1-yy) * src[0];
@@ -272,13 +267,13 @@ ImageAndExposure* Undistort::undistort(ImageAndExposure* output) const {
     }
 
     // TODO separate this function
-    BlurNoise(w, h, 3, 0.8).apply(result->image);
+    BlurNoise(w, h, 3, 0.8).apply(result);
 
     return result;
 }
 
-template ImageAndExposure* Undistort::undistort<unsigned char> (ImageAndExposure* output) const;
-template ImageAndExposure* Undistort::undistort<unsigned short> (ImageAndExposure* output) const;
+template float* Undistort::undistort<unsigned char> (float* output) const;
+template float* Undistort::undistort<unsigned short> (float* output) const;
 
 
 // TODO take w and h as args or make them cost members

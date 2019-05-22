@@ -51,7 +51,6 @@
 
 #include "IOWrapper/Output3DWrapper.h"
 
-#include "util/ImageAndExposure.h"
 #include "util/camera_matrix.h"
 #include "util/gamma.h"
 
@@ -646,8 +645,7 @@ void FullSystem::flagPointsForRemoval() {
 }
 
 
-void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
-
+void FullSystem::addActiveFrame(float* image, int id, const float exposure_time) {
     if(isLost) {
         return;
     }
@@ -661,7 +659,7 @@ void FullSystem::addActiveFrame(ImageAndExposure* image, int id) {
     allFrameHistory.push_back(shell);
 
     // =========================== make Images / derivatives etc. =========================
-    FrameHessian* fh = new FrameHessian(image->image, shell, gamma, image->exposure_time);
+    FrameHessian* fh = new FrameHessian(image, shell, gamma, exposure_time);
 
     if(!initialized) {
         // use initializer!
