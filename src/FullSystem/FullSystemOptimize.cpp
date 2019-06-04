@@ -174,7 +174,9 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 
 
 // applies step to linearization point.
-bool doStepFromBackup(std::vector<FrameHessian*> &frameHessians, VecC step, VecC value_backup,
+bool doStepFromBackup(std::vector<FrameHessian*> &frameHessians,
+                      std::vector<Vec10> &frameStates, std::vector<std::vector<float>> &idepths,
+                      VecC step, VecC value_backup,
                       float stepfacT, float stepfacR, float stepfacA, float stepfacD) {
 //	float meanStepC=0,meanStepP=0,meanStepD=0;
 //	meanStepC += step.norm();
@@ -188,19 +190,22 @@ bool doStepFromBackup(std::vector<FrameHessian*> &frameHessians, VecC step, VecC
 
     float sumNID=0;
 
-    for(FrameHessian* fh : frameHessians) {
-        fh->setState(fh->state_backup + pstepfac.cwiseProduct(fh->step));
+    for(int i = 0; i < frameHessians.size(); i++) {
+        FrameHessian* fh = frameHessians[i];
+
+        fh->setState(frameStates[i] + pstepfac.cwiseProduct(fh->step));
         sumA += fh->step[6]*fh->step[6];
         sumB += fh->step[7]*fh->step[7];
         sumT += fh->step.segment<3>(0).squaredNorm();
         sumR += fh->step.segment<3>(3).squaredNorm();
 
-        for(PointHessian* ph : fh->pointHessians) {
-            ph->setIdepth(ph->idepth_backup + stepfacD*ph->step);
-            sumNID += fabsf(ph->idepth_backup);
+        for(int j = 0; j < fh->pointHessians.size(); j++) {
+            PointHessian* ph = fh->pointHessians[j];
+            ph->setIdepth(idepths[i][j] + stepfacD*ph->step);
+            sumNID += fabsf(idepths[i][j]);
             numID++;
 
-            ph->setIdepthZero(ph->idepth_backup + stepfacD*ph->step);
+            ph->setIdepthZero(idepths[i][j] + stepfacD*ph->step);
         }
     }
 
@@ -221,21 +226,31 @@ bool doStepFromBackup(std::vector<FrameHessian*> &frameHessians, VecC step, VecC
 
 
 // sets linearization point.
-void backupState(std::vector<FrameHessian*> &frameHessians) {
-    for(FrameHessian* fh : frameHessians) {
-        fh->state_backup = fh->get_state();
-        for(PointHessian* ph : fh->pointHessians)
-            ph->idepth_backup = ph->idepth;
+void backupState(std::vector<FrameHessian*> &frameHessians,
+                 std::vector<Vec10> &frameStates,
+                 std::vector<std::vector<float>> &idepths) {
+    for(int i = 0; i < frameHessians.size(); i++) {
+        FrameHessian* fh = frameHessians[i];
+        frameStates[i] = fh->get_state();
+        for(PointHessian* ph : fh->pointHessians) {
+            idepths[i].push_back(ph->idepth);
+        }
     }
 }
 
 // sets linearization point.
-void loadSateBackup(std::vector<FrameHessian*> &frameHessians) {
-    for(FrameHessian* fh : frameHessians) {
-        fh->setState(fh->state_backup);
-        for(PointHessian* ph : fh->pointHessians) {
-            ph->setIdepth(ph->idepth_backup);
-            ph->setIdepthZero(ph->idepth_backup);
+void loadSateBackup(std::vector<FrameHessian*> &frameHessians,
+                    std::vector<Vec10> &frameStates,
+                    std::vector<std::vector<float>> &idepths) {
+
+    for(int i = 0; i < frameHessians.size(); i++) {
+        FrameHessian* fh = frameHessians[i];
+        fh->setState(frameStates[i]);
+
+        for(int j = 0; j < fh->pointHessians.size(); j++) {
+            PointHessian* ph = fh->pointHessians[j];
+            ph->setIdepth(idepths[i][j]);
+            ph->setIdepthZero(idepths[i][j]);
         }
     }
 }
@@ -296,10 +311,14 @@ float FullSystem::optimize(int mnumOptIts) {
     for(int iteration=0; iteration<mnumOptIts; iteration++) {
         // solve!
 
+        std::vector<Vec10> frameStates(frameHessians.size());
+        std::vector<std::vector<float>> idepths(frameStates.size());
+
         // FIXME HCalib shoudn't hold states
         VecC value_backup = current_camera_parameters;
 
-        backupState(frameHessians);
+
+        backupState(frameHessians, frameStates, idepths);
 
         step = solveSystem(iteration, lambda);
 
@@ -319,7 +338,8 @@ float FullSystem::optimize(int mnumOptIts) {
 
         float stepfacC = stepsize;
         HCalib.setValue(scale_camera_parameters(value_backup + stepfacC*step));
-        bool canbreak = doStepFromBackup(frameHessians, step, value_backup,
+        bool canbreak = doStepFromBackup(frameHessians, frameStates, idepths,
+                                         step, value_backup,
                                          stepsize, stepsize, stepsize, stepsize);
 
         EFDeltaValid=false;
@@ -343,7 +363,7 @@ float FullSystem::optimize(int mnumOptIts) {
             current_camera_parameters = value_backup;
             HCalib.setValue(scale_camera_parameters(current_camera_parameters));
 
-            loadSateBackup(frameHessians);
+            loadSateBackup(frameHessians, frameStates, idepths);
 
             EFDeltaValid=false;
 

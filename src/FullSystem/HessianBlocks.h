@@ -152,7 +152,6 @@ struct FrameHessian {
     Vec10 state;	// [0-5: worldToCam-leftEps. 6-7: a,b]
     Vec10 step;
     Vec10 step_backup;
-    Vec10 state_backup;
 
 
     EIGEN_STRONG_INLINE const SE3 &get_worldToCam_evalPT() const {
@@ -282,7 +281,6 @@ struct PointHessian {
     float idepth;
     float step;
     float step_backup;
-    float idepth_backup;
 
     float nullspaces_scale;
     float idepth_hessian;
