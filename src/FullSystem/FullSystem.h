@@ -197,9 +197,7 @@ private:
 
     std::vector<VecX> getNullspaces(
         std::vector<VecX> &nullspaces_pose,
-        std::vector<VecX> &nullspaces_scale,
-        std::vector<VecX> &nullspaces_affA,
-        std::vector<VecX> &nullspaces_affB);
+        std::vector<VecX> &nullspaces_scale);
 
     // =================== changed by tracker-thread. protected by trackMutex ============
     boost::mutex trackMutex;

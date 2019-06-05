@@ -934,9 +934,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     ef->dropPointsF();
     getNullspaces(
         ef->lastNullspaces_pose,
-        ef->lastNullspaces_scale,
-        ef->lastNullspaces_affA,
-        ef->lastNullspaces_affB);
+        ef->lastNullspaces_scale);
     ef->marginalizePointsF();
 
     // =========================== add new Immature points & new residuals =========================

@@ -172,7 +172,6 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
 
 
 
-
 // applies step to linearization point.
 bool doStepFromBackup(std::vector<FrameHessian*> &frameHessians,
                       std::vector<Vec10> &frameStates, std::vector<std::vector<float>> &idepths,
@@ -412,11 +411,8 @@ float FullSystem::optimize(int mnumOptIts) {
 
 
 VecC FullSystem::solveSystem(int iteration, double lambda) {
-    ef->lastNullspaces_forLogging = getNullspaces(
-                                        ef->lastNullspaces_pose,
-                                        ef->lastNullspaces_scale,
-                                        ef->lastNullspaces_affA,
-                                        ef->lastNullspaces_affB);
+    getNullspaces(ef->lastNullspaces_pose,
+                  ef->lastNullspaces_scale);
 
     return ef->solveSystemF(iteration, lambda);
 }
@@ -451,14 +447,13 @@ void FullSystem::removeOutliers()
 
 std::vector<VecX> FullSystem::getNullspaces(
     std::vector<VecX> &nullspaces_pose,
-    std::vector<VecX> &nullspaces_scale,
-    std::vector<VecX> &nullspaces_affA,
-    std::vector<VecX> &nullspaces_affB)
+    std::vector<VecX> &nullspaces_scale)
 {
+
+    std::vector<VecX> nullspaces_affA;
+    std::vector<VecX> nullspaces_affB;
     nullspaces_pose.clear();
     nullspaces_scale.clear();
-    nullspaces_affA.clear();
-    nullspaces_affB.clear();
 
     int n=CPARS+frameHessians.size()*8;
     std::vector<VecX> nullspaces_x0_pre;
