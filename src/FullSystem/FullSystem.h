@@ -180,11 +180,13 @@ private:
     void removeOutliers();
 
     double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
+                        const Mat33f &K,
                         const bool fixLinearization);
 
     void linearizeAll_Reductor(const bool fixLinearization,
                                std::vector<PointFrameResidual*> toRemove,
                                const std::vector<PointFrameResidual*> activeResiduals,
+                               const Mat33f &K,
                                Vec10* stats);
     void activatePointsMT_Reductor(std::vector<PointHessian*>* optimized,
                                    std::vector<ImmaturePoint*>* toOptimize,

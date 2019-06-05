@@ -4,6 +4,15 @@
 
 namespace dso {
 
+Mat33f initializeCameraMatrix(const VecC &camera_parameters) {
+    return initializeCameraMatrix(
+        camera_parameters[0],
+        camera_parameters[1],
+        camera_parameters[2],
+        camera_parameters[3]
+    );
+}
+
 Mat33f initializeCameraMatrix(const float fx, const float fy,
                               const float cx, const float cy) {
     Mat33f K = Mat33f::Zero();

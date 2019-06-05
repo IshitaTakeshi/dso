@@ -48,7 +48,10 @@ namespace dso {
 void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                                        std::vector<PointFrameResidual*> toRemove,
                                        const std::vector<PointFrameResidual*> activeResiduals,
+                                       const Mat33f &K,
                                        Vec10* stats) {
+
+    CalibHessian HCalib(K);
 
     for(PointFrameResidual* r : activeResiduals) {
         (*stats)[0] += r->linearize(&HCalib);
@@ -128,6 +131,7 @@ float calcNewFrameEnergyTH(
 }
 
 double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
+                                const Mat33f &K,
                                 const bool fixLinearization) {
     double lastEnergyP = 0;
 
@@ -135,7 +139,7 @@ double FullSystem::linearizeAll(const std::vector<PointFrameResidual*> activeRes
     toRemove.clear();
 
     Vec10 stats;
-    linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals, &stats);
+    linearizeAll_Reductor(fixLinearization, toRemove, activeResiduals, K, &stats);
     lastEnergyP = stats[0];
 
     frameHessians.back()->frameEnergyTH = calcNewFrameEnergyTH(
@@ -296,7 +300,9 @@ float FullSystem::optimize(int mnumOptIts) {
     std::vector<PointFrameResidual*> activeResiduals;
     createActiveResiduals(activeResiduals, frameHessians);
 
-    double lastEnergy = linearizeAll(activeResiduals, false);
+    Mat33f K = initializeCameraMatrix(
+        scale_camera_parameters(current_camera_parameters));
+    double lastEnergy = linearizeAll(activeResiduals, K, false);
 
     double lastEnergyL = ef->calcLEnergyF_MT();
     double lastEnergyM = ef->calcMEnergyF();
@@ -338,20 +344,17 @@ float FullSystem::optimize(int mnumOptIts) {
             stepsize = clamp(stepsize, 0.25, 2.0);
         }
 
-        float stepfacC = stepsize;
-
-        HCalib.setValue(scale_camera_parameters(value_backup + stepfacC*step));
-
         bool canbreak = doStepFromBackup(frameHessians, frameStates, idepths,
                                          step, value_backup,
                                          stepsize, stepsize, stepsize, stepsize);
-
         EFDeltaValid=false;
         ef->setDeltaF(current_camera_parameters);
-        setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
-        // eval new energy!
-        double newEnergy = linearizeAll(activeResiduals, false);
+        K = initializeCameraMatrix(
+            scale_camera_parameters(value_backup + stepsize*step));
+        setPrecalcValues(frameHessians, K);
+        double newEnergy = linearizeAll(activeResiduals, K, false);
+
         double newEnergyL = ef->calcLEnergyF_MT();
         double newEnergyM = ef->calcMEnergyF();
 
@@ -365,15 +368,17 @@ float FullSystem::optimize(int mnumOptIts) {
             lambda *= 0.25;
         } else {
             current_camera_parameters = value_backup;
-            HCalib.setValue(scale_camera_parameters(current_camera_parameters));
 
             loadSateBackup(frameHessians, frameStates, idepths);
 
             EFDeltaValid=false;
             ef->setDeltaF(current_camera_parameters);
-            setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
-            lastEnergy = linearizeAll(activeResiduals, false);
+            K = initializeCameraMatrix(
+                scale_camera_parameters(current_camera_parameters));
+            setPrecalcValues(frameHessians, K);
+            lastEnergy = linearizeAll(activeResiduals, K, false);
+
             lastEnergyL = ef->calcLEnergyF_MT();
             lastEnergyM = ef->calcMEnergyF();
             lambda *= 1e2;
@@ -393,9 +398,10 @@ float FullSystem::optimize(int mnumOptIts) {
     EFAdjointsValid=false;
     ef->setAdjointsF();
     ef->setDeltaF(current_camera_parameters);
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
-    lastEnergy = linearizeAll(activeResiduals, true);
+    K = initializeCameraMatrix(scale_camera_parameters(current_camera_parameters));
+    setPrecalcValues(frameHessians, K);
+    lastEnergy = linearizeAll(activeResiduals, K, true);
 
     if(!std::isfinite(lastEnergy)) {
         printf("KF Tracking failed: LOST!\n");
