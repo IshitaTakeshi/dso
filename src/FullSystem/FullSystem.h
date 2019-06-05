@@ -125,7 +125,7 @@ inline bool eigenTestNan(const MatXX &m, std::string msg)
     return foundNan;
 }
 
-void setPrecalcValues(std::vector<FrameHessian*> frameHessians, const CalibHessian &HCalib);
+void setPrecalcValues(std::vector<FrameHessian*> frameHessians, const Mat33f &K);
 
 class FullSystem {
 public:

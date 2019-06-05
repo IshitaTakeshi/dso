@@ -31,6 +31,7 @@
 #include <algorithm>
 #include "IOWrapper/ImageDisplay.h"
 #include "util/math.h"
+#include "util/camera_matrix.h"
 #include "util/globalCalib.h"
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
@@ -338,14 +339,16 @@ float FullSystem::optimize(int mnumOptIts) {
         }
 
         float stepfacC = stepsize;
+
         HCalib.setValue(scale_camera_parameters(value_backup + stepfacC*step));
+
         bool canbreak = doStepFromBackup(frameHessians, frameStates, idepths,
                                          step, value_backup,
                                          stepsize, stepsize, stepsize, stepsize);
 
         EFDeltaValid=false;
         ef->setDeltaF(current_camera_parameters);
-        setPrecalcValues(frameHessians, HCalib);
+        setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
         // eval new energy!
         double newEnergy = linearizeAll(activeResiduals, false);
@@ -367,9 +370,8 @@ float FullSystem::optimize(int mnumOptIts) {
             loadSateBackup(frameHessians, frameStates, idepths);
 
             EFDeltaValid=false;
-
             ef->setDeltaF(current_camera_parameters);
-            setPrecalcValues(frameHessians, HCalib);
+            setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
             lastEnergy = linearizeAll(activeResiduals, false);
             lastEnergyL = ef->calcLEnergyF_MT();
@@ -391,7 +393,7 @@ float FullSystem::optimize(int mnumOptIts) {
     EFAdjointsValid=false;
     ef->setAdjointsF();
     ef->setDeltaF(current_camera_parameters);
-    setPrecalcValues(frameHessians, HCalib);
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
     lastEnergy = linearizeAll(activeResiduals, true);
 

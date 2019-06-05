@@ -887,7 +887,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     ef->insertFrame(fh);
     ef->setDeltaF(current_camera_parameters);
 
-    setPrecalcValues(frameHessians, HCalib);
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
     // =========================== add new residuals for old points =========================
     for(FrameHessian* fh1 : frameHessians) {
@@ -970,7 +970,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     ef->insertFrame(firstFrame);
     ef->setDeltaF(current_camera_parameters);
 
-    setPrecalcValues(frameHessians, HCalib);
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
     firstFrame->pointHessians.reserve(wG[0] * hG[0] * 0.2f);
     firstFrame->pointHessiansMarginalized.reserve(wG[0] * hG[0] * 0.2f);
@@ -1075,9 +1075,7 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth) {
 }
 
 
-void setPrecalcValues(std::vector<FrameHessian*> frameHessians, const CalibHessian &HCalib) {
-    const Mat33f K = createCameraMatrixFromCalibHessian(HCalib);
-
+void setPrecalcValues(std::vector<FrameHessian*> frameHessians, const Mat33f &K) {
     for(FrameHessian* fh : frameHessians) {
         fh->targetPrecalc.resize(frameHessians.size());
         for(unsigned int i=0; i<frameHessians.size(); i++) {

@@ -34,6 +34,7 @@
 #include <Eigen/Eigenvalues>
 #include <algorithm>
 
+#include "util/camera_matrix.h"
 #include "FullSystem/FullSystem.h"
 #include "IOWrapper/Output3DWrapper.h"
 
@@ -159,7 +160,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
         frameHessians[i]->idx = i;
 
     ef->setDeltaF(current_camera_parameters);
-    setPrecalcValues(frameHessians, HCalib);
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
 
     ef->setAdjointsF();
 }
