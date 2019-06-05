@@ -177,11 +177,8 @@ private:
     void initializeFromInitializer(FrameHessian* newFrame);
     void flagFramesForMarginalization();
 
-
     void removeOutliers();
 
-    // solce. eventually migrate to ef.
-    VecC solveSystem(int iteration, double lambda);
     double linearizeAll(const std::vector<PointFrameResidual*> activeResiduals,
                         const bool fixLinearization);
 

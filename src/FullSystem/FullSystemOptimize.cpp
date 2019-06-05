@@ -316,10 +316,12 @@ float FullSystem::optimize(int mnumOptIts) {
         // FIXME HCalib shoudn't hold states
         VecC value_backup = current_camera_parameters;
 
-
         backupState(frameHessians, frameStates, idepths);
 
-        step = solveSystem(iteration, lambda);
+        getNullspaces(ef->lastNullspaces_pose,
+                      ef->lastNullspaces_scale);
+
+        step = ef->solveSystemF(iteration, lambda);
 
         double incDirChange = (1e-20 + previousX.dot(ef->lastX)) /
                               (1e-20 + previousX.norm() * ef->lastX.norm());
@@ -407,14 +409,6 @@ float FullSystem::optimize(int mnumOptIts) {
     }
 
     return sqrtf((float)(lastEnergy / (patternNum * ef->resInA)));
-}
-
-
-VecC FullSystem::solveSystem(int iteration, double lambda) {
-    getNullspaces(ef->lastNullspaces_pose,
-                  ef->lastNullspaces_scale);
-
-    return ef->solveSystemF(iteration, lambda);
 }
 
 
