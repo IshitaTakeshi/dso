@@ -39,7 +39,7 @@ EIGEN_STRONG_INLINE float derive_idepth(
     const float &dyInterp, const float &drescale)
 {
     return (dxInterp*drescale * (t[0]-t[2]*u)
-            + dyInterp*drescale * (t[1]-t[2]*v))*SCALE_IDEPTH;
+            + dyInterp*drescale * (t[1]-t[2]*v));
 }
 
 

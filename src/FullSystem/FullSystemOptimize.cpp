@@ -67,7 +67,7 @@ void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                                   * Vec3f(p->u,p->v, 1);
                     // projected point with real depth.
                     Vec3f ptp = ptp_inf
-                              + r->host->targetPrecalc[r->target->idx].PRE_KtTll*p->idepth_scaled;
+                              + r->host->targetPrecalc[r->target->idx].PRE_KtTll*p->idepth;
                     // 0.01 = one pixel.
                     float relBS = 0.01
                                 * ((ptp_inf.head<2>() / ptp_inf[2])-(ptp.head<2>() / ptp[2])).norm();

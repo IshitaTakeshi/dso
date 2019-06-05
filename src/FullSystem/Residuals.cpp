@@ -104,7 +104,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
         float Ku, Kv;
         Vec3f KliP;
 
-        if(!projectPoint(point->u, point->v, point->idepth_zero_scaled, 0, 0, HCalib,
+        if(!projectPoint(point->u, point->v, point->idepth_zero, 0, 0, HCalib,
                          PRE_RTll_0,PRE_tTll_0, drescale, u, v, Ku, Kv, KliP, new_idepth))
         {
             state_NewState = ResState::OOB;
@@ -115,8 +115,8 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
 
 
         // diff d_idepth
-        d_d_x = drescale * (PRE_tTll_0[0]-PRE_tTll_0[2]*u)*SCALE_IDEPTH*HCalib->fxl();
-        d_d_y = drescale * (PRE_tTll_0[1]-PRE_tTll_0[2]*v)*SCALE_IDEPTH*HCalib->fyl();
+        d_d_x = drescale * (PRE_tTll_0[0]-PRE_tTll_0[2]*u)*HCalib->fxl();
+        d_d_y = drescale * (PRE_tTll_0[1]-PRE_tTll_0[2]*v)*HCalib->fyl();
 
 
 
@@ -182,7 +182,7 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
     {
         float Ku, Kv;
         if(!projectPoint(point->u+patternP[idx][0], point->v+patternP[idx][1],
-                         point->idepth_scaled, PRE_KRKiTll, PRE_KtTll, Ku, Kv))
+                         point->idepth, PRE_KRKiTll, PRE_KtTll, Ku, Kv))
         {
             state_NewState = ResState::OOB;
             return state_energy;

@@ -45,7 +45,7 @@ PointHessian::PointHessian(const float u_, const float v_,
     maxRelBaseline=0;
     numGoodResiduals=0;
 
-    setIdepthScaled((idepth_max + idepth_min)*0.5);
+    setIdepth((idepth_max + idepth_min)*0.5);
     setPointStatus(PointHessian::INACTIVE);
 
     memcpy(color, color_, sizeof(float)*patternNum);

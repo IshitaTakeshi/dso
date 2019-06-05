@@ -812,7 +812,7 @@ void CoarseDistanceMap::makeDistanceMap(
         for(PointHessian* ph : fh->pointHessians)
         {
             assert(ph->status == PointHessian::ACTIVE);
-            Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt*ph->idepth_scaled;
+            Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt*ph->idepth;
             int u = ptp[0] / ptp[2] + 0.5f;
             int v = ptp[1] / ptp[2] + 0.5f;
             if(!(u > 0 && v > 0 && u < w[1] && v < h[1])) continue;

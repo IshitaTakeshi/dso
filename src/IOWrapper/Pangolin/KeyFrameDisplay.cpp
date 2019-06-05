@@ -118,7 +118,7 @@ void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
             pc[numSparsePoints].color[i] = p->color[i];
         pc[numSparsePoints].u = p->u;
         pc[numSparsePoints].v = p->v;
-        pc[numSparsePoints].idpeth = p->idepth_scaled;
+        pc[numSparsePoints].idpeth = p->idepth;
         pc[numSparsePoints].relObsBaseline = p->maxRelBaseline;
         pc[numSparsePoints].idepth_hessian = p->idepth_hessian;
         pc[numSparsePoints].numGoodRes =  0;
@@ -133,7 +133,7 @@ void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
             pc[numSparsePoints].color[i] = p->color[i];
         pc[numSparsePoints].u = p->u;
         pc[numSparsePoints].v = p->v;
-        pc[numSparsePoints].idpeth = p->idepth_scaled;
+        pc[numSparsePoints].idpeth = p->idepth;
         pc[numSparsePoints].relObsBaseline = p->maxRelBaseline;
         pc[numSparsePoints].idepth_hessian = p->idepth_hessian;
         pc[numSparsePoints].numGoodRes =  0;
@@ -147,7 +147,7 @@ void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
             pc[numSparsePoints].color[i] = p->color[i];
         pc[numSparsePoints].u = p->u;
         pc[numSparsePoints].v = p->v;
-        pc[numSparsePoints].idpeth = p->idepth_scaled;
+        pc[numSparsePoints].idpeth = p->idepth;
         pc[numSparsePoints].relObsBaseline = p->maxRelBaseline;
         pc[numSparsePoints].idepth_hessian = p->idepth_hessian;
         pc[numSparsePoints].numGoodRes =  0;

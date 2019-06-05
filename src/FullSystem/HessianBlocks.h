@@ -59,7 +59,6 @@ class FrameShell;
 class EFFrame;
 class EFPoint;
 
-#define SCALE_IDEPTH 1.0f		// scales internal value to idepth.
 #define SCALE_XI_ROT 1.0f
 #define SCALE_XI_TRANS 0.5f
 #define SCALE_F 50.0f
@@ -68,7 +67,6 @@ class EFPoint;
 #define SCALE_A 10.0f
 #define SCALE_B 1000.0f
 
-#define SCALE_IDEPTH_INVERSE (1.0f / SCALE_IDEPTH)
 #define SCALE_XI_ROT_INVERSE (1.0f / SCALE_XI_ROT)
 #define SCALE_XI_TRANS_INVERSE (1.0f / SCALE_XI_TRANS)
 #define SCALE_F_INVERSE (1.0f / SCALE_F)
@@ -273,8 +271,6 @@ struct PointHessian {
 
     float my_type;
 
-    float idepth_scaled;
-    float idepth_zero_scaled;
     float idepth_zero;
     float idepth;
     float step;
@@ -293,17 +289,10 @@ struct PointHessian {
 
     inline void setIdepth(float idepth) {
         this->idepth = idepth;
-        this->idepth_scaled = SCALE_IDEPTH * idepth;
-    }
-
-    inline void setIdepthScaled(float idepth_scaled) {
-        this->idepth = SCALE_IDEPTH_INVERSE * idepth_scaled;
-        this->idepth_scaled = idepth_scaled;
     }
 
     inline void setIdepthZero(float idepth) {
         idepth_zero = idepth;
-        idepth_zero_scaled = SCALE_IDEPTH * idepth;
     }
 
     // only contains good residuals (not OOB and not OUTLIER). Arbitrary order.

@@ -596,7 +596,7 @@ void FullSystem::flagPointsForRemoval() {
                 continue;
             }
 
-            if(ph->idepth_scaled < 0 || ph->residuals.size() == 0) {
+            if(ph->idepth < 0 || ph->residuals.size() == 0) {
                 host->pointHessiansOut.push_back(ph);
                 ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
                 host->pointHessians[i]=0;
@@ -1010,7 +1010,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
                                             pt->color, pt->weights, 1.0, 1.0);
         delete pt;
 
-        ph->setIdepthScaled(point->iR*rescaleFactor);
+        ph->setIdepth(point->iR*rescaleFactor);
         ph->setIdepthZero(ph->idepth);
         ph->hasDepthPrior=true;
         ph->setPointStatus(PointHessian::ACTIVE);
