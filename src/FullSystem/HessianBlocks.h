@@ -140,7 +140,6 @@ struct FrameHessian {
     // contains all OUTLIER points (= discarded.).
     std::vector<ImmaturePoint*> immaturePoints;
 
-
     Mat66 nullspaces_pose;
     Mat42 nullspaces_affine;
     Vec6 nullspaces_scale;
@@ -249,7 +248,6 @@ struct FrameHessian {
         return p;
     }
 
-
     inline Vec10 getPriorZero()
     {
         return Vec10::Zero();
@@ -282,7 +280,6 @@ struct PointHessian {
     float step;
     float step_backup;
 
-    float nullspaces_scale;
     float idepth_hessian;
     float maxRelBaseline;
     int numGoodResiduals;
@@ -294,19 +291,19 @@ struct PointHessian {
         status=s;
     }
 
-
     inline void setIdepth(float idepth) {
         this->idepth = idepth;
         this->idepth_scaled = SCALE_IDEPTH * idepth;
     }
+
     inline void setIdepthScaled(float idepth_scaled) {
         this->idepth = SCALE_IDEPTH_INVERSE * idepth_scaled;
         this->idepth_scaled = idepth_scaled;
     }
+
     inline void setIdepthZero(float idepth) {
         idepth_zero = idepth;
         idepth_zero_scaled = SCALE_IDEPTH * idepth;
-        nullspaces_scale = -(idepth*1.001 - idepth/1.001)*500;
     }
 
     // only contains good residuals (not OOB and not OUTLIER). Arbitrary order.

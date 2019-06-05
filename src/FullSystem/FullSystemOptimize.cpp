@@ -437,8 +437,6 @@ void FullSystem::removeOutliers()
 }
 
 
-
-
 std::vector<VecX> FullSystem::getNullspaces(
     std::vector<VecX> &nullspaces_pose,
     std::vector<VecX> &nullspaces_scale)
