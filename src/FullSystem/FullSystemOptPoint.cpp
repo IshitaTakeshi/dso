@@ -155,22 +155,21 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     if(numGoodRes < minObs)
     {
         if(print) printf("OptPoint: OUTLIER!\n");
-        return (PointHessian*)((long)(
-                                   -1));		// yeah I'm like 99% sure this is OK on 32bit systems.
+        // yeah I'm like 99% sure this is OK on 32bit systems.
+        return (PointHessian*)((long)(-1));
     }
 
 
     PointHessian* p = new PointHessian(
         point->u, point->v, point->my_type, point->host,
         point->color, point->weights,
-        currentIdepth, currentIdepth);
+        currentIdepth, currentIdepth,
+        PointHessian::ACTIVE);
 
     p->lastResiduals[0].first = 0;
     p->lastResiduals[0].second = ResState::OOB;
     p->lastResiduals[1].first = 0;
     p->lastResiduals[1].second = ResState::OOB;
-
-    p->setPointStatus(PointHessian::ACTIVE);
 
     for(int i=0; i<nres; i++)
         if(residuals[i].state_state == ResState::IN)
