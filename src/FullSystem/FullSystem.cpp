@@ -1007,11 +1007,11 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
         }
 
         PointHessian* ph = new PointHessian(pt->u, pt->v, pt->my_type, pt->host,
-                                            pt->color, pt->weights, 1.0, 1.0);
+                                            pt->color, pt->weights, 1.0, 1.0,
+                                            point->iR*rescaleFactor, ph->idepth);
+
         delete pt;
 
-        ph->setIdepth(point->iR*rescaleFactor);
-        ph->setIdepthZero(ph->idepth);
         ph->hasDepthPrior=true;
         ph->setPointStatus(PointHessian::ACTIVE);
 

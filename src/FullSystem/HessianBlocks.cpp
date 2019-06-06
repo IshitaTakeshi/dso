@@ -35,7 +35,8 @@ namespace dso {
 PointHessian::PointHessian(const float u_, const float v_,
                            const float my_type_, FrameHessian* host_,
                            const float color_[], const float weights_[],
-                           const float idepth_min, const float idepth_max) :
+                           const float idepth_min, const float idepth_max,
+                           const float idepth, const float idepth_zero) :
     u(u_), v(v_), my_type(my_type_), host(host_) {
 
     assert(std::isfinite(idepth_max));
@@ -46,6 +47,10 @@ PointHessian::PointHessian(const float u_, const float v_,
     numGoodResiduals=0;
 
     setIdepth((idepth_max + idepth_min)*0.5);
+
+    this->idepth = idepth;
+    this->idepth_zero = idepth_zero;
+
     setPointStatus(PointHessian::INACTIVE);
 
     memcpy(color, color_, sizeof(float)*patternNum);

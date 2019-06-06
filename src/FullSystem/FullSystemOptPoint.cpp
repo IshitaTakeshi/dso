@@ -162,14 +162,15 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 
     PointHessian* p = new PointHessian(
         point->u, point->v, point->my_type, point->host,
-        point->color, point->weights, point->idepth_min, point->idepth_max);
+        point->color, point->weights,
+        point->idepth_min, point->idepth_max,
+        currentIdepth, currentIdepth);
 
     p->lastResiduals[0].first = 0;
     p->lastResiduals[0].second = ResState::OOB;
     p->lastResiduals[1].first = 0;
     p->lastResiduals[1].second = ResState::OOB;
-    p->setIdepthZero(currentIdepth);
-    p->setIdepth(currentIdepth);
+
     p->setPointStatus(PointHessian::ACTIVE);
 
     for(int i=0; i<nres; i++)
