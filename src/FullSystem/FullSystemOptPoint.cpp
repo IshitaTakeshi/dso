@@ -163,7 +163,6 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     PointHessian* p = new PointHessian(
         point->u, point->v, point->my_type, point->host,
         point->color, point->weights,
-        point->idepth_min, point->idepth_max,
         currentIdepth, currentIdepth);
 
     p->lastResiduals[0].first = 0;
