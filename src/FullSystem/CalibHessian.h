@@ -46,10 +46,6 @@ struct CalibHessian {
     inline float const cyli() const {
         return -cyl() / fyl();
     }
-
-    inline void setValue(const VecC &camera_parameters) {
-        this->camera_parameters = camera_parameters;
-    };
 };
 
 }

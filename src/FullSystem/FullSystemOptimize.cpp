@@ -320,7 +320,6 @@ float FullSystem::optimize(int mnumOptIts) {
         std::vector<Vec10> frameStates(frameHessians.size());
         std::vector<std::vector<float>> idepths(frameStates.size());
 
-        // FIXME HCalib shoudn't hold states
         VecC value_backup = current_camera_parameters;
 
         backupState(frameHessians, frameStates, idepths);
