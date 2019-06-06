@@ -149,7 +149,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
         std::vector<FrameHessian*> v;
         v.push_back(frame);
         for(IOWrap::Output3DWrapper* ow : outputWrapper)
-            ow->publishKeyframes(v, true, &HCalib);
+            ow->publishKeyframes(v, true, &camera_parameters);
     }
 
     frame->shell->marginalizedAt = frameHessians.back()->shell->id;
@@ -160,7 +160,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
         frameHessians[i]->idx = i;
 
     ef->setDeltaF(current_camera_parameters);
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(camera_parameters));
 
     ef->setAdjointsF();
 }

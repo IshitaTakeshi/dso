@@ -61,13 +61,13 @@ EIGEN_STRONG_INLINE bool projectPoint(
     const float &u_pt,const float &v_pt,
     const float &idepth,
     const int &dx, const int &dy,
-    CalibHessian* const &HCalib,
+    CameraParameters* const &camera_parameters,
     const Mat33f &R, const Vec3f &t,
     float &drescale, float &u, float &v,
     float &Ku, float &Kv, Vec3f &KliP, float &new_idepth) {
     KliP = Vec3f(
-               (u_pt + dx - HCalib->cxl()) * HCalib->fxli(),
-               (v_pt + dy - HCalib->cyl()) * HCalib->fyli(),
+               (u_pt + dx - camera_parameters->cxl()) * camera_parameters->fxli(),
+               (v_pt + dy - camera_parameters->cyl()) * camera_parameters->fyli(),
                1);
 
     Vec3f ptp = R * KliP + t*idepth;
@@ -78,8 +78,8 @@ EIGEN_STRONG_INLINE bool projectPoint(
 
     u = ptp[0] * drescale;
     v = ptp[1] * drescale;
-    Ku = u * HCalib->fxl() + HCalib->cxl();
-    Kv = v * HCalib->fyl() + HCalib->cyl();
+    Ku = u * camera_parameters->fxl() + camera_parameters->cxl();
+    Kv = v * camera_parameters->fyl() + camera_parameters->cyl();
 
     return Ku>1.1f && Kv>1.1f && Ku<wM3G && Kv<hM3G;
 }

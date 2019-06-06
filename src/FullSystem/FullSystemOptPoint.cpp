@@ -69,7 +69,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
 
     for(int i=0; i<nres; i++)
     {
-        lastEnergy += point->linearizeResidual(&HCalib, 1000, residuals+i, lastHdd,
+        lastEnergy += point->linearizeResidual(&camera_parameters, 1000, residuals+i, lastHdd,
                                                lastbd, currentIdepth);
         residuals[i].state_state = residuals[i].state_NewState;
         residuals[i].state_energy = residuals[i].state_NewEnergy;
@@ -98,7 +98,7 @@ PointHessian* FullSystem::optimizeImmaturePoint(
         float newbd=0;
         float newEnergy=0;
         for(int i=0; i<nres; i++)
-            newEnergy += point->linearizeResidual(&HCalib, 1, residuals+i,newHdd, newbd,
+            newEnergy += point->linearizeResidual(&camera_parameters, 1, residuals+i,newHdd, newbd,
                                                   newIdepth);
 
         if(!std::isfinite(lastEnergy) || newHdd < setting_minIdepthH_act)

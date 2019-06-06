@@ -60,13 +60,13 @@ KeyFrameDisplay::KeyFrameDisplay()
     numGLBufferPoints=0;
     bufferValid = false;
 }
-void KeyFrameDisplay::setFromF(FrameShell* frame, CalibHessian* HCalib)
+void KeyFrameDisplay::setFromF(FrameShell* frame, CameraParameters* camera_parameters)
 {
     id = frame->id;
-    fx = HCalib->fxl();
-    fy = HCalib->fyl();
-    cx = HCalib->cxl();
-    cy = HCalib->cyl();
+    fx = camera_parameters->fxl();
+    fy = camera_parameters->fyl();
+    cx = camera_parameters->cxl();
+    cy = camera_parameters->cyl();
     width = wG[0];
     height = hG[0];
     fxi = 1/fx;
@@ -77,9 +77,9 @@ void KeyFrameDisplay::setFromF(FrameShell* frame, CalibHessian* HCalib)
     needRefresh=true;
 }
 
-void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
+void KeyFrameDisplay::setFromKF(FrameHessian* fh, CameraParameters* camera_parameters)
 {
-    setFromF(fh->shell, HCalib);
+    setFromF(fh->shell, camera_parameters);
 
     // add all traces, inlier and outlier points.
     int npoints = 	fh->immaturePoints.size() +

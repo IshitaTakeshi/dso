@@ -26,7 +26,7 @@
 
 #include "util/NumType.h"
 #include "util/settings.h"
-#include "FullSystem/CalibHessian.h"
+#include "FullSystem/CameraParameters.h"
 
 namespace dso
 {

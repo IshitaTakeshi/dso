@@ -43,7 +43,7 @@
 
 namespace dso {
 CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
-                                     const CalibHessian &HCalib,
+                                     const CameraParameters &camera_parameters,
                                      const int ww_, const int hh_) :
     thisToNext_aff(0,0), thisToNext(SE3()), ww(ww_), hh(hh_) {
 
@@ -56,7 +56,7 @@ CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
     fixAffine=true;
     printDebug=false;
 
-    makeK(K, Ki, w, h, HCalib, wG[0], hG[0]);
+    makeK(K, Ki, w, h, camera_parameters, wG[0], hG[0]);
     setFirst(newFrameHessian);
 }
 
@@ -883,16 +883,16 @@ void CoarseInitializer::applyStep(Vec10f* JbBuffer, Vec10f* JbBuffer_new, const 
 
 
 void makeK(Mat33f K[], Mat33f Ki[], int w[], int h[],
-           const CalibHessian &HCalib, const int w_, const int h_) {
+           const CameraParameters &camera_parameters, const int w_, const int h_) {
     for (int level = 0; level < pyrLevelsUsed; ++ level) {
         w[level] = w_ >> level;
         h[level] = h_ >> level;
 
         float L = std::pow(2, level);
-        float fx = HCalib.fxl() / L;
-        float fy = HCalib.fyl() / L;
-        float cx = (HCalib.cxl() + 0.5) / L - 0.5;
-        float cy = (HCalib.cyl() + 0.5) / L - 0.5;
+        float fx = camera_parameters.fxl() / L;
+        float fy = camera_parameters.fyl() / L;
+        float cx = (camera_parameters.cxl() + 0.5) / L - 0.5;
+        float cy = (camera_parameters.cyl() + 0.5) / L - 0.5;
 
         K[level] = initializeCameraMatrix(fx, fy, cx, cy);
         Ki[level] = K[level].inverse();

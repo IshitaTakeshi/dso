@@ -106,7 +106,7 @@ void EnergyFunctional::setAdjointsF() {
 
 
 EnergyFunctional::EnergyFunctional(const Mat33f &K) {
-    // FIXME this is a duplicate of the constructor of 'CalibHessian'
+    // FIXME this is a duplicate of the constructor of 'CameraParameters'
     VecC camera_parameters;
     camera_parameters << K(0,0), K(1,1), K(0,2), K(1,2);
     this->inital_inv_scaled_camera_parameters = inv_scale_camera_parameters(camera_parameters);

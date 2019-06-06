@@ -36,7 +36,7 @@ namespace dso
 {
 
 class FrameHessian;
-class CalibHessian;
+class CameraParameters;
 class FrameShell;
 
 
@@ -78,7 +78,7 @@ public:
 
 
     virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final,
-                                   CalibHessian* HCalib) override
+                                   CameraParameters* camera_parameters) override
     {
         for(FrameHessian* f : frames)
         {
@@ -104,7 +104,7 @@ public:
         }
     }
 
-    virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib) override
+    virtual void publishCamPose(FrameShell* frame, CameraParameters* camera_parameters) override
     {
         printf("OUT: Current Frame %d (internal ID %d). CameraToWorld:\n",
                frame->incoming_id, frame->id);

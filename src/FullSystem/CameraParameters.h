@@ -5,15 +5,15 @@
 #include "util/NumType.h"
 
 namespace dso {
-struct CalibHessian {
+struct CameraParameters {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     VecC camera_parameters;
 
-    inline ~CalibHessian() {
+    inline ~CameraParameters() {
     }
 
-    inline CalibHessian(const Eigen::Matrix3f &K) {
+    inline CameraParameters(const Eigen::Matrix3f &K) {
         this->camera_parameters << K(0,0), K(1,1), K(0,2), K(1,2);
     };
 

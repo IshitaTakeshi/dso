@@ -29,14 +29,14 @@
 
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
-#include "FullSystem/CalibHessian.h"
+#include "FullSystem/CameraParameters.h"
 #include "OptimizationBackend/RawResidualJacobian.h"
 
 
 namespace dso {
 
 class PointFrameResidual;
-class CalibHessian;
+class CameraParameters;
 class FrameHessian;
 class PointHessian;
 

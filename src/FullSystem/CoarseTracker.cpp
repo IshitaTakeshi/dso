@@ -98,15 +98,15 @@ CoarseTracker::~CoarseTracker()
     ptrToDelete.clear();
 }
 
-void CoarseTracker::makeK(CalibHessian* HCalib)
+void CoarseTracker::makeK(CameraParameters* camera_parameters)
 {
     w[0] = wG[0];
     h[0] = hG[0];
 
-    fx[0] = HCalib->fxl();
-    fy[0] = HCalib->fyl();
-    cx[0] = HCalib->cxl();
-    cy[0] = HCalib->cyl();
+    fx[0] = camera_parameters->fxl();
+    fy[0] = camera_parameters->fyl();
+    cx[0] = camera_parameters->cxl();
+    cy[0] = camera_parameters->cyl();
 
     for (int level = 1; level < pyrLevelsUsed; ++ level)
     {
@@ -955,15 +955,15 @@ void CoarseDistanceMap::addIntoDistFinal(int u, int v)
 
 
 
-void CoarseDistanceMap::makeK(CalibHessian* HCalib)
+void CoarseDistanceMap::makeK(CameraParameters* camera_parameters)
 {
     w[0] = wG[0];
     h[0] = hG[0];
 
-    fx[0] = HCalib->fxl();
-    fy[0] = HCalib->fyl();
-    cx[0] = HCalib->cxl();
-    cy[0] = HCalib->cyl();
+    fx[0] = camera_parameters->fxl();
+    fy[0] = camera_parameters->fyl();
+    cx[0] = camera_parameters->cxl();
+    cy[0] = camera_parameters->cyl();
 
     for (int level = 1; level < pyrLevelsUsed; ++ level)
     {

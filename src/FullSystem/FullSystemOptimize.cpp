@@ -51,10 +51,10 @@ void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                                        const Mat33f &K,
                                        Vec10* stats) {
 
-    CalibHessian HCalib(K);
+    CameraParameters camera_parameters(K);
 
     for(PointFrameResidual* r : activeResiduals) {
-        (*stats)[0] += r->linearize(&HCalib);
+        (*stats)[0] += r->linearize(&camera_parameters);
 
         if(fixLinearization) {
             // TODO search if applyRes affects the result of r->efResidual->isActive()

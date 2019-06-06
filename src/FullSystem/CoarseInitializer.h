@@ -27,7 +27,7 @@
 #include "util/NumType.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "FullSystem/HessianBlocks.h"
-#include "FullSystem/CalibHessian.h"
+#include "FullSystem/CameraParameters.h"
 #include "IOWrapper/Output3DWrapper.h"
 #include "util/settings.h"
 
@@ -36,7 +36,7 @@
 
 namespace dso
 {
-struct CalibHessian;
+struct CameraParameters;
 struct FrameHessian;
 
 
@@ -77,14 +77,14 @@ public:
 };
 
 void makeK(Mat33f K[], Mat33f Ki[], int w[], int h[],
-           const CalibHessian &HCalib, const int w_, const int h_);
+           const CameraParameters &camera_parameters, const int w_, const int h_);
 
 class CoarseInitializer {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     CoarseInitializer(FrameHessian* newFrameHessian,
-                      const CalibHessian &HCalib,
+                      const CameraParameters &camera_parameters,
                       const int ww_, const int hh_);
     ~CoarseInitializer();
 

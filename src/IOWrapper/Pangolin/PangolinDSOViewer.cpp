@@ -486,7 +486,7 @@ void PangolinDSOViewer::publishGraph(const
 void PangolinDSOViewer::publishKeyframes(
     std::vector<FrameHessian*> &frames,
     bool final,
-    CalibHessian* HCalib)
+    CameraParameters* camera_parameters)
 {
     if(!setting_render_display3D) return;
     if(disableAllDisplay) return;
@@ -500,11 +500,11 @@ void PangolinDSOViewer::publishKeyframes(
             keyframesByKFID[fh->frameID] = kfd;
             keyframes.push_back(kfd);
         }
-        keyframesByKFID[fh->frameID]->setFromKF(fh, HCalib);
+        keyframesByKFID[fh->frameID]->setFromKF(fh, camera_parameters);
     }
 }
 void PangolinDSOViewer::publishCamPose(FrameShell* frame,
-                                       CalibHessian* HCalib)
+                                       CameraParameters* camera_parameters)
 {
     if(!setting_render_display3D) return;
     if(disableAllDisplay) return;
@@ -519,7 +519,7 @@ void PangolinDSOViewer::publishCamPose(FrameShell* frame,
 
     if(!setting_render_display3D) return;
 
-    currentCam->setFromF(frame, HCalib);
+    currentCam->setFromF(frame, camera_parameters);
     allFramePoses.push_back(frame->camToWorld.translation().cast<float>());
 }
 

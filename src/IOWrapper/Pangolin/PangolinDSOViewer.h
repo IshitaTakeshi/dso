@@ -38,7 +38,7 @@ namespace dso
 {
 
 class FrameHessian;
-class CalibHessian;
+class CameraParameters;
 class FrameShell;
 
 
@@ -74,8 +74,8 @@ public:
                               std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>>
                               &connectivity) override;
     virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final,
-                                   CalibHessian* HCalib) override;
-    virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib) override;
+                                   CameraParameters* camera_parameters) override;
+    virtual void publishCamPose(FrameShell* frame, CameraParameters* camera_parameters) override;
 
 
     virtual void pushLiveFrame(FrameHessian* image) override;

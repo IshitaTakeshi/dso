@@ -157,7 +157,7 @@ public:
 private:
     const Gamma gamma;
 
-    CalibHessian HCalib;
+    CameraParameters camera_parameters;
 
     // opt single point
     int optimizePoint(PointHessian* point, int minObs, bool flagOOB);

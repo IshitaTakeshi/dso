@@ -28,7 +28,7 @@
 #include "util/NumType.h"
 
 #include "FullSystem/HessianBlocks.h"
-#include "FullSystem/CalibHessian.h"
+#include "FullSystem/CameraParameters.h"
 
 namespace dso
 {
@@ -82,19 +82,19 @@ public:
 
     ImmaturePointStatus traceOn(FrameHessian* frame,
                                 const Mat33f &hostToFrame_KRKi, const Vec3f &hostToFrame_Kt,
-                                const Vec2f &hostToFrame_affine, CalibHessian* HCalib);
+                                const Vec2f &hostToFrame_affine, CameraParameters* camera_parameters);
 
     ImmaturePointStatus lastTraceStatus;
     Vec2f lastTraceUV;
     float lastTracePixelInterval;
 
     double linearizeResidual(
-        CalibHessian *  HCalib, const float outlierTHSlack,
+        CameraParameters *  camera_parameters, const float outlierTHSlack,
         ImmaturePointTemporaryResidual* tmpRes,
         float &Hdd, float &bd,
         float idepth);
     float getdPixdd(
-        CalibHessian *  HCalib,
+        CameraParameters *  camera_parameters,
         ImmaturePointTemporaryResidual* tmpRes,
         float idepth);
 

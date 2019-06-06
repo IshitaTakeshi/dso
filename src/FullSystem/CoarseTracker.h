@@ -28,7 +28,7 @@
 
 #include "util/NumType.h"
 #include "util/settings.h"
-#include "FullSystem/CalibHessian.h"
+#include "FullSystem/CameraParameters.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "IOWrapper/Output3DWrapper.h"
 
@@ -37,7 +37,7 @@
 
 namespace dso
 {
-struct CalibHessian;
+struct CameraParameters;
 struct FrameHessian;
 struct PointFrameResidual;
 
@@ -58,7 +58,7 @@ public:
         std::vector<FrameHessian*> frameHessians);
 
     void makeK(
-        CalibHessian* HCalib);
+        CameraParameters* camera_parameters);
 
     bool debugPrint;
 
@@ -141,7 +141,7 @@ public:
     void makeInlierVotes(
         std::vector<FrameHessian*> frameHessians);
 
-    void makeK( CalibHessian* HCalib);
+    void makeK( CameraParameters* camera_parameters);
 
 
     float* fwdWarpedIDDistFinal;

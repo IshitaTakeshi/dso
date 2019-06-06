@@ -75,7 +75,7 @@ ImmaturePoint::~ImmaturePoint()
  */
 ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         const Mat33f &hostToFrame_KRKi, const Vec3f &hostToFrame_Kt,
-        const Vec2f& hostToFrame_affine, CalibHessian* HCalib) {
+        const Vec2f& hostToFrame_affine, CameraParameters* camera_parameters) {
     if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) {
         return lastTraceStatus;
     }
@@ -385,7 +385,7 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 
 
 float ImmaturePoint::getdPixdd(
-    CalibHessian *  HCalib,
+    CameraParameters *  camera_parameters,
     ImmaturePointTemporaryResidual* tmpRes,
     float idepth)
 {
@@ -395,18 +395,18 @@ float ImmaturePoint::getdPixdd(
     float Ku, Kv;
     Vec3f KliP;
 
-    projectPoint(this->u,this->v, idepth, 0, 0, HCalib,
+    projectPoint(this->u,this->v, idepth, 0, 0, camera_parameters,
                  precalc->PRE_RTll,PRE_tTll, drescale, u, v, Ku, Kv, KliP, new_idepth);
 
-    float dxdd = (PRE_tTll[0]-PRE_tTll[2]*u)*HCalib->fxl();
-    float dydd = (PRE_tTll[1]-PRE_tTll[2]*v)*HCalib->fyl();
+    float dxdd = (PRE_tTll[0]-PRE_tTll[2]*u)*camera_parameters->fxl();
+    float dydd = (PRE_tTll[1]-PRE_tTll[2]*v)*camera_parameters->fyl();
     return drescale*sqrtf(dxdd*dxdd + dydd*dydd);
 }
 
 
 
 double ImmaturePoint::linearizeResidual(
-    CalibHessian *  HCalib, const float outlierTHSlack,
+    CameraParameters *  camera_parameters, const float outlierTHSlack,
     ImmaturePointTemporaryResidual* tmpRes,
     float &Hdd, float &bd,
     float idepth)
@@ -438,7 +438,7 @@ double ImmaturePoint::linearizeResidual(
         float Ku, Kv;
         Vec3f KliP;
 
-        if(!projectPoint(this->u,this->v, idepth, dx, dy,HCalib,
+        if(!projectPoint(this->u,this->v, idepth, dx, dy,camera_parameters,
                          PRE_RTll,PRE_tTll, drescale, u, v, Ku, Kv, KliP, new_idepth))
         {
             tmpRes->state_NewState = ResState::OOB;
@@ -459,8 +459,8 @@ double ImmaturePoint::linearizeResidual(
         energyLeft += weights[idx]*weights[idx]*hw *residual*residual*(2-hw);
 
         // depth derivatives.
-        float dxInterp = hitColor[1]*HCalib->fxl();
-        float dyInterp = hitColor[2]*HCalib->fyl();
+        float dxInterp = hitColor[1]*camera_parameters->fxl();
+        float dyInterp = hitColor[2]*camera_parameters->fyl();
         float d_idepth = derive_idepth(PRE_tTll, u, v, dx, dy, dxInterp, dyInterp,
                                        drescale);
 

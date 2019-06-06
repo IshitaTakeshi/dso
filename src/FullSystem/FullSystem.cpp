@@ -61,7 +61,7 @@ namespace dso {
 
 
 FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbackSpeed) :
-    gamma(Gamma(gammaInverse)), HCalib(CalibHessian(K)), linearizeOperation(playbackSpeed==0) {
+    gamma(Gamma(gammaInverse)), camera_parameters(CameraParameters(K)), linearizeOperation(playbackSpeed==0) {
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -71,7 +71,7 @@ FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbac
     coarseInitializer = 0;
     pixelSelector = new PixelSelector(wG[0], hG[0]);
 
-    current_camera_parameters = inv_scale_camera_parameters(HCalib.get());
+    current_camera_parameters = inv_scale_camera_parameters(camera_parameters.get());
     lastCoarseRMSE.setConstant(100);
 
     currentMinActDist=2;
@@ -366,7 +366,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh) {
 void FullSystem::traceNewCoarse(FrameHessian* fh)
 {
     boost::unique_lock<boost::mutex> lock(mapMutex);
-    Mat33f K = createCameraMatrixFromCalibHessian(HCalib);
+    Mat33f K = createCameraMatrixFromCalibHessian(camera_parameters);
 
     for(FrameHessian* host : frameHessians) {
         // go through all active frames
@@ -379,7 +379,7 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
             host->aff_g2l(), fh->aff_g2l()).cast<float>();
 
         for(ImmaturePoint* ph : host->immaturePoints) {
-            ph->traceOn(fh, KRKi, Kt, aff, &HCalib);
+            ph->traceOn(fh, KRKi, Kt, aff, &camera_parameters);
         }
     }
 }
@@ -428,7 +428,7 @@ void FullSystem::activatePointsMT()
     FrameHessian* newestHs = frameHessians.back();
 
     // make dist map.
-    coarseDistanceMap->makeK(&HCalib);
+    coarseDistanceMap->makeK(&camera_parameters);
     coarseDistanceMap->makeDistanceMap(frameHessians, newestHs);
 
     //coarseTracker->debugPlotDistMap("distMap");
@@ -609,7 +609,7 @@ void FullSystem::flagPointsForRemoval() {
                     int ngoodRes = 0;
                     for(PointFrameResidual* r : ph->residuals) {
                         r->resetOOB();
-                        r->linearize(&HCalib);
+                        r->linearize(&camera_parameters);
                         r->efResidual->isLinearized = false;
                         r->applyRes();
                         if(r->efResidual->isActive()) {
@@ -665,7 +665,7 @@ void FullSystem::addActiveFrame(float* image, int id, const float exposure_time)
         // use initializer!
         if(coarseInitializer == 0) {
             // first frame set. fh is kept by coarseInitializer.
-            coarseInitializer = new CoarseInitializer(fh, HCalib, wG[0], hG[0]);
+            coarseInitializer = new CoarseInitializer(fh, camera_parameters, wG[0], hG[0]);
         } else if(coarseInitializer->trackFrame(fh, outputWrapper))  {
             // if SNAPPED
             // FIXME maybe better to create a new CoarseInitializer instance
@@ -713,7 +713,7 @@ void FullSystem::addActiveFrame(float* image, int id, const float exposure_time)
        2 * coarseTracker->firstCoarseRMSE < tres[0];
 
     for(IOWrap::Output3DWrapper* ow : outputWrapper) {
-        ow->publishCamPose(fh->shell, &HCalib);
+        ow->publishCamPose(fh->shell, &camera_parameters);
     }
 
     lock.unlock();
@@ -887,7 +887,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     ef->insertFrame(fh);
     ef->setDeltaF(current_camera_parameters);
 
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(camera_parameters));
 
     // =========================== add new residuals for old points =========================
     for(FrameHessian* fh1 : frameHessians) {
@@ -925,7 +925,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
 
     {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
-        coarseTracker_forNewKF->makeK(&HCalib);
+        coarseTracker_forNewKF->makeK(&camera_parameters);
         coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians);
     }
 
@@ -942,7 +942,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
 
     for(IOWrap::Output3DWrapper* ow : outputWrapper) {
         ow->publishGraph(ef->connectivityMap);
-        ow->publishKeyframes(frameHessians, false, &HCalib);
+        ow->publishKeyframes(frameHessians, false, &camera_parameters);
     }
 
     // =========================== Marginalize Frames =========================
@@ -970,7 +970,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     ef->insertFrame(firstFrame);
     ef->setDeltaF(current_camera_parameters);
 
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(HCalib));
+    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(camera_parameters));
 
     firstFrame->pointHessians.reserve(wG[0] * hG[0] * 0.2f);
     firstFrame->pointHessiansMarginalized.reserve(wG[0] * hG[0] * 0.2f);

@@ -35,7 +35,7 @@
 
 namespace dso
 {
-class CalibHessian;
+class CameraParameters;
 class FrameHessian;
 class FrameShell;
 
@@ -72,11 +72,11 @@ public:
 
     // copies points from KF over to internal buffer,
     // keeping some additional information so we can render it differently.
-    void setFromKF(FrameHessian* fh, CalibHessian* HCalib);
+    void setFromKF(FrameHessian* fh, CameraParameters* camera_parameters);
 
     // copies points from KF over to internal buffer,
     // keeping some additional information so we can render it differently.
-    void setFromF(FrameShell* fs, CalibHessian* HCalib);
+    void setFromF(FrameShell* fs, CameraParameters* camera_parameters);
 
     // copies & filters internal data to GL buffer for rendering. if nothing to do: does nothing.
     bool refreshPC(bool canRefresh, float scaledTH, float absTH, int mode,

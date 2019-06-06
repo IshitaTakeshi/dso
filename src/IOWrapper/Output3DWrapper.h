@@ -40,7 +40,7 @@ namespace dso
 {
 
 class FrameHessian;
-class CalibHessian;
+class CameraParameters;
 class FrameShell;
 
 namespace IOWrap
@@ -82,7 +82,7 @@ namespace IOWrap
  *      ->shell: corresponding [FrameShell] struct.
  *
  *
- * [CalibHessian]
+ * [CameraParameters]
  *      ->fxl(), fyl(), cxl(), cyl(): get optimized, most recent (pinhole) camera intrinsics.
  *
  *
@@ -149,7 +149,7 @@ public:
      * Always called, negligible overhead if not used.
      */
     virtual void publishKeyframes(std::vector<FrameHessian*> &frames, bool final,
-                                  CalibHessian* HCalib) {}
+                                  CameraParameters* camera_parameters) {}
 
 
 
@@ -161,7 +161,7 @@ public:
      * Calling:
      * Always called, no overhead if not used.
      */
-    virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib) {}
+    virtual void publishCamPose(FrameShell* frame, CameraParameters* camera_parameters) {}
 
 
 

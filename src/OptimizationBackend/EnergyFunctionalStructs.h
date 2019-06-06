@@ -34,7 +34,7 @@ namespace dso
 {
 
 class PointFrameResidual;
-class CalibHessian;
+class CameraParameters;
 class FrameHessian;
 class PointHessian;
 

@@ -38,7 +38,7 @@ namespace dso
 {
 class PointHessian;
 class FrameHessian;
-class CalibHessian;
+class CameraParameters;
 
 class EFResidual;
 
@@ -83,7 +83,7 @@ public:
     PointFrameResidual(PointHessian* point_,
                        const FrameHessian* host_,
                        const FrameHessian* target_);
-    double linearize(CalibHessian* HCalib);
+    double linearize(CameraParameters* camera_parameters);
 
 
     void resetOOB()
