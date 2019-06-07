@@ -307,7 +307,7 @@ struct PointHessian {
                  const float my_type_, FrameHessian* host_,
                  const float color_[], const float weights_[],
                  const float idepth_, const float idepth_zero_,
-                 const PtStatus status_);
+                 const PtStatus status_, const bool hasDepthPrior_ = false);
 
     inline ~PointHessian() {
         assert(efPoint==0);

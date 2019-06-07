@@ -36,12 +36,10 @@ PointHessian::PointHessian(const float u_, const float v_,
                            const float my_type_, FrameHessian* host_,
                            const float color_[], const float weights_[],
                            const float idepth_, const float idepth_zero_,
-                           const PtStatus status_) :
+                           const PtStatus status_, const bool hasDepthPrior_) :
     u(u_), v(v_), my_type(my_type_), host(host_),
-    idepth(idepth_), idepth_zero(idepth_zero_), status(status_) {
-
-
-    hasDepthPrior=false;
+    idepth(idepth_), idepth_zero(idepth_zero_), status(status_),
+    hasDepthPrior(hasDepthPrior_) {
 
     idepth_hessian=0;
     maxRelBaseline=0;

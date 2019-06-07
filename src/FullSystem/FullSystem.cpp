@@ -1009,11 +1009,9 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
         PointHessian* ph = new PointHessian(pt->u, pt->v, pt->my_type, pt->host,
                                             pt->color, pt->weights,
                                             point->iR*rescaleFactor, ph->idepth,
-                                            PointHessian::ACTIVE);
+                                            PointHessian::ACTIVE, true);
 
         delete pt;
-
-        ph->hasDepthPrior=true;
 
         firstFrame->pointHessians.push_back(ph);
         ef->insertPoint(ph);
