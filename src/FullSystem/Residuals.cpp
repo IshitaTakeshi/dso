@@ -59,10 +59,9 @@ PointFrameResidual::~PointFrameResidual() {
 
 PointFrameResidual::PointFrameResidual(PointHessian* point_,
                                        const FrameHessian* host_,
-                                       const FrameHessian* target_) :
-    point(point_),
-    host(host_),
-    target(target_)
+                                       const FrameHessian* target_,
+                                       const ResState state_) :
+    point(point_), host(host_), target(target_), state_state(state_)
 {
     efResidual=0;
     resetOOB();

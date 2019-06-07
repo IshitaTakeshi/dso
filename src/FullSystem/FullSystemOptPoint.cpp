@@ -174,10 +174,10 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     for(int i=0; i<nres; i++)
         if(residuals[i].state_state == ResState::IN)
         {
-            PointFrameResidual* r = new PointFrameResidual(p, p->host, residuals[i].target);
+            PointFrameResidual* r = new PointFrameResidual(
+                p, p->host, residuals[i].target, ResState::IN);
             r->state_NewEnergy = r->state_energy = 0;
             r->state_NewState = ResState::OUTLIER;
-            r->setState(ResState::IN);
             p->residuals.push_back(r);
 
             if(r->target == frameHessians.back())

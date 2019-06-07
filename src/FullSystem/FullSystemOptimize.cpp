@@ -67,8 +67,7 @@ void FullSystem::linearizeAll_Reductor(const bool fixLinearization,
                 if(r->isNew) {
                     PointHessian* p = r->point;
                     // projected point assuming infinite depth.
-                    Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll
-                                  * Vec3f(p->u,p->v, 1);
+                    Vec3f ptp_inf = r->host->targetPrecalc[r->target->idx].PRE_KRKiTll * Vec3f(p->u, p->v, 1);
                     // projected point with real depth.
                     Vec3f ptp = ptp_inf
                               + r->host->targetPrecalc[r->target->idx].PRE_KtTll*p->idepth;

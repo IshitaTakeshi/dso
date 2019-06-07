@@ -82,7 +82,9 @@ public:
     PointFrameResidual();
     PointFrameResidual(PointHessian* point_,
                        const FrameHessian* host_,
-                       const FrameHessian* target_);
+                       const FrameHessian* target_,
+                       const ResState state_);
+
     double linearize(CameraParameters* camera_parameters);
 
 
