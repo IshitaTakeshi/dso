@@ -73,13 +73,20 @@ ImmaturePoint::~ImmaturePoint()
  * * UPDATED -> point has been updated.
  * * SKIP -> point has not been updated.
  */
-ImmaturePointStatus ImmaturePoint::traceOn(
+void ImmaturePoint::traceOn(
         const Mat33f &hostToFrame_KRKi,
         const Vec3f &hostToFrame_Kt,
         const Vec2f& hostToFrame_affine,
-        const Eigen::Vector3f* dI) {
+        const Eigen::Vector3f* dI,
+        ImmaturePointStatus &lastTraceStatus,
+        Vec2f &lastTraceUV,
+        float &lastTracePixelInterval,
+        float &quality,
+        float &idepth_min,
+        float &idepth_max) const {
+
     if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) {
-        return lastTraceStatus;
+        return;
     }
 
     float maxPixSearch = (wG[0]+hG[0])*setting_maxPixSearch;
@@ -94,7 +101,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
     {
         lastTraceUV = Vec2f(-1,-1);
         lastTracePixelInterval=0;
-        return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+        lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+        return;
     }
 
     float dist;
@@ -112,7 +120,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
         {
             lastTraceUV = Vec2f(-1,-1);
             lastTracePixelInterval=0;
-            return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+            lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+            return;
         }
 
 
@@ -124,7 +133,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
         {
             lastTraceUV = Vec2f(uMax+uMin, vMax+vMin)*0.5;
             lastTracePixelInterval=dist;
-            return lastTraceStatus = ImmaturePointStatus::IPS_SKIPPED;
+            lastTraceStatus = ImmaturePointStatus::IPS_SKIPPED;
+            return;
         }
         assert(dist>0);
     }
@@ -151,7 +161,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
         {
             lastTraceUV = Vec2f(-1,-1);
             lastTracePixelInterval=0;
-            return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+            lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+            return;
         }
         assert(dist>0);
     }
@@ -162,7 +173,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
     {
         lastTraceUV = Vec2f(-1,-1);
         lastTracePixelInterval=0;
-        return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+        lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+        return;
     }
 
 
@@ -179,7 +191,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
     {
         lastTraceUV = Vec2f(uMax+uMin, vMax+vMin)*0.5;
         lastTracePixelInterval=dist;
-        return lastTraceStatus = ImmaturePointStatus::IPS_BADCONDITION;
+        lastTraceStatus = ImmaturePointStatus::IPS_BADCONDITION;
+        return;
     }
 
     if(errorInPixel >10) errorInPixel=10;
@@ -218,7 +231,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(
 
         lastTracePixelInterval=0;
         lastTraceUV = Vec2f(-1,-1);
-        return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+        lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+        return;
     }
 
 
@@ -343,10 +357,13 @@ ImmaturePointStatus ImmaturePoint::traceOn(
     {
         lastTracePixelInterval=0;
         lastTraceUV = Vec2f(-1,-1);
-        if(lastTraceStatus == ImmaturePointStatus::IPS_OUTLIER)
-            return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
-        else
-            return lastTraceStatus = ImmaturePointStatus::IPS_OUTLIER;
+        if(lastTraceStatus == ImmaturePointStatus::IPS_OUTLIER) {
+            lastTraceStatus = ImmaturePointStatus::IPS_OOB;
+            return;
+        } else {
+            lastTraceStatus = ImmaturePointStatus::IPS_OUTLIER;
+            return;
+        }
     }
 
 
@@ -374,12 +391,14 @@ ImmaturePointStatus ImmaturePoint::traceOn(
 
         lastTracePixelInterval=0;
         lastTraceUV = Vec2f(-1,-1);
-        return lastTraceStatus = ImmaturePointStatus::IPS_OUTLIER;
+        lastTraceStatus = ImmaturePointStatus::IPS_OUTLIER;
+        return;
     }
 
     lastTracePixelInterval=2*errorInPixel;
     lastTraceUV = Vec2f(bestU, bestV);
-    return lastTraceStatus = ImmaturePointStatus::IPS_GOOD;
+    lastTraceStatus = ImmaturePointStatus::IPS_GOOD;
+    return;
 }
 
 
