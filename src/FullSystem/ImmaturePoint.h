@@ -103,8 +103,20 @@ public:
         ImmaturePointTemporaryResidual* tmpRes,
         float idepth);
 
+    inline bool canActivate() const;
+
 private:
 };
+
+inline bool ImmaturePoint::canActivate() const {
+    return (this->lastTraceStatus == IPS_GOOD ||
+            this->lastTraceStatus == IPS_SKIPPED ||
+            this->lastTraceStatus == IPS_BADCONDITION ||
+            this->lastTraceStatus == IPS_OOB) &&
+            this->lastTracePixelInterval < 8 &&
+            this->quality > setting_minTraceQuality &&
+            (this->idepth_max + this->idepth_min) > 0;
+}
 
 }
 

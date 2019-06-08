@@ -66,7 +66,6 @@ ImmaturePoint::~ImmaturePoint()
 }
 
 
-
 /*
  * returns
  * * OOB -> point is optimized and marginalized

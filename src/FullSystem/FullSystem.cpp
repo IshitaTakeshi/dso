@@ -465,20 +465,8 @@ void FullSystem::activatePointsMT()
                 continue;
             }
 
-            // can activate only if this is true.
-            bool canActivate = (
-                    ph->lastTraceStatus == IPS_GOOD ||
-                    ph->lastTraceStatus == IPS_SKIPPED ||
-                    ph->lastTraceStatus == IPS_BADCONDITION ||
-                    ph->lastTraceStatus == IPS_OOB
-                ) &&
-                ph->lastTracePixelInterval < 8 &&
-                ph->quality > setting_minTraceQuality &&
-                (ph->idepth_max+ph->idepth_min) > 0;
-
-
             // if I cannot activate the point, skip it. Maybe also delete it.
-            if(!canActivate)
+            if(!ph->canActivate())
             {
                 // if point will be out afterwards, delete it instead.
                 if(ph->host->flaggedForMarginalization || ph->lastTraceStatus == IPS_OOB)
