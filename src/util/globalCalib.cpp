@@ -40,7 +40,7 @@ float wM3G;
 float hM3G;
 
 
-void createCameraParameterPyramid(int w, int h) {
+void createImageSizePyramid(int w, int h) {
     wG[0] = w;
     hG[0] = h;
 
@@ -77,7 +77,7 @@ void setGlobalCalib(int w, int h) {
 
     wM3G = w-3;
     hM3G = h-3;
-    createCameraParameterPyramid(w, h);
+    createImageSizePyramid(w, h);
 }
 
 

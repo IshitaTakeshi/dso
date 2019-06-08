@@ -98,6 +98,8 @@ CoarseTracker::~CoarseTracker()
     ptrToDelete.clear();
 }
 
+
+
 void CoarseTracker::makeK(CameraParameters* camera_parameters)
 {
     w[0] = wG[0];
