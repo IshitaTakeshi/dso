@@ -33,20 +33,19 @@ namespace dso
 const int MIN_IMAGE_PIXELS = 5000;
 
 // TODO make them members of some class
+
 int wG[PYR_LEVELS], hG[PYR_LEVELS];
+
 float fxG, fyG, cxG, cyG;
 
 float wM3G;
 float hM3G;
 
 
-void createImageSizePyramid(int w, int h) {
-    wG[0] = w;
-    hG[0] = h;
-
-    for (int level = 1; level < pyrLevelsUsed; ++ level) {
-        wG[level] = w >> level;
-        hG[level] = h >> level;
+void createImageSizePyramid(int ws[], int hs[], const int w, const int h) {
+    for (int level = 0; level < pyrLevelsUsed; ++ level) {
+        ws[level] = w >> level;
+        hs[level] = h >> level;
     }
 }
 
@@ -77,7 +76,7 @@ void setGlobalCalib(int w, int h) {
 
     wM3G = w-3;
     hM3G = h-3;
-    createImageSizePyramid(w, h);
+    createImageSizePyramid(wG, hG, w, h);
 }
 
 
