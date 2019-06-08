@@ -80,9 +80,9 @@ public:
     ImmaturePoint(int u_, int v_, FrameHessian* host_, float type);
     ~ImmaturePoint();
 
-    ImmaturePointStatus traceOn(FrameHessian* frame,
+    ImmaturePointStatus traceOn(const FrameHessian* frame,
                                 const Mat33f &hostToFrame_KRKi, const Vec3f &hostToFrame_Kt,
-                                const Vec2f &hostToFrame_affine, CameraParameters* camera_parameters);
+                                const Vec2f &hostToFrame_affine);
 
     ImmaturePointStatus lastTraceStatus;
     Vec2f lastTraceUV;

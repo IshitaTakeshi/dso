@@ -73,9 +73,9 @@ ImmaturePoint::~ImmaturePoint()
  * * UPDATED -> point has been updated.
  * * SKIP -> point has not been updated.
  */
-ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
+ImmaturePointStatus ImmaturePoint::traceOn(const FrameHessian* frame,
         const Mat33f &hostToFrame_KRKi, const Vec3f &hostToFrame_Kt,
-        const Vec2f& hostToFrame_affine, CameraParameters* camera_parameters) {
+        const Vec2f& hostToFrame_affine) {
     if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) {
         return lastTraceStatus;
     }
