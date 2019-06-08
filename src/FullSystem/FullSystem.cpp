@@ -61,7 +61,8 @@ namespace dso {
 
 
 FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbackSpeed) :
-    gamma(Gamma(gammaInverse)), camera_parameters(CameraParameters(K)), linearizeOperation(playbackSpeed==0) {
+    gamma(Gamma(gammaInverse)), camera_parameters(CameraParameters(K)),
+    linearizeOperation(playbackSpeed==0) {
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -993,24 +994,14 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     {
         if(rand()/(float)RAND_MAX > keepPercentage) continue;
 
-        Pnt* point = &(coarseInitializer->points[0][i]);
+        const Pnt point = coarseInitializer->points[0][i];
 
-        // TODO Not necessary to create an object
-        ImmaturePoint* pt;
-        try {
-            pt = new ImmaturePoint(point->u+0.5f,point->v+0.5f,
-                                   firstFrame, point->my_type);
-        } catch(std::exception &e) {
-            std::cerr << e.what() << std::endl;
-            continue;
-        }
+        ImmaturePoint pt(point.u+0.5f, point.v+0.5f, firstFrame, point.my_type);
 
-        PointHessian* ph = new PointHessian(pt->u, pt->v, pt->my_type, pt->host,
-                                            pt->color, pt->weights,
-                                            point->iR*rescaleFactor, ph->idepth,
+        PointHessian* ph = new PointHessian(pt.u, pt.v, pt.my_type, pt.host,
+                                            pt.color, pt.weights,
+                                            point.iR*rescaleFactor, ph->idepth,
                                             PointHessian::ACTIVE, true);
-
-        delete pt;
 
         firstFrame->pointHessians.push_back(ph);
         ef->insertPoint(ph);
@@ -1018,7 +1009,6 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
 
     SE3 firstToNew = coarseInitializer->thisToNext;
     firstToNew.translation() /= rescaleFactor;
-
 
     // really no lock required, as we are initializing.
     {

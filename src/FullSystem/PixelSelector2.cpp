@@ -151,8 +151,7 @@ void PixelSelector::makeHists(const FrameHessian* const fh)
         }
 }
 
-int PixelSelector::makeMaps(
-    const FrameHessian* const fh,
+int PixelSelector::makeMaps(const FrameHessian* const fh,
     float* map_out, float density, int recursionsLeft, float thFactor) {
 
     float numHave=0;
