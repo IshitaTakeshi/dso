@@ -73,9 +73,11 @@ ImmaturePoint::~ImmaturePoint()
  * * UPDATED -> point has been updated.
  * * SKIP -> point has not been updated.
  */
-ImmaturePointStatus ImmaturePoint::traceOn(const FrameHessian* frame,
-        const Mat33f &hostToFrame_KRKi, const Vec3f &hostToFrame_Kt,
-        const Vec2f& hostToFrame_affine) {
+ImmaturePointStatus ImmaturePoint::traceOn(
+        const Mat33f &hostToFrame_KRKi,
+        const Vec3f &hostToFrame_Kt,
+        const Vec2f& hostToFrame_affine,
+        const Eigen::Vector3f* dI) {
     if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) {
         return lastTraceStatus;
     }
@@ -231,7 +233,7 @@ ImmaturePointStatus ImmaturePoint::traceOn(const FrameHessian* frame,
         float energy=0;
         for(int idx=0; idx<patternNum; idx++)
         {
-            float hitColor = getInterpolatedElement31(frame->dI,
+            float hitColor = getInterpolatedElement31(dI,
                              (float)(ptx+rotatetPattern[idx][0]),
                              (float)(pty+rotatetPattern[idx][1]),
                              wG[0]);
@@ -284,7 +286,7 @@ ImmaturePointStatus ImmaturePoint::traceOn(const FrameHessian* frame,
         float H = 1, b=0, energy=0;
         for(int idx=0; idx<patternNum; idx++)
         {
-            Vec3f hitColor = getInterpolatedElement33(frame->dI,
+            Vec3f hitColor = getInterpolatedElement33(dI,
                              (float)(bestU+rotatetPattern[idx][0]),
                              (float)(bestV+rotatetPattern[idx][1]),wG[0]);
 
@@ -337,9 +339,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(const FrameHessian* frame,
 
 
     // ============== detect energy-based outlier. ===================
-//	float absGrad0 = getInterpolatedElement(frame->absSquaredGrad[0],bestU, bestV, wG[0]);
-//	float absGrad1 = getInterpolatedElement(frame->absSquaredGrad[1],bestU*0.5-0.25, bestV*0.5-0.25, wG[1]);
-//	float absGrad2 = getInterpolatedElement(frame->absSquaredGrad[2],bestU*0.25-0.375, bestV*0.25-0.375, wG[2]);
     if(!(bestEnergy < energyTH*setting_trace_extraSlackOnTH))
     {
         lastTracePixelInterval=0;
