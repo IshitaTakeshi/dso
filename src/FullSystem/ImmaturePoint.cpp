@@ -79,7 +79,6 @@ void ImmaturePoint::traceOn(
         const Vec2f& hostToFrame_affine,
         const Eigen::Vector3f* dI,
         ImmaturePointStatus &lastTraceStatus,
-        Vec2f &lastTraceUV,
         float &lastTracePixelInterval,
         float &quality,
         float &idepth_min,
@@ -99,7 +98,6 @@ void ImmaturePoint::traceOn(
 
     if(!(uMin > 4 && vMin > 4 && uMin < wG[0]-5 && vMin < hG[0]-5))
     {
-        lastTraceUV = Vec2f(-1,-1);
         lastTracePixelInterval=0;
         lastTraceStatus = ImmaturePointStatus::IPS_OOB;
         return;
@@ -118,20 +116,16 @@ void ImmaturePoint::traceOn(
 
         if(!(uMax > 4 && vMax > 4 && uMax < wG[0]-5 && vMax < hG[0]-5))
         {
-            lastTraceUV = Vec2f(-1,-1);
             lastTracePixelInterval=0;
             lastTraceStatus = ImmaturePointStatus::IPS_OOB;
             return;
         }
-
-
 
         // ============== check their distance. everything below 2px is OK (-> skip). ===================
         dist = (uMin-uMax)*(uMin-uMax) + (vMin-vMax)*(vMin-vMax);
         dist = sqrtf(dist);
         if(dist < setting_trace_slackInterval)
         {
-            lastTraceUV = Vec2f(uMax+uMin, vMax+vMin)*0.5;
             lastTracePixelInterval=dist;
             lastTraceStatus = ImmaturePointStatus::IPS_SKIPPED;
             return;
@@ -159,7 +153,6 @@ void ImmaturePoint::traceOn(
         // may still be out!
         if(!(uMax > 4 && vMax > 4 && uMax < wG[0]-5 && vMax < hG[0]-5))
         {
-            lastTraceUV = Vec2f(-1,-1);
             lastTracePixelInterval=0;
             lastTraceStatus = ImmaturePointStatus::IPS_OOB;
             return;
@@ -171,7 +164,6 @@ void ImmaturePoint::traceOn(
     // set OOB if scale change too big.
     if(!(idepth_min<0 || (ptpMin[2]>0.75 && ptpMin[2]<1.5)))
     {
-        lastTraceUV = Vec2f(-1,-1);
         lastTracePixelInterval=0;
         lastTraceStatus = ImmaturePointStatus::IPS_OOB;
         return;
@@ -189,7 +181,6 @@ void ImmaturePoint::traceOn(
     if(errorInPixel*setting_trace_minImprovementFactor > dist
             && std::isfinite(idepth_max))
     {
-        lastTraceUV = Vec2f(uMax+uMin, vMax+vMin)*0.5;
         lastTracePixelInterval=dist;
         lastTraceStatus = ImmaturePointStatus::IPS_BADCONDITION;
         return;
@@ -230,7 +221,6 @@ void ImmaturePoint::traceOn(
         //printf("COUGHT INF / NAN dxdy (%f %f)!\n", dx, dx);
 
         lastTracePixelInterval=0;
-        lastTraceUV = Vec2f(-1,-1);
         lastTraceStatus = ImmaturePointStatus::IPS_OOB;
         return;
     }
@@ -356,7 +346,6 @@ void ImmaturePoint::traceOn(
     if(!(bestEnergy < energyTH*setting_trace_extraSlackOnTH))
     {
         lastTracePixelInterval=0;
-        lastTraceUV = Vec2f(-1,-1);
         if(lastTraceStatus == ImmaturePointStatus::IPS_OUTLIER) {
             lastTraceStatus = ImmaturePointStatus::IPS_OOB;
             return;
@@ -390,13 +379,11 @@ void ImmaturePoint::traceOn(
         //printf("COUGHT INF / NAN minmax depth (%f %f)!\n", idepth_min, idepth_max);
 
         lastTracePixelInterval=0;
-        lastTraceUV = Vec2f(-1,-1);
         lastTraceStatus = ImmaturePointStatus::IPS_OUTLIER;
         return;
     }
 
     lastTracePixelInterval=2*errorInPixel;
-    lastTraceUV = Vec2f(bestU, bestV);
     lastTraceStatus = ImmaturePointStatus::IPS_GOOD;
     return;
 }

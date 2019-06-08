@@ -85,14 +85,12 @@ public:
                  const Vec2f &hostToFrame_affine,
                  const Eigen::Vector3f* dI,
                  ImmaturePointStatus &lastTraceStatus,
-                 Vec2f &lastTraceUV,
                  float &lastTracePixelInterval,
                  float &quality,
                  float &idepth_min,
                  float &idepth_max) const;
 
     ImmaturePointStatus lastTraceStatus;
-    Vec2f lastTraceUV;
     float lastTracePixelInterval;
 
     double linearizeResidual(
