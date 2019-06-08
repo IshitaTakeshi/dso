@@ -35,6 +35,7 @@
 #include "FullSystem/PixelSelector2.h"
 #include "util/nanoflann.h"
 #include "util/camera_matrix.h"
+#include "util/globalCalib.h"
 
 
 #if !defined(__SSE3__) && !defined(__SSE2__) && !defined(__SSE1__)
@@ -882,21 +883,10 @@ void CoarseInitializer::applyStep(Vec10f* JbBuffer, Vec10f* JbBuffer_new, const 
 }
 
 
-void makeK(Mat33f K[], Mat33f Ki[], int w[], int h[],
-           const CameraParameters &camera_parameters, const int w_, const int h_) {
-    for (int level = 0; level < pyrLevelsUsed; ++ level) {
-        w[level] = w_ >> level;
-        h[level] = h_ >> level;
-
-        float L = std::pow(2, level);
-        float fx = camera_parameters.fxl() / L;
-        float fy = camera_parameters.fyl() / L;
-        float cx = (camera_parameters.cxl() + 0.5) / L - 0.5;
-        float cy = (camera_parameters.cyl() + 0.5) / L - 0.5;
-
-        K[level] = initializeCameraMatrix(fx, fy, cx, cy);
-        Ki[level] = K[level].inverse();
-    }
+void makeK(Mat33f K[], Mat33f Ki[], int ws[], int hs[],
+           const CameraParameters &camera_parameters, const int w, const int h) {
+    createImageSizePyramid(ws, hs, w, h);
+    createCameraMatrixPyramid(K, Ki, camera_parameters);
 }
 
 void CoarseInitializer::makeNN() {

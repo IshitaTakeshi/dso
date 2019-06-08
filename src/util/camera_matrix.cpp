@@ -1,5 +1,6 @@
 #include "util/camera_matrix.h"
 #include "util/NumType.h"
+#include "util/settings.h"
 
 
 namespace dso {
@@ -28,6 +29,22 @@ Mat33f initializeCameraMatrix(const float fx, const float fy,
 Mat33f initializeCameraMatrix(const CameraParameters &camera_parameters) {
     return initializeCameraMatrix(camera_parameters.fxl(), camera_parameters.fyl(),
                                   camera_parameters.cxl(), camera_parameters.cyl());
+}
+
+
+void createCameraMatrixPyramid(Mat33f K[], Mat33f Ki[],
+                               const CameraParameters &camera_parameters) {
+
+    for (int level = 0; level < pyrLevelsUsed; ++ level) {
+        float L = std::pow(2, level);
+        float fx = camera_parameters.fxl() / L;
+        float fy = camera_parameters.fyl() / L;
+        float cx = (camera_parameters.cxl() + 0.5) / L - 0.5;
+        float cy = (camera_parameters.cyl() + 0.5) / L - 0.5;
+
+        K[level] = initializeCameraMatrix(fx, fy, cx, cy);
+        Ki[level] = K[level].inverse();
+    }
 }
 
 }

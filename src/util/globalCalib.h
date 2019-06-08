@@ -52,5 +52,6 @@ extern float wM3G;
 extern float hM3G;
 
 void setGlobalCalib(int w, int h);
+void createImageSizePyramid(int ws[], int hs[], const int w, const int h);
 
 }
