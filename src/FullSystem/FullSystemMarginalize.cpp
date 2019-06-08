@@ -160,7 +160,7 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
         frameHessians[i]->idx = i;
 
     ef->setDeltaF(current_camera_parameters);
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(camera_parameters));
+    setPrecalcValues(frameHessians, initializeCameraMatrix(camera_parameters));
 
     ef->setAdjointsF();
 }

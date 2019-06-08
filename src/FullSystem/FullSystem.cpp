@@ -367,7 +367,7 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh) {
 void FullSystem::traceNewCoarse(FrameHessian* fh)
 {
     boost::unique_lock<boost::mutex> lock(mapMutex);
-    Mat33f K = createCameraMatrixFromCalibHessian(camera_parameters);
+    Mat33f K = initializeCameraMatrix(camera_parameters);
 
     for(FrameHessian* host : frameHessians) {
         // go through all active frames
@@ -878,7 +878,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
     ef->insertFrame(fh);
     ef->setDeltaF(current_camera_parameters);
 
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(camera_parameters));
+    setPrecalcValues(frameHessians, initializeCameraMatrix(camera_parameters));
 
     // =========================== add new residuals for old points =========================
     for(FrameHessian* fh1 : frameHessians) {
@@ -960,7 +960,7 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame) {
     ef->insertFrame(firstFrame);
     ef->setDeltaF(current_camera_parameters);
 
-    setPrecalcValues(frameHessians, createCameraMatrixFromCalibHessian(camera_parameters));
+    setPrecalcValues(frameHessians, initializeCameraMatrix(camera_parameters));
 
     firstFrame->pointHessians.reserve(wG[0] * hG[0] * 0.2f);
     firstFrame->pointHessiansMarginalized.reserve(wG[0] * hG[0] * 0.2f);
