@@ -57,21 +57,12 @@ public:
     void setCoarseTrackingRef(
         std::vector<FrameHessian*> frameHessians);
 
-    void makeK(
-        CameraParameters* camera_parameters);
+    void makeK(const CameraParameters &camera_parameters);
 
     bool debugPrint;
 
     Mat33f K[PYR_LEVELS];
     Mat33f Ki[PYR_LEVELS];
-    float fx[PYR_LEVELS];
-    float fy[PYR_LEVELS];
-    float fxi[PYR_LEVELS];
-    float fyi[PYR_LEVELS];
-    float cx[PYR_LEVELS];
-    float cy[PYR_LEVELS];
-    float cxi[PYR_LEVELS];
-    float cyi[PYR_LEVELS];
     int w[PYR_LEVELS];
     int h[PYR_LEVELS];
 
@@ -141,21 +132,12 @@ public:
     void makeInlierVotes(
         std::vector<FrameHessian*> frameHessians);
 
-    void makeK( CameraParameters* camera_parameters);
-
+    void makeK(const CameraParameters &camera_parameters);
 
     float* fwdWarpedIDDistFinal;
 
     Mat33f K[PYR_LEVELS];
     Mat33f Ki[PYR_LEVELS];
-    float fx[PYR_LEVELS];
-    float fy[PYR_LEVELS];
-    float fxi[PYR_LEVELS];
-    float fyi[PYR_LEVELS];
-    float cx[PYR_LEVELS];
-    float cy[PYR_LEVELS];
-    float cxi[PYR_LEVELS];
-    float cyi[PYR_LEVELS];
     int w[PYR_LEVELS];
     int h[PYR_LEVELS];
 

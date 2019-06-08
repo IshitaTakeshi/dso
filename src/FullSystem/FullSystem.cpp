@@ -431,7 +431,7 @@ void FullSystem::activatePointsMT()
     FrameHessian* newestHs = frameHessians.back();
 
     // make dist map.
-    coarseDistanceMap->makeK(&camera_parameters);
+    coarseDistanceMap->makeK(camera_parameters);
     coarseDistanceMap->makeDistanceMap(frameHessians, newestHs);
 
     //coarseTracker->debugPlotDistMap("distMap");
@@ -915,7 +915,7 @@ void FullSystem::makeKeyFrame(FrameHessian* fh) {
 
     {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
-        coarseTracker_forNewKF->makeK(&camera_parameters);
+        coarseTracker_forNewKF->makeK(camera_parameters);
         coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians);
     }
 

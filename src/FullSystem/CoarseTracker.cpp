@@ -29,12 +29,15 @@
  *      Author: engelj
  */
 
+#include <algorithm>
+
 #include "util/FrameShell.h"
 #include "FullSystem/CoarseTracker.h"
 #include "FullSystem/HessianBlocks.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
 #include "IOWrapper/ImageRW.h"
-#include <algorithm>
+#include "util/camera_matrix.h"
+#include "util/globalCalib.h"
 
 #if !defined(__SSE3__) && !defined(__SSE2__) && !defined(__SSE1__)
 #include "SSE2NEON.h"
@@ -100,36 +103,9 @@ CoarseTracker::~CoarseTracker()
 
 
 
-void CoarseTracker::makeK(CameraParameters* camera_parameters)
-{
-    w[0] = wG[0];
-    h[0] = hG[0];
-
-    fx[0] = camera_parameters->fxl();
-    fy[0] = camera_parameters->fyl();
-    cx[0] = camera_parameters->cxl();
-    cy[0] = camera_parameters->cyl();
-
-    for (int level = 1; level < pyrLevelsUsed; ++ level)
-    {
-        w[level] = w[0] >> level;
-        h[level] = h[0] >> level;
-        fx[level] = fx[level-1] * 0.5;
-        fy[level] = fy[level-1] * 0.5;
-        cx[level] = (cx[0] + 0.5) / ((int)1<<level) - 0.5;
-        cy[level] = (cy[0] + 0.5) / ((int)1<<level) - 0.5;
-    }
-
-    for (int level = 0; level < pyrLevelsUsed; ++ level)
-    {
-        K[level]  << fx[level], 0.0, cx[level], 0.0, fy[level], cy[level], 0.0, 0.0,
-        1.0;
-        Ki[level] = K[level].inverse();
-        fxi[level] = Ki[level](0,0);
-        fyi[level] = Ki[level](1,1);
-        cxi[level] = Ki[level](0,2);
-        cyi[level] = Ki[level](1,2);
-    }
+void CoarseTracker::makeK(const CameraParameters &camera_parameters) {
+    createImageSizePyramid(w, h, wG[0], hG[0]);
+    createCameraMatrixPyramid(K, Ki, camera_parameters);
 }
 
 
@@ -341,8 +317,10 @@ void CoarseTracker::calcGSSSE(int lvl, Mat88 &H_out, Vec8 &b_out,
 {
     acc.initialize();
 
-    __m128 fxl = _mm_set1_ps(fx[lvl]);
-    __m128 fyl = _mm_set1_ps(fy[lvl]);
+    CameraParameters camera_parameters(K[lvl]);
+
+    __m128 fxl = _mm_set1_ps(camera_parameters.fxl());
+    __m128 fyl = _mm_set1_ps(camera_parameters.fyl());
     __m128 b0 = _mm_set1_ps(lastRef_aff_g2l.b);
     __m128 a = _mm_set1_ps((float)(AffLight::fromToVecExposure(
                                        lastRef->ab_exposure, newFrame->ab_exposure, lastRef_aff_g2l, aff_g2l)[0]));
@@ -412,11 +390,6 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
     int wl = w[lvl];
     int hl = h[lvl];
     Eigen::Vector3f* dINewl = newFrame->dIp[lvl];
-    float fxl = fx[lvl];
-    float fyl = fy[lvl];
-    float cxl = cx[lvl];
-    float cyl = cy[lvl];
-
 
     Mat33f RKi = (refToNew.rotationMatrix().cast<float>() * Ki[lvl]);
     Vec3f t = (refToNew.translation()).cast<float>();
@@ -439,6 +412,8 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
     float* lpc_color = pc_color[lvl];
 
 
+    CameraParameters camera_parameters(K[lvl]);
+
     for(int i=0; i<nl; i++)
     {
         float id = lpc_idepth[i];
@@ -448,8 +423,8 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
         Vec3f pt = RKi * Vec3f(x, y, 1) + t*id;
         float u = pt[0] / pt[2];
         float v = pt[1] / pt[2];
-        float Ku = fxl * u + cxl;
-        float Kv = fyl * v + cyl;
+        float Ku = camera_parameters.fxl() * u + camera_parameters.cxl();
+        float Kv = camera_parameters.fyl() * v + camera_parameters.cyl();
         float new_idepth = id/pt[2];
 
         if(lvl==0 && i%32==0)
@@ -458,22 +433,22 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
             Vec3f ptT = Ki[lvl] * Vec3f(x, y, 1) + t*id;
             float uT = ptT[0] / ptT[2];
             float vT = ptT[1] / ptT[2];
-            float KuT = fxl * uT + cxl;
-            float KvT = fyl * vT + cyl;
+            float KuT = camera_parameters.fxl() * uT + camera_parameters.cxl();
+            float KvT = camera_parameters.fyl() * vT + camera_parameters.cyl();
 
             // translation only (negative)
             Vec3f ptT2 = Ki[lvl] * Vec3f(x, y, 1) - t*id;
             float uT2 = ptT2[0] / ptT2[2];
             float vT2 = ptT2[1] / ptT2[2];
-            float KuT2 = fxl * uT2 + cxl;
-            float KvT2 = fyl * vT2 + cyl;
+            float KuT2 = camera_parameters.fxl() * uT2 + camera_parameters.cxl();
+            float KvT2 = camera_parameters.fyl() * vT2 + camera_parameters.cyl();
 
             //translation and rotation (negative)
             Vec3f pt3 = RKi * Vec3f(x, y, 1) - t*id;
             float u3 = pt3[0] / pt3[2];
             float v3 = pt3[1] / pt3[2];
-            float Ku3 = fxl * u3 + cxl;
-            float Kv3 = fyl * v3 + cyl;
+            float Ku3 = camera_parameters.fxl() * u3 + camera_parameters.cxl();
+            float Kv3 = camera_parameters.fyl() * v3 + camera_parameters.cyl();
 
             //translation and rotation (positive)
             //already have it.
@@ -957,36 +932,9 @@ void CoarseDistanceMap::addIntoDistFinal(int u, int v)
 
 
 
-void CoarseDistanceMap::makeK(CameraParameters* camera_parameters)
-{
-    w[0] = wG[0];
-    h[0] = hG[0];
-
-    fx[0] = camera_parameters->fxl();
-    fy[0] = camera_parameters->fyl();
-    cx[0] = camera_parameters->cxl();
-    cy[0] = camera_parameters->cyl();
-
-    for (int level = 1; level < pyrLevelsUsed; ++ level)
-    {
-        w[level] = w[0] >> level;
-        h[level] = h[0] >> level;
-        fx[level] = fx[level-1] * 0.5;
-        fy[level] = fy[level-1] * 0.5;
-        cx[level] = (cx[0] + 0.5) / ((int)1<<level) - 0.5;
-        cy[level] = (cy[0] + 0.5) / ((int)1<<level) - 0.5;
-    }
-
-    for (int level = 0; level < pyrLevelsUsed; ++ level)
-    {
-        K[level]  << fx[level], 0.0, cx[level], 0.0, fy[level], cy[level], 0.0, 0.0,
-        1.0;
-        Ki[level] = K[level].inverse();
-        fxi[level] = Ki[level](0,0);
-        fyi[level] = Ki[level](1,1);
-        cxi[level] = Ki[level](0,2);
-        cyi[level] = Ki[level](1,2);
-    }
+void CoarseDistanceMap::makeK(const CameraParameters &camera_parameters) {
+    createImageSizePyramid(w, h, wG[0], hG[0]);
+    createCameraMatrixPyramid(K, Ki, camera_parameters);
 }
 
 }
