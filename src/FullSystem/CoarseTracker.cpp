@@ -91,16 +91,16 @@ CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0,0)
     newFrame = 0;
     lastRef = 0;
     debugPrint = true;
-    ws[0]=hs[0]=0;
     refFrameID=-1;
 }
+
+
 CoarseTracker::~CoarseTracker()
 {
     for(float* ptr : ptrToDelete)
         delete[] ptr;
     ptrToDelete.clear();
 }
-
 
 
 void CoarseTracker::makeK(const CameraParameters &camera_parameters) {
@@ -518,9 +518,6 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
 
 
 
-
-
-
 void CoarseTracker::setCoarseTrackingRef(
     std::vector<FrameHessian*> frameHessians)
 {
@@ -528,14 +525,13 @@ void CoarseTracker::setCoarseTrackingRef(
     lastRef = frameHessians.back();
     makeCoarseDepthL0(frameHessians);
 
-
-
     refFrameID = lastRef->shell->id;
     lastRef_aff_g2l = lastRef->aff_g2l();
 
     firstCoarseRMSE=-1;
-
 }
+
+
 bool CoarseTracker::trackNewestCoarse(
     FrameHessian* newFrameHessian,
     SE3 &lastToNew_out, AffLight &aff_g2l_out,
@@ -744,9 +740,8 @@ CoarseDistanceMap::CoarseDistanceMap(int ww, int hh)
 
     coarseProjectionGrid = new PointFrameResidual*[2048*(ww*hh/(fac*fac))];
     coarseProjectionGridNum = new int[ww*hh/(fac*fac)];
-
-    ws[0]=hs[0]=0;
 }
+
 CoarseDistanceMap::~CoarseDistanceMap()
 {
     delete[] fwdWarpedIDDistFinal;
@@ -757,12 +752,9 @@ CoarseDistanceMap::~CoarseDistanceMap()
 }
 
 
-
-
-
 void CoarseDistanceMap::makeDistanceMap(
-    std::vector<FrameHessian*> frameHessians,
-    FrameHessian* frame)
+    const std::vector<FrameHessian*> frameHessians,
+    const FrameHessian* frame)
 {
     int w1 = ws[1];
     int h1 = hs[1];
@@ -797,16 +789,6 @@ void CoarseDistanceMap::makeDistanceMap(
 
     growDistBFS(numItems);
 }
-
-
-
-
-void CoarseDistanceMap::makeInlierVotes(std::vector<FrameHessian*>
-                                        frameHessians)
-{
-
-}
-
 
 
 void CoarseDistanceMap::growDistBFS(int bfsNum)

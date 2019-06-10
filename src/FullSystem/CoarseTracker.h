@@ -126,11 +126,8 @@ public:
     ~CoarseDistanceMap();
 
     void makeDistanceMap(
-        std::vector<FrameHessian*> frameHessians,
-        FrameHessian* frame);
-
-    void makeInlierVotes(
-        std::vector<FrameHessian*> frameHessians);
+        const std::vector<FrameHessian*> frameHessians,
+        const FrameHessian* frame);
 
     void makeK(const CameraParameters &camera_parameters);
 
