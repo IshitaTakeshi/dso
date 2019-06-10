@@ -635,6 +635,23 @@ void FullSystem::flagPointsForRemoval() {
 }
 
 
+
+bool needToMakeKeyFrame(const int history_size, const Vec4 &tres, const Vec2 &refToFh,
+                        const double firstCoarseRMSE) {
+
+    const int N = wG[0] + hG[0];
+    double k = setting_maxShiftWeightT  * sqrtf((double)tres[1]) / N +
+               setting_maxShiftWeightR  * sqrtf((double)tres[2]) / N +
+               setting_maxShiftWeightRT * sqrtf((double)tres[3]) / N +
+               setting_maxAffineWeight  * fabs(logf((float)refToFh[0]));
+
+    // BRIGHTNESS CHECK
+    return history_size == 1 ||
+           setting_kfGlobalWeight * k > 1 ||
+           2 * firstCoarseRMSE < tres[0];
+}
+
+
 void FullSystem::addActiveFrame(float* image, int id, const float exposure_time) {
     if(isLost) {
         return;
@@ -662,7 +679,7 @@ void FullSystem::addActiveFrame(float* image, int id, const float exposure_time)
             // than editing member variables of the existing one
             initializeFromInitializer(fh);
             lock.unlock();
-            deliverTrackedFrame(fh, true);
+            makeKeyFrame(fh);
         }
         return;
     }
@@ -690,34 +707,21 @@ void FullSystem::addActiveFrame(float* image, int id, const float exposure_time)
         coarseTracker->lastRef_aff_g2l, fh->shell->aff_g2l
     );
 
-    // BRIGHTNESS CHECK
-    bool needToMakeKF =
-       allFrameHistory.size()== 1 ||
-       setting_kfGlobalWeight*setting_maxShiftWeightT *  sqrtf((double)tres[1]) /
-       (wG[0]+hG[0]) +
-       setting_kfGlobalWeight*setting_maxShiftWeightR *  sqrtf((double)tres[2]) /
-       (wG[0]+hG[0]) +
-       setting_kfGlobalWeight*setting_maxShiftWeightRT * sqrtf((double)tres[3]) /
-       (wG[0]+hG[0]) +
-       setting_kfGlobalWeight*setting_maxAffineWeight * fabs(logf((float)refToFh[0])) > 1 ||
-       2 * coarseTracker->firstCoarseRMSE < tres[0];
-
     for(IOWrap::Output3DWrapper* ow : outputWrapper) {
         ow->publishCamPose(fh->shell, &camera_parameters);
     }
 
     lock.unlock();
-    deliverTrackedFrame(fh, needToMakeKF);
-    return;
-}
 
-void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
-    if(needKF) {
+
+    if(needToMakeKeyFrame(allFrameHistory.size(), tres, refToFh, coarseTracker->firstCoarseRMSE)) {
         makeKeyFrame(fh);
     } else {
         makeNonKeyFrame(fh);
         delete fh;
     }
+
+    return;
 }
 
 void FullSystem::mappingLoop()

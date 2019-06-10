@@ -244,7 +244,6 @@ private:
 
     void makeKeyFrame( FrameHessian* fh);
     void makeNonKeyFrame( FrameHessian* fh);
-    void deliverTrackedFrame(FrameHessian* fh, bool needKF);
     void mappingLoop();
 
     // tracking / mapping synchronization. All protected by [trackMapSyncMutex].
