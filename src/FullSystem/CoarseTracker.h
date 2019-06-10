@@ -63,8 +63,8 @@ public:
 
     Mat33f K[PYR_LEVELS];
     Mat33f Ki[PYR_LEVELS];
-    int w[PYR_LEVELS];
-    int h[PYR_LEVELS];
+    int ws[PYR_LEVELS];
+    int hs[PYR_LEVELS];
 
     FrameHessian* lastRef;
     AffLight lastRef_aff_g2l;
@@ -138,8 +138,8 @@ public:
 
     Mat33f K[PYR_LEVELS];
     Mat33f Ki[PYR_LEVELS];
-    int w[PYR_LEVELS];
-    int h[PYR_LEVELS];
+    int ws[PYR_LEVELS];
+    int hs[PYR_LEVELS];
 
     void addIntoDistFinal(int u, int v);
 
