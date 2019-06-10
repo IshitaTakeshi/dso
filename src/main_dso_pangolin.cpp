@@ -73,7 +73,7 @@ void exitThread()
 void parseArgument(char* arg,
                    std::string &vignette, std::string &gammaCalib,
                    std::string &source, std::string &calib,
-                   float &playbackSpeed, bool &useSampleOutput) {
+                   bool &useSampleOutput) {
     int option;
     float foption;
     char buf[1000];
@@ -156,13 +156,6 @@ void parseArgument(char* arg,
         return;
     }
 
-    if(1==sscanf(arg,"speed=%f",&foption))
-    {
-        playbackSpeed = foption;
-        printf("PLAYBACK SPEED %f!\n", playbackSpeed);
-        return;
-    }
-
     if(1==sscanf(arg,"save=%d",&option))
     {
         if(option==1)
@@ -216,14 +209,13 @@ int main( int argc, char** argv )
     std::string gammaCalib = "";
     std::string source = "";
     std::string calib = "";
-    float playbackSpeed = 0;
     bool useSampleOutput = false;
 
     //setlocale(LC_ALL, "");
     for(int i=1; i<argc; i++) {
         parseArgument(argv[i],
                       vignette, gammaCalib, source, calib,
-                      playbackSpeed, useSampleOutput);
+                      useSampleOutput);
     }
 
     std::cout << "vignette: " << vignette << std::endl;
@@ -256,8 +248,7 @@ int main( int argc, char** argv )
     }
 
     FullSystem* fullSystem = new FullSystem(photometricUndist->getG(),
-                                            undistort->getK(),
-                                            playbackSpeed);
+                                            undistort->getK());
 
     IOWrap::PangolinDSOViewer* viewer = new IOWrap::PangolinDSOViewer(wG[0], hG[0], false);
     fullSystem->outputWrapper.push_back(viewer);
@@ -287,8 +278,7 @@ int main( int argc, char** argv )
                     }
 
                     fullSystem = new FullSystem(photometricUndist->getG(),
-                                                undistort->getK(),
-                                                playbackSpeed);
+                                                undistort->getK());
                     fullSystem->outputWrapper = wraps;
 
                     setting_fullResetRequested=false;

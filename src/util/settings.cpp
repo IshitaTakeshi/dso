@@ -192,8 +192,6 @@ bool multiThreading = true;
 bool disableAllDisplay = false;
 bool setting_onlyLogKFPoses = true;
 
-bool goStepByStep = false;
-
 bool setting_render_displayCoarseTrackingFull=false;
 bool setting_render_renderWindowFrames=true;
 bool setting_render_plotTrackingFull = false;

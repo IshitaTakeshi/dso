@@ -131,7 +131,7 @@ class FullSystem {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    FullSystem(float *gammaInverse, const Mat33f &K, const float playbackSpeed);
+    FullSystem(float *gammaInverse, const Mat33f &K);
     virtual ~FullSystem();
 
     // adds a new frame, and creates point & residual structs.
@@ -152,7 +152,6 @@ public:
     bool isLost;
     bool initFailed;
     bool initialized;
-    const bool linearizeOperation;
 
 private:
     const Gamma gamma;

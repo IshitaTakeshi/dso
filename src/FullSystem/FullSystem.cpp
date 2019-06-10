@@ -60,9 +60,8 @@
 namespace dso {
 
 
-FullSystem::FullSystem(float *gammaInverse, const Mat33f &K, const float playbackSpeed) :
-    gamma(Gamma(gammaInverse)), camera_parameters(CameraParameters(K)),
-    linearizeOperation(playbackSpeed==0) {
+FullSystem::FullSystem(float *gammaInverse, const Mat33f &K) :
+    gamma(Gamma(gammaInverse)), camera_parameters(CameraParameters(K)) {
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -713,41 +712,12 @@ void FullSystem::addActiveFrame(float* image, int id, const float exposure_time)
 }
 
 void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF) {
-    if(linearizeOperation) {
-        if(goStepByStep && lastRefStopID != coarseTracker->refFrameID)
-        {
-            MinimalImageF3 img(wG[0], hG[0], fh->dI);
-            IOWrap::displayImage("frameToTrack", &img);
-            while(true)
-            {
-                char k = IOWrap::waitKey(0);
-                if(k == ' ') break;
-            }
-            lastRefStopID = coarseTracker->refFrameID;
-        }
-
-        if(needKF) {
-            makeKeyFrame(fh);
-        } else {
-            makeNonKeyFrame(fh);
-            delete fh;
-        }
-        return;
-    }
-
-    boost::unique_lock<boost::mutex> lock(trackMapSyncMutex);
-    unmappedTrackedFrames.push_back(fh);
     if(needKF) {
-        needNewKFAfter = fh->shell->trackingRef->id;
+        makeKeyFrame(fh);
+    } else {
+        makeNonKeyFrame(fh);
+        delete fh;
     }
-    trackedFrameSignal.notify_all();
-
-    while(coarseTracker_forNewKF->refFrameID == -1
-          && coarseTracker->refFrameID == -1) {
-        mappedFrameSignal.wait(lock);
-    }
-
-    lock.unlock();
 }
 
 void FullSystem::mappingLoop()

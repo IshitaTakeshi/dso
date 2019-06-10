@@ -173,7 +173,6 @@ extern bool debugSaveImages;
 
 
 extern int sparsityFactor;
-extern bool goStepByStep;
 extern bool plotStereoImages;
 extern bool multiThreading;
 
