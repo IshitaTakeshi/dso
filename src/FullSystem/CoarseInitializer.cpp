@@ -61,6 +61,7 @@ CoarseInitializer::CoarseInitializer(FrameHessian* newFrameHessian,
     setFirst(newFrameHessian);
 }
 
+
 CoarseInitializer::~CoarseInitializer() {
     for(int level=0; level<pyrLevelsUsed; level++) {
         if(points[level] != 0) {
@@ -119,7 +120,6 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
         refToNew_aff_current = AffLight(logf(newFrame->ab_exposure /
                                              firstFrame->ab_exposure),0); // coarse approximation.
 
-
     Vec3f latestRes = Vec3f::Zero();
     for(int level=pyrLevelsUsed-1; level>=0; level--) {
         if(level<pyrLevelsUsed-1)
@@ -156,9 +156,7 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
         Eigen::DiagonalMatrix<float, 8> wM;
         initializeWM(wM);
 
-        int iteration=0;
-        while(true)
-        {
+        for(int iteration=0;; iteration++) {
             Mat88f Hl = H;
             for(int i=0; i<8; i++) Hl(i,i) *= (1+lambda);
             Hl -= Hsc*(1/(1+lambda));
@@ -255,7 +253,6 @@ bool CoarseInitializer::trackFrame(FrameHessian* newFrameHessian,
 
 
             if(quitOpt) break;
-            iteration++;
         }
         latestRes = resOld;
 

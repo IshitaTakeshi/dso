@@ -638,6 +638,7 @@ void FullSystem::flagPointsForRemoval() {
 
 bool needToMakeKeyFrame(const int history_size, const Vec4 &tres, const Vec2 &refToFh,
                         const double firstCoarseRMSE) {
+    // BRIGHTNESS CHECK
 
     const int N = wG[0] + hG[0];
     double k = setting_maxShiftWeightT  * sqrtf((double)tres[1]) / N +
@@ -645,7 +646,6 @@ bool needToMakeKeyFrame(const int history_size, const Vec4 &tres, const Vec2 &re
                setting_maxShiftWeightRT * sqrtf((double)tres[3]) / N +
                setting_maxAffineWeight  * fabs(logf((float)refToFh[0]));
 
-    // BRIGHTNESS CHECK
     return history_size == 1 ||
            setting_kfGlobalWeight * k > 1 ||
            2 * firstCoarseRMSE < tres[0];
