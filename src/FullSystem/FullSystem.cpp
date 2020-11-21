@@ -252,12 +252,16 @@ void FullSystem::printResult(std::string file) {
 
     if(setting_onlyLogKFPoses && s->marginalizedAt == s->id) continue;
 
+    const auto t = s->camToWorld.translation();
+    const auto q = s->camToWorld.so3().unit_quaternion();
     myfile << s->timestamp <<
-           " " << s->camToWorld.translation().transpose()<<
-           " " << s->camToWorld.so3().unit_quaternion().x()<<
-           " " << s->camToWorld.so3().unit_quaternion().y()<<
-           " " << s->camToWorld.so3().unit_quaternion().z()<<
-           " " << s->camToWorld.so3().unit_quaternion().w() << "\n";
+      " " << t.x() <<
+      " " << t.y() <<
+      " " << t.z() <<
+      " " << q.x() <<
+      " " << q.y() <<
+      " " << q.z() <<
+      " " << q.w() << "\n";
   }
   myfile.close();
 }
