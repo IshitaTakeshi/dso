@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -29,11 +29,9 @@
 #include "util/MinimalImage.h"
 
 
-namespace dso
-{
+namespace dso {
 
-namespace IOWrap
-{
+namespace IOWrap {
 
 void displayImage(const char* windowName, const MinimalImageB* img, bool autoSize = false);
 void displayImage(const char* windowName, const MinimalImageB3* img, bool autoSize = false);

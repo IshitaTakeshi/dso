@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -27,10 +27,8 @@
 #include "util/NumType.h"
 #include "util/MinimalImage.h"
 
-namespace dso
-{
-namespace IOWrap
-{
+namespace dso {
+namespace IOWrap {
 
 MinimalImageB* readImageBW_8U(std::string filename);
 MinimalImageB3* readImageRGB_8U(std::string filename);

@@ -1,6 +1,6 @@
 /**
 * This file is part of DSO.
-* 
+*
 * Copyright 2016 Technical University of Munich and Intel.
 * Developed by Jakob Engel <engelj at in dot tum dot de>,
 * for more information see <http://vision.in.tum.de/dso>.
@@ -25,12 +25,10 @@
 
 #include "IOWrapper/ImageDisplay.h"
 
-namespace dso
-{
+namespace dso {
 
 
-namespace IOWrap
-{
+namespace IOWrap {
 void displayImage(const char* windowName, const MinimalImageB* img, bool autoSize) {};
 void displayImage(const char* windowName, const MinimalImageB3* img, bool autoSize) {};
 void displayImage(const char* windowName, const MinimalImageF* img, bool autoSize) {};
@@ -43,7 +41,9 @@ void displayImageStitch(const char* windowName, const std::vector<MinimalImageB3
 void displayImageStitch(const char* windowName, const std::vector<MinimalImageF*> images, int cc, int rc) {};
 void displayImageStitch(const char* windowName, const std::vector<MinimalImageF3*> images, int cc, int rc) {};
 
-int waitKey(int milliseconds) {return 0;};
+int waitKey(int milliseconds) {
+  return 0;
+};
 void closeAllWindows() {};
 }
 
