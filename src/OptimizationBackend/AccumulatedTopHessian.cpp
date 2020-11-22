@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "OptimizationBackend/AccumulatedTopHessian.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
@@ -34,14 +33,11 @@
 namespace dso
 {
 
-
-
 template<int mode>
 void AccumulatedTopHessianSSE::addPoint(EFPoint* p,
                                         EnergyFunctional const * const ef,
                                         int tid)	// 0 = active, 1 = linearized, 2=marginalize
 {
-
 
     assert(mode==0 || mode==1 || mode==2);
 
@@ -68,12 +64,9 @@ void AccumulatedTopHessianSSE::addPoint(EFPoint* p,
             assert(r->isLinearized);
         }
 
-
         RawResidualJacobian* rJ = r->J;
         int htIDX = r->hostIDX + r->targetIDX*nframes[tid];
         Mat18f dp = ef->adHTdeltaF[htIDX];
-
-
 
         VecNRf resApprox;
         if(mode==0)
@@ -118,7 +111,6 @@ void AccumulatedTopHessianSSE::addPoint(EFPoint* p,
             rr += resApprox[i]*resApprox[i];
         }
 
-
         acc[tid][htIDX].update(
             rJ->Jpdc[0].data(), rJ->Jpdxi[0].data(),
             rJ->Jpdc[1].data(), rJ->Jpdxi[1].data(),
@@ -134,7 +126,6 @@ void AccumulatedTopHessianSSE::addPoint(EFPoint* p,
             rJ->JabJIdx(0,0), rJ->JabJIdx(0,1),
             rJ->JabJIdx(1,0), rJ->JabJIdx(1,1),
             JI_r[0], JI_r[1]);
-
 
         Vec2f Ji2_Jpdd = rJ->JIdx2 * rJ->Jpdd;
         bd_acc +=  JI_r[0]*rJ->Jpdd[0] + JI_r[1]*rJ->Jpdd[1];
@@ -171,19 +162,11 @@ template void AccumulatedTopHessianSSE::addPoint<1>(EFPoint* p,
 template void AccumulatedTopHessianSSE::addPoint<2>(EFPoint* p,
         EnergyFunctional const * const ef, int tid);
 
-
-
-
-
-
-
-
 void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b,
         EnergyFunctional const * const EF, bool usePrior, bool useDelta, int tid)
 {
     H = MatXX::Zero(nframes[tid]*8+CPARS, nframes[tid]*8+CPARS);
     b = VecX::Zero(nframes[tid]*8+CPARS);
-
 
     for(int h=0; h<nframes[tid]; h++)
         for(int t=0; t<nframes[tid]; t++)
@@ -192,13 +175,10 @@ void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b,
             int tIdx = CPARS+t*8;
             int aidx = h+nframes[tid]*t;
 
-
-
             acc[tid][aidx].finish();
             if(acc[tid][aidx].num==0) continue;
 
             MatPCPC accH = acc[tid][aidx].H.cast<double>();
-
 
             H.block<8,8>(hIdx, hIdx).noalias() += EF->adHost[aidx] * accH.block<8,8>(CPARS,
                                                   CPARS) * EF->adHost[aidx].transpose();
@@ -226,7 +206,6 @@ void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b,
             b.head<CPARS>().noalias() += accH.block<CPARS,1>(0,8+CPARS);
         }
 
-
     // ----- new: copy transposed parts.
     for(int h=0; h<nframes[tid]; h++)
     {
@@ -240,7 +219,6 @@ void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b,
             H.block<8,8>(tIdx, hIdx).noalias() = H.block<8,8>(hIdx, tIdx).transpose();
         }
     }
-
 
     if(usePrior)
     {
@@ -256,7 +234,6 @@ void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b,
     }
 }
 
-
 void AccumulatedTopHessianSSE::stitchDoubleInternal(
     MatXX* H, VecX* b, EnergyFunctional const * const EF, bool usePrior,
     int min, int max, Vec10* stats, int tid)
@@ -268,7 +245,6 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
         tid = 0;
     }
     if(min==max) return;
-
 
     for(int k=min; k<max; k++)
     {
@@ -317,7 +293,6 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
 
     }
 
-
     // only do this on one thread.
     if(min==0 && usePrior)
     {
@@ -333,8 +308,5 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
     }
 }
 
-
-
 }
-
 

@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "IOWrapper/ImageDisplay.h"
 
 #include <opencv2/highgui/highgui.hpp>
@@ -37,14 +35,11 @@
 namespace dso
 {
 
-
 namespace IOWrap
 {
 
 std::unordered_set<std::string> openWindows;
 boost::mutex openCVdisplayMutex;
-
-
 
 void displayImage(const char* windowName, const cv::Mat& image, bool autoSize)
 {
@@ -62,7 +57,6 @@ void displayImage(const char* windowName, const cv::Mat& image, bool autoSize)
     }
     cv::imshow(windowName, image);
 }
-
 
 void displayImageStitch(const char* windowName,
                         const std::vector<cv::Mat*> images, int cc, int rc)
@@ -83,7 +77,6 @@ void displayImageStitch(const char* windowName,
     {
         int ww = w * cc;
         int hh = h * ((num+cc-1)/cc);
-
 
         float wLoss = ww/16.0f;
         float hLoss = hh/10.0f;
@@ -115,8 +108,6 @@ void displayImageStitch(const char* windowName,
     displayImage(windowName, stitch, false);
 }
 
-
-
 void displayImage(const char* windowName, const MinimalImageB* img,
                   bool autoSize)
 {
@@ -145,7 +136,6 @@ void displayImage(const char* windowName, const MinimalImageB16* img,
 {
     displayImage(windowName, cv::Mat(img->h, img->w, CV_16U, img->data), autoSize);
 }
-
 
 void displayImageStitch(const char* windowName,
                         const std::vector<MinimalImageB*> images, int cc, int rc)
@@ -191,8 +181,6 @@ void displayImageStitch(const char* windowName,
     for(size_t i=0; i < images.size(); i++)
         delete imagesCV[i];
 }
-
-
 
 int waitKey(int milliseconds)
 {

@@ -21,9 +21,7 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
@@ -31,14 +29,11 @@
 #include <math.h>
 #include "util/IndexThreadReduce.h"
 
-
 namespace dso
 {
 
 class EFPoint;
 class EnergyFunctional;
-
-
 
 class AccumulatedTopHessianSSE
 {
@@ -91,8 +86,6 @@ public:
     template<int mode> void addPoint(EFPoint* p, EnergyFunctional const * const ef,
                                      int tid=0);
 
-
-
     void stitchDoubleMT(IndexThreadReduce<Vec10>* red, MatXX &H, VecX &b,
                         EnergyFunctional const * const EF, bool usePrior, bool MT)
     {
@@ -144,16 +137,11 @@ public:
         }
     }
 
-
-
-
     int nframes[NUM_THREADS];
 
     EIGEN_ALIGN16 AccumulatorApprox* acc[NUM_THREADS];
 
-
     int nres[NUM_THREADS];
-
 
     template<int mode> void addPointsInternal(
         std::vector<EFPoint*>* points, EnergyFunctional const * const ef,
@@ -161,8 +149,6 @@ public:
     {
         for(int i=min; i<max; i++) addPoint<mode>((*points)[i],ef,tid);
     }
-
-
 
 private:
 

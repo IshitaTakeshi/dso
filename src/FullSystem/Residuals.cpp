@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*
  * KFBuffer.cpp
  *
@@ -50,9 +49,7 @@ namespace dso
 {
 int PointFrameResidual::instanceCounter = 0;
 
-
 long runningResID=0;
-
 
 PointFrameResidual::PointFrameResidual() {
     assert(false);
@@ -80,9 +77,6 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_,
     isNew=true;
 }
 
-
-
-
 double PointFrameResidual::linearize(CalibHessian* HCalib)
 {
     state_NewEnergyWithOutlier=-1;
@@ -107,7 +101,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
     Vec2f affLL = precalc->PRE_aff_mode;
     float b0 = precalc->PRE_b0_mode;
 
-
     Vec6f d_xi_x, d_xi_y;
     Vec4f d_C_x, d_C_y;
     float d_d_x, d_d_y;
@@ -125,13 +118,9 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
 
         centerProjectedTo = Vec3f(Ku, Kv, new_idepth);
 
-
         // diff d_idepth
         d_d_x = drescale * (PRE_tTll_0[0]-PRE_tTll_0[2]*u)*SCALE_IDEPTH*HCalib->fxl();
         d_d_y = drescale * (PRE_tTll_0[1]-PRE_tTll_0[2]*v)*SCALE_IDEPTH*HCalib->fyl();
-
-
-
 
         // diff calib
         d_C_x[2] = drescale*(PRE_RTll_0(2,0)*u-PRE_RTll_0(0,0));
@@ -156,7 +145,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
         d_C_y[2] *= SCALE_C;
         d_C_y[3] = (d_C_y[3]+1)*SCALE_C;
 
-
         d_xi_x[0] = new_idepth*HCalib->fxl();
         d_xi_x[1] = 0;
         d_xi_x[2] = -new_idepth*u*HCalib->fxl();
@@ -172,7 +160,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
         d_xi_y[5] = u*HCalib->fyl();
     }
 
-
     {
         J->Jpdxi[0] = d_xi_x;
         J->Jpdxi[1] = d_xi_y;
@@ -184,11 +171,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
         J->Jpdd[1] = d_d_y;
 
     }
-
-
-
-
-
 
     float JIdxJIdx_00=0, JIdxJIdx_11=0, JIdxJIdx_10=0;
     float JabJIdx_00=0, JabJIdx_01=0, JabJIdx_10=0, JabJIdx_11=0;
@@ -209,11 +191,8 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
         projectedTo[idx][0] = Ku;
         projectedTo[idx][1] = Kv;
 
-
         Vec3f hitColor = (getInterpolatedElement33(dIl, Ku, Kv, wG[0]));
         float residual = hitColor[0] - (float)(affLL[0] * color[idx] + affLL[1]);
-
-
 
         float drdA = (color[idx]-b0);
         if(!std::isfinite((float)hitColor[0]))
@@ -222,12 +201,9 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
             return state_energy;
         }
 
-
         float w = sqrtf(setting_outlierTHSumComponent / (setting_outlierTHSumComponent
                         + hitColor.tail<2>().squaredNorm()));
         w = 0.5f*(w + weights[idx]);
-
-
 
         float hw = fabsf(residual) < setting_huberTH ? 1 : setting_huberTH / fabsf(
                        residual);
@@ -259,7 +235,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
             JabJab_00+= drdA*drdA*hw*hw;
             JabJab_01+= drdA*hw*hw;
             JabJab_11+= hw*hw;
-
 
             wJI2_sum += hw*hw*(hitColor[1]*hitColor[1]+hitColor[2]*hitColor[2]);
 
@@ -299,8 +274,6 @@ double PointFrameResidual::linearize(CalibHessian* HCalib)
     return energyLeft;
 }
 
-
-
 void PointFrameResidual::debugPlot()
 {
     if(state_state==ResState::OOB) return;
@@ -329,8 +302,6 @@ void PointFrameResidual::debugPlot()
                                           (float)projectedTo[i][1],cT);
     }
 }
-
-
 
 void PointFrameResidual::applyRes(bool copyJacobians)
 {

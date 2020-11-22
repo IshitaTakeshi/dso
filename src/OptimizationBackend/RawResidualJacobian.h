@@ -21,9 +21,7 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 
@@ -49,7 +47,6 @@ struct RawResidualJacobian
 
     // = the two columns of d[r] / d[ab]
     VecNRf JabF[2];			// 9x2
-
 
     // = JIdx^T * JIdx (inner product). Only as a shorthand.
     Mat22f JIdx2;				// 2x2

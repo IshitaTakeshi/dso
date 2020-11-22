@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include <stdio.h>
 #include "util/settings.h"
 
@@ -36,13 +34,10 @@
 #include "FullSystem/ImmaturePoint.h"
 #include "util/FrameShell.h"
 
-
-
 namespace dso
 {
 namespace IOWrap
 {
-
 
 KeyFrameDisplay::KeyFrameDisplay()
 {
@@ -165,7 +160,6 @@ void KeyFrameDisplay::setFromKF(FrameHessian* fh, CalibHessian* HCalib)
     needRefresh=true;
 }
 
-
 KeyFrameDisplay::~KeyFrameDisplay()
 {
     if(originalInputSparse != 0)
@@ -194,7 +188,6 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
     my_minRelBS = minBS;
     my_sparsifyFactor = sparsity;
 
-
     // if there are no vertices, done!
     if(numSparsePoints == 0)
         return false;
@@ -220,7 +213,6 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
 
         if(originalInputSparse[i].idpeth < 0) continue;
 
-
         float depth = 1.0f / originalInputSparse[i].idpeth;
         float depth4 = depth*depth;
         depth4*= depth4;
@@ -235,7 +227,6 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
         if(originalInputSparse[i].relObsBaseline < my_minRelBS)
             continue;
 
-
         for(int pnt=0; pnt<patternNum; pnt++)
         {
 
@@ -249,8 +240,6 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
                     + cyi) * depth;
             tmpVertexBuffer[vertexBufferNumPoints][2] = depth*(1 + 2*fxi * (rand()/
                     (float)RAND_MAX-0.5f));
-
-
 
             if(my_displayMode==0)
             {
@@ -294,7 +283,6 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
             }
             vertexBufferNumPoints++;
 
-
             assert(vertexBufferNumPoints <= numSparsePoints*patternNum);
         }
     }
@@ -322,11 +310,8 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
     delete[] tmpColorBuffer;
     delete[] tmpVertexBuffer;
 
-
     return true;
 }
-
-
 
 void KeyFrameDisplay::drawCam(float lineWidth, float* color, float sizeFactor)
 {
@@ -374,13 +359,11 @@ void KeyFrameDisplay::drawCam(float lineWidth, float* color, float sizeFactor)
     glPopMatrix();
 }
 
-
 void KeyFrameDisplay::drawPC(float pointSize)
 {
 
     if(!bufferValid || numGLBufferGoodPoints==0)
         return;
-
 
     glDisable(GL_LIGHTING);
 
@@ -390,7 +373,6 @@ void KeyFrameDisplay::drawPC(float pointSize)
     glMultMatrixf((GLfloat*)m.data());
 
     glPointSize(pointSize);
-
 
     colorBuffer.Bind();
     glColorPointer(colorBuffer.count_per_element, colorBuffer.datatype, 0, 0);

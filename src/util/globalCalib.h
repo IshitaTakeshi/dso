@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #pragma once
 #include "util/settings.h"
 #include "util/NumType.h"

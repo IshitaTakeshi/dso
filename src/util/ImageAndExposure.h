@@ -21,15 +21,12 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #include <cstring>
 #include <iostream>
 
-
 namespace dso
 {
-
 
 class ImageAndExposure
 {
@@ -63,6 +60,5 @@ public:
         return img;
     }
 };
-
 
 }

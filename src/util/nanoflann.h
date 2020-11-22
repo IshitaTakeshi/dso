@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /***********************************************************************
  * Software License Agreement (BSD License)
  *
@@ -75,9 +74,6 @@
 #include <cmath>   // for fabs(),...
 #include <limits>
 
-
-
-
 namespace nanoflann
 {
 /** @addtogroup nanoflann_grp nanoflann C++ library for ANN
@@ -121,7 +117,6 @@ public:
         return count == capacity;
     }
 
-
     inline void addPoint(DistanceType dist, IndexType index)
     {
         CountType i;
@@ -150,7 +145,6 @@ public:
         return dists[capacity-1];
     }
 };
-
 
 /**
  * A result-set class used when performing a radius based search.
@@ -231,7 +225,6 @@ struct IndexDist_Sorter
 
 /** @} */
 
-
 /** @addtogroup loadsave_grp Load/save auxiliary functions
   * @{ */
 template<typename T>
@@ -257,7 +250,6 @@ void load_value(FILE* stream, T& value, size_t count = 1)
     }
 }
 
-
 template<typename T>
 void load_value(FILE* stream, std::vector<T>& value)
 {
@@ -273,7 +265,6 @@ void load_value(FILE* stream, std::vector<T>& value)
     }
 }
 /** @} */
-
 
 /** @addtogroup metric_grp Metric (distance) classes
   * @{ */
@@ -474,7 +465,6 @@ struct SearchParams
 };
 /** @} */
 
-
 /** @addtogroup memalloc_grp Memory allocation
   * @{ */
 
@@ -491,7 +481,6 @@ inline T* allocate(size_t count = 1)
     T* mem = static_cast<T*>( ::malloc(sizeof(T)*count));
     return mem;
 }
-
 
 /**
  * Pooled storage allocator
@@ -517,7 +506,6 @@ class PooledAllocator
         allocations be in multiples of the machine wordsize.  */
     /* Size of machine word in bytes.  Must be power of 2. */
     /* Minimum number of bytes requested at a time from	the system.  Must be multiple of WORDSIZE. */
-
 
     size_t  remaining;  /* Number of bytes left in current block of storage. */
     void*   base;     /* Pointer to base of current block of storage. */
@@ -866,7 +854,6 @@ protected:
 
     size_t m_leaf_max_size;
 
-
     /**
      * The dataset used by this index
      */
@@ -877,7 +864,6 @@ protected:
     size_t m_size; //!< Number of current poins in the dataset
     size_t m_size_at_index_build; //!< Number of points in the dataset when the index was built
     int dim;  //!< Dimensionality of each data point
-
 
     /*--------------------- Internal Data Structures --------------------------*/
     struct Node
@@ -895,7 +881,6 @@ protected:
         Node* child1, * child2;  //!< Child nodes (both=NULL mean its a leaf node)
     };
     typedef Node* NodePtr;
-
 
     struct Interval
     {
@@ -1105,7 +1090,6 @@ private:
         return dataset.kdtree_get_pt(idx,component);
     }
 
-
     void save_tree(FILE* stream, NodePtr tree)
     {
         save_value(stream, *tree);
@@ -1116,7 +1100,6 @@ private:
             save_tree(stream, tree->child2);
         }
     }
-
 
     void load_tree(FILE* stream, NodePtr& tree)
     {
@@ -1129,7 +1112,6 @@ private:
             load_tree(stream, tree->child2);
         }
     }
-
 
     void computeBoundingBox(BoundingBox& bbox)
     {
@@ -1155,7 +1137,6 @@ private:
             }
         }
     }
-
 
     /**
      * Create a tree node that subdivides the list of vecs from vind[first]
@@ -1215,7 +1196,6 @@ private:
         return node;
     }
 
-
     void computeMinMax(IndexType* ind, IndexType count, int element,
                        ElementType& min_elem, ElementType& max_elem)
     {
@@ -1269,7 +1249,6 @@ private:
         else if (lim2<count/2) index = lim2;
         else index = count/2;
     }
-
 
     /**
      *  Subdivide the list of points by a plane perpendicular on axe corresponding
@@ -1419,7 +1398,6 @@ public:
 
 };   // class KDTree
 
-
 /** An L2-metric KD-tree adaptor for working with data directly stored in an Eigen Matrix, without duplicating the data storage.
   *  Each row in the matrix represents a point in the state space.
   *
@@ -1535,5 +1513,4 @@ public:
 
 /** @} */ // end of grouping
 } // end of NS
-
 

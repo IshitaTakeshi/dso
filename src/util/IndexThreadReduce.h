@@ -21,15 +21,11 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #pragma once
 #include "util/settings.h"
 #include "boost/thread.hpp"
 #include <stdio.h>
 #include <iostream>
-
-
 
 namespace dso
 {
@@ -69,7 +65,6 @@ public:
         for(int i=0; i<NUM_THREADS; i++)
             workerThreads[i].join();
 
-
         printf("destroyed ThreadReduce\n");
 
     }
@@ -86,11 +81,8 @@ public:
 //			return;
 //		}
 
-
-
         if(stepSize == 0)
             stepSize = ((end-first)+NUM_THREADS-1)/NUM_THREADS;
-
 
         //printf("reduce called\n");
 
@@ -111,7 +103,6 @@ public:
 
         // let them start!
         todo_signal.notify_all();
-
 
         //printf("reduce waiting for threads to finish\n");
         // wait for all worker threads to signal they are done.

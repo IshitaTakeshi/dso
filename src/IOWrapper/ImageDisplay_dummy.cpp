@@ -21,13 +21,10 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "IOWrapper/ImageDisplay.h"
 
 namespace dso
 {
-
 
 namespace IOWrap
 {
@@ -41,7 +38,6 @@ void displayImage(const char* windowName, const MinimalImageF3* img,
                   bool autoSize) {};
 void displayImage(const char* windowName, const MinimalImageB16* img,
                   bool autoSize) {};
-
 
 void displayImageStitch(const char* windowName,
                         const std::vector<MinimalImageB*> images, int cc, int rc) {};

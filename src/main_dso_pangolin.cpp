@@ -21,8 +21,6 @@
  * along with DSO. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include <thread>
 #include <locale.h>
 #include <signal.h>
@@ -47,16 +45,13 @@
 #include "IOWrapper/Pangolin/PangolinDSOViewer.h"
 #include "IOWrapper/OutputWrapper/SampleOutputWrapper.h"
 
-
 using namespace dso;
-
 
 void my_exit_handler(int s)
 {
     printf("Caught signal %d\n",s);
     exit(1);
 }
-
 
 void exitThread()
 {
@@ -68,7 +63,6 @@ void exitThread()
 
     while(true) pause();
 }
-
 
 void parseArgument(char* arg,
                    std::string &vignette, std::string &gammaCalib,
@@ -208,7 +202,6 @@ void parseArgument(char* arg,
 
     printf("could not parse argument \"%s\"!!!!\n", arg);
 }
-
 
 int main( int argc, char** argv )
 {

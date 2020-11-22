@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "FullSystem/ImmaturePoint.h"
 #include "util/FrameShell.h"
 #include "FullSystem/ResidualProjections.h"
@@ -44,14 +42,11 @@ ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
 
         Vec3f ptc = getInterpolatedElement33BiLin(host->dI, u+dx, v+dy,wG[0]);
 
-
-
         color[idx] = ptc[0];
         if(!std::isfinite(color[idx])) {
             energyTH=NAN;
             return;
         }
-
 
         gradH += ptc.tail<2>()  * ptc.tail<2>().transpose();
 
@@ -70,8 +65,6 @@ ImmaturePoint::~ImmaturePoint()
 {
 }
 
-
-
 /*
  * returns
  * * OOB -> point is optimized and marginalized
@@ -83,7 +76,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         const Vec2f& hostToFrame_affine, CalibHessian* HCalib, bool debugPrint)
 {
     if(lastTraceStatus == ImmaturePointStatus::IPS_OOB) return lastTraceStatus;
-
 
     debugPrint = false;//rand()%100==0;
     float maxPixSearch = (wG[0]+hG[0])*setting_maxPixSearch;
@@ -126,7 +118,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         uMax = ptpMax[0] / ptpMax[2];
         vMax = ptpMax[1] / ptpMax[2];
 
-
         if(!(uMax > 4 && vMax > 4 && uMax < wG[0]-5 && vMax < hG[0]-5))
         {
             if(debugPrint) printf("OOB uMax  %f %f - %f %f!\n",u,v, uMax, vMax);
@@ -134,8 +125,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             lastTracePixelInterval=0;
             return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
         }
-
-
 
         // ============== check their distance. everything below 2px is OK (-> skip). ===================
         dist = (uMin-uMax)*(uMin-uMax) + (vMin-vMax)*(vMin-vMax);
@@ -180,7 +169,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         assert(dist>0);
     }
 
-
     // set OOB if scale change too big.
     if(!(idepth_min<0 || (ptpMin[2]>0.75 && ptpMin[2]<1.5)))
     {
@@ -189,7 +177,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         lastTracePixelInterval=0;
         return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
     }
-
 
     // ============== compute error-bounds on result in pixel. if the new interval is not at least 1/2 of the old, SKIP ===================
     float dx = setting_trace_stepsize*(uMax-uMin);
@@ -211,8 +198,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 
     if(errorInPixel >10) errorInPixel=10;
 
-
-
     // ============== do the discrete search ===================
     dx /= dist;
     dy /= dist;
@@ -225,7 +210,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
                idepth_max, uMax, vMax,
                errorInPixel
               );
-
 
     if(dist>maxPixSearch)
     {
@@ -241,13 +225,9 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     float ptx = uMin-randShift*dx;
     float pty = vMin-randShift*dy;
 
-
     Vec2f rotatetPattern[MAX_RES_PER_POINT];
     for(int idx=0; idx<patternNum; idx++)
         rotatetPattern[idx] = Rplane * Vec2f(patternP[idx][0], patternP[idx][1]);
-
-
-
 
     if(!std::isfinite(dx) || !std::isfinite(dy))
     {
@@ -257,8 +237,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         lastTraceUV = Vec2f(-1,-1);
         return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
     }
-
-
 
     float errors[100];
     float bestU=0, bestV=0, bestEnergy=1e10;
@@ -290,7 +268,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             printf("step %.1f %.1f (id %f): energy = %f!\n",
                    ptx, pty, 0.0f, energy);
 
-
         errors[i] = energy;
         if(energy < bestEnergy)
         {
@@ -304,7 +281,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         pty+=dy;
     }
 
-
     // find best score outside a +-2px radius.
     float secondBest=1e10;
     for(int i=0; i<numSteps; i++)
@@ -315,7 +291,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     }
     float newQuality = secondBest / bestEnergy;
     if(newQuality < quality || numSteps > 10) quality = newQuality;
-
 
     // ============== do GN optimization ===================
     float uBak=bestU, vBak=bestV, gnstepsize=1, stepBack=0;
@@ -344,7 +319,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             b += hw*residual*dResdDist;
             energy += weights[idx]*weights[idx]*hw *residual*residual*(2-hw);
         }
-
 
         if(energy > bestEnergy)
         {
@@ -386,7 +360,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         if(fabsf(stepBack) < setting_trace_GNThreshold) break;
     }
 
-
     // ============== detect energy-based outlier. ===================
 //	float absGrad0 = getInterpolatedElement(frame->absSquaredGrad[0],bestU, bestV, wG[0]);
 //	float absGrad1 = getInterpolatedElement(frame->absSquaredGrad[1],bestU*0.5-0.25, bestV*0.5-0.25, wG[1]);
@@ -407,7 +380,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
             return lastTraceStatus = ImmaturePointStatus::IPS_OUTLIER;
     }
 
-
     // ============== set new interval ===================
     if(dx*dx>dy*dy)
     {
@@ -425,7 +397,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     }
     if(idepth_min > idepth_max) std::swap<float>(idepth_min, idepth_max);
 
-
     if(!std::isfinite(idepth_min) || !std::isfinite(idepth_max) || (idepth_max<0))
     {
         //printf("COUGHT INF / NAN minmax depth (%f %f)!\n", idepth_min, idepth_max);
@@ -439,7 +410,6 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     lastTraceUV = Vec2f(bestU, bestV);
     return lastTraceStatus = ImmaturePointStatus::IPS_GOOD;
 }
-
 
 float ImmaturePoint::getdPixdd(
     CalibHessian *  HCalib,
@@ -459,7 +429,6 @@ float ImmaturePoint::getdPixdd(
     float dydd = (PRE_tTll[1]-PRE_tTll[2]*v)*HCalib->fyl();
     return drescale*sqrtf(dxdd*dxdd + dydd*dydd);
 }
-
 
 float ImmaturePoint::calcResidual(
     CalibHessian *  HCalib, const float outlierTHSlack,
@@ -503,9 +472,6 @@ float ImmaturePoint::calcResidual(
     return energyLeft;
 }
 
-
-
-
 double ImmaturePoint::linearizeResidual(
     CalibHessian *  HCalib, const float outlierTHSlack,
     ImmaturePointTemporaryResidual* tmpRes,
@@ -546,7 +512,6 @@ double ImmaturePoint::linearizeResidual(
             return tmpRes->state_energy;
         }
 
-
         Vec3f hitColor = (getInterpolatedElement33(dIl, Ku, Kv, wG[0]));
 
         if(!std::isfinite((float)hitColor[0])) {
@@ -571,7 +536,6 @@ double ImmaturePoint::linearizeResidual(
         bd += (hw*residual)*d_idepth;
     }
 
-
     if(energyLeft > energyTH*outlierTHSlack)
     {
         energyLeft = energyTH*outlierTHSlack;
@@ -585,7 +549,5 @@ double ImmaturePoint::linearizeResidual(
     tmpRes->state_NewEnergy = energyLeft;
     return energyLeft;
 }
-
-
 
 }

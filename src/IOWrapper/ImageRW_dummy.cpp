@@ -21,13 +21,10 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "IOWrapper/ImageRW.h"
 
 namespace dso
 {
-
 
 namespace IOWrap
 {

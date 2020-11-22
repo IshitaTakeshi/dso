@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*
  * KFBuffer.cpp
  *
@@ -45,8 +44,6 @@
 
 namespace dso
 {
-
-
 
 PointHessian* FullSystem::optimizeImmaturePoint(
     ImmaturePoint* point, int minObs,
@@ -72,11 +69,6 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     float lastHdd=0;
     float lastbd=0;
     float currentIdepth=(point->idepth_max+point->idepth_min)*0.5f;
-
-
-
-
-
 
     for(int i=0; i<nres; i++)
     {
@@ -159,7 +151,6 @@ PointHessian* FullSystem::optimizeImmaturePoint(
                                    -1));		// yeah I'm like 99% sure this is OK on 32bit systems.
     }
 
-
     int numGoodRes=0;
     for(int i=0; i<nres; i++)
         if(residuals[i].state_state == ResState::IN) numGoodRes++;
@@ -170,8 +161,6 @@ PointHessian* FullSystem::optimizeImmaturePoint(
         return (PointHessian*)((long)(
                                    -1));		// yeah I'm like 99% sure this is OK on 32bit systems.
     }
-
-
 
     PointHessian* p = new PointHessian(point, &Hcalib);
     if(!std::isfinite(p->energyTH)) {
@@ -215,7 +204,5 @@ PointHessian* FullSystem::optimizeImmaturePoint(
     statistics_numActivatedPoints++;
     return p;
 }
-
-
 
 }

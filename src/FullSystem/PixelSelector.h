@@ -21,21 +21,14 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-
 #include "util/NumType.h"
-
-
-
 
 namespace dso
 {
 
-
 const float minUseGrad_pixsel = 10;
-
 
 template<int pot>
 inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w,
@@ -129,7 +122,6 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w,
     return numGood;
 }
 
-
 inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w,
                             int h, int pot, float THFac)
 {
@@ -221,14 +213,12 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w,
     return numGood;
 }
 
-
 inline int makePixelStatus(Eigen::Vector3f* grads, bool* map, int w, int h,
                            float desiredDensity, int recsLeft=5, float THFac = 1)
 {
     if(sparsityFactor < 1) sparsityFactor = 1;
 
     int numGoodPoints;
-
 
     if(sparsityFactor==1) numGoodPoints = gridMaxSelection<1>(grads, map, w, h,
                                               THFac);
@@ -254,7 +244,6 @@ inline int makePixelStatus(Eigen::Vector3f* grads, bool* map, int w, int h,
                 h, THFac);
     else numGoodPoints = gridMaxSelection(grads, map, w, h, sparsityFactor, THFac);
 
-
     /*
      * #points is approximately proportional to sparsityFactor^2.
      */
@@ -263,13 +252,10 @@ inline int makePixelStatus(Eigen::Vector3f* grads, bool* map, int w, int h,
 
     int newSparsity = (sparsityFactor * sqrtf(quotia))+0.7f;
 
-
     if(newSparsity < 1) newSparsity=1;
-
 
     float oldTHFac = THFac;
     if(newSparsity==1 && sparsityFactor==1) THFac = 0.5;
-
 
     if((abs(newSparsity-sparsityFactor) < 1 && THFac==oldTHFac) ||
             ( quotia > 0.8 &&  1.0f / quotia > 0.8) ||

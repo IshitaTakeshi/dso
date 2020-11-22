@@ -21,16 +21,13 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 
 #include "FullSystem/HessianBlocks.h"
 namespace dso
 {
-
 
 struct ImmaturePointTemporaryResidual
 {
@@ -42,7 +39,6 @@ public:
     FrameHessian* target;
 };
 
-
 enum ImmaturePointStatus {
     IPS_GOOD=0,					// traced well and good
     IPS_OOB,					// OOB: end tracking & marginalize!
@@ -52,7 +48,6 @@ enum ImmaturePointStatus {
     IPS_UNINITIALIZED
 };			// not even traced once.
 
-
 class ImmaturePoint
 {
 public:
@@ -60,10 +55,6 @@ public:
     // static values
     float color[MAX_RES_PER_POINT];
     float weights[MAX_RES_PER_POINT];
-
-
-
-
 
     Mat22f gradH;
     Vec2f gradH_ev;

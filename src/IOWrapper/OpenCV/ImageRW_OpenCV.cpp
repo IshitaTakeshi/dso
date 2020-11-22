@@ -21,11 +21,8 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "IOWrapper/ImageRW.h"
 #include <opencv2/highgui/highgui.hpp>
-
 
 namespace dso
 {
@@ -109,8 +106,6 @@ MinimalImageB* readStreamBW_8U(char* data, int numBytes)
     memcpy(img->data, m.data, m.rows*m.cols);
     return img;
 }
-
-
 
 void writeImage(std::string filename, MinimalImageB* img)
 {

@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "OptimizationBackend/AccumulatedSCHessian.h"
 #include "OptimizationBackend/EnergyFunctional.h"
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
@@ -88,7 +87,6 @@ void AccumulatedSCHessianSSE::stitchDoubleInternal(
     }
     if(min==max) return;
 
-
     int nf = nframes[0];
     int nframes2 = nf*nf;
 
@@ -116,8 +114,6 @@ void AccumulatedSCHessianSSE::stitchDoubleInternal(
         H[tid].block<8,CPARS>(jIdx,0) += EF->adTarget[ijIdx] * Hpc;
         b[tid].segment<8>(iIdx) += EF->adHost[ijIdx] * bp;
         b[tid].segment<8>(jIdx) += EF->adTarget[ijIdx] * bp;
-
-
 
         for(int k=0; k<nf; k++)
         {
@@ -156,7 +152,6 @@ void AccumulatedSCHessianSSE::stitchDoubleInternal(
         }
     }
 
-
 //	// ----- new: copy transposed parts for calibration only.
 //	for(int h=0;h<nf;h++)
 //	{
@@ -174,7 +169,6 @@ void AccumulatedSCHessianSSE::stitchDouble(MatXX &H, VecX &b,
 
     H = MatXX::Zero(nf*8+CPARS, nf*8+CPARS);
     b = VecX::Zero(nf*8+CPARS);
-
 
     for(int i=0; i<nf; i++)
         for(int j=0; j<nf; j++)

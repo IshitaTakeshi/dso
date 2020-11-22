@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #include "util/NumType.h"
 
@@ -31,7 +30,6 @@
 
 namespace dso
 {
-
 
 template<int i, int j>
 class AccumulatorXX
@@ -57,7 +55,6 @@ public:
         shiftUp(true);
         num = numIn1 + numIn1k + numIn1m;
     }
-
 
     inline void update(const Eigen::Matrix<float,i,1> &L,
                        const Eigen::Matrix<float,j,1> &R, float w)
@@ -112,7 +109,6 @@ public:
         A=SSEData1m[0+0] + SSEData1m[0+1] + SSEData1m[0+2] + SSEData1m[0+3];
     }
 
-
     inline void updateSingle(
         const float val)
     {
@@ -147,14 +143,11 @@ public:
         numIn1++;
     }
 
-
-
 private:
     EIGEN_ALIGN16 float SSEData[4*1];
     EIGEN_ALIGN16 float SSEData1k[4*1];
     EIGEN_ALIGN16 float SSEData1m[4*1];
     float numIn1, numIn1k, numIn1m;
-
 
     void shiftUp(bool force)
     {
@@ -177,9 +170,6 @@ private:
         }
     }
 };
-
-
-
 
 template<int i>
 class AccumulatorX
@@ -205,7 +195,6 @@ public:
         shiftUp(true);
         num = numIn1+numIn1k+numIn1m;
     }
-
 
     inline void update(const Eigen::Matrix<float,i,1> &L, float w)
     {
@@ -242,13 +231,6 @@ private:
         }
     }
 };
-
-
-
-
-
-
-
 
 class Accumulator14
 {
@@ -288,7 +270,6 @@ public:
         assert(idx==4*105);
         num = numIn1 + numIn1k + numIn1m;
     }
-
 
     inline void updateSSE(
         const __m128 J0,const __m128 J1,
@@ -528,7 +509,6 @@ public:
         numIn1++;
         shiftUp(false);
     }
-
 
     inline void updateSingle(
         const float J0,const float J1,
@@ -770,13 +750,11 @@ public:
         shiftUp(false);
     }
 
-
 private:
     EIGEN_ALIGN16 float SSEData[4*105];
     EIGEN_ALIGN16 float SSEData1k[4*105];
     EIGEN_ALIGN16 float SSEData1m[4*105];
     float numIn1, numIn1k, numIn1m;
-
 
     void shiftUp(bool force)
     {
@@ -801,10 +779,6 @@ private:
         }
     }
 };
-
-
-
-
 
 /*
  * computes the outer sum of 10x2 matrices, weighted with a 2x2 matrix:
@@ -866,13 +840,8 @@ public:
         H(11,12) = H(12,11) = BotRight_Data1m[4];
         H(12,12) 			= BotRight_Data1m[5];
 
-
         num = numIn1 + numIn1k + numIn1m;
     }
-
-
-
-
 
     inline void updateSSE(
         const float* const x,
@@ -893,7 +862,6 @@ public:
         Data[8] += a*x[8]*x[0] + c*y[8]*y[0] +  b*(x[8]*y[0] + y[8]*x[0]);
         Data[9] += a*x[9]*x[0] + c*y[9]*y[0] +  b*(x[9]*y[0] + y[9]*x[0]);
 
-
         Data[10] += a*x[1]*x[1] + c*y[1]*y[1] +  b*(x[1]*y[1] + y[1]*x[1]);
         Data[11] += a*x[2]*x[1] + c*y[2]*y[1] +  b*(x[2]*y[1] + y[2]*x[1]);
         Data[12] += a*x[3]*x[1] + c*y[3]*y[1] +  b*(x[3]*y[1] + y[3]*x[1]);
@@ -904,8 +872,6 @@ public:
         Data[17] += a*x[8]*x[1] + c*y[8]*y[1] +  b*(x[8]*y[1] + y[8]*x[1]);
         Data[18] += a*x[9]*x[1] + c*y[9]*y[1] +  b*(x[9]*y[1] + y[9]*x[1]);
 
-
-
         Data[19] += a*x[2]*x[2] + c*y[2]*y[2] +  b*(x[2]*y[2] + y[2]*x[2]);
         Data[20] += a*x[3]*x[2] + c*y[3]*y[2] +  b*(x[3]*y[2] + y[3]*x[2]);
         Data[21] += a*x[4]*x[2] + c*y[4]*y[2] +  b*(x[4]*y[2] + y[4]*x[2]);
@@ -915,8 +881,6 @@ public:
         Data[25] += a*x[8]*x[2] + c*y[8]*y[2] +  b*(x[8]*y[2] + y[8]*x[2]);
         Data[26] += a*x[9]*x[2] + c*y[9]*y[2] +  b*(x[9]*y[2] + y[9]*x[2]);
 
-
-
         Data[27] += a*x[3]*x[3] + c*y[3]*y[3] +  b*(x[3]*y[3] + y[3]*x[3]);
         Data[28] += a*x[4]*x[3] + c*y[4]*y[3] +  b*(x[4]*y[3] + y[4]*x[3]);
         Data[29] += a*x[5]*x[3] + c*y[5]*y[3] +  b*(x[5]*y[3] + y[5]*x[3]);
@@ -925,8 +889,6 @@ public:
         Data[32] += a*x[8]*x[3] + c*y[8]*y[3] +  b*(x[8]*y[3] + y[8]*x[3]);
         Data[33] += a*x[9]*x[3] + c*y[9]*y[3] +  b*(x[9]*y[3] + y[9]*x[3]);
 
-
-
         Data[34] += a*x[4]*x[4] + c*y[4]*y[4] +  b*(x[4]*y[4] + y[4]*x[4]);
         Data[35] += a*x[5]*x[4] + c*y[5]*y[4] +  b*(x[5]*y[4] + y[5]*x[4]);
         Data[36] += a*x[6]*x[4] + c*y[6]*y[4] +  b*(x[6]*y[4] + y[6]*x[4]);
@@ -934,39 +896,30 @@ public:
         Data[38] += a*x[8]*x[4] + c*y[8]*y[4] +  b*(x[8]*y[4] + y[8]*x[4]);
         Data[39] += a*x[9]*x[4] + c*y[9]*y[4] +  b*(x[9]*y[4] + y[9]*x[4]);
 
-
-
         Data[40] += a*x[5]*x[5] + c*y[5]*y[5] +  b*(x[5]*y[5] + y[5]*x[5]);
         Data[41] += a*x[6]*x[5] + c*y[6]*y[5] +  b*(x[6]*y[5] + y[6]*x[5]);
         Data[42] += a*x[7]*x[5] + c*y[7]*y[5] +  b*(x[7]*y[5] + y[7]*x[5]);
         Data[43] += a*x[8]*x[5] + c*y[8]*y[5] +  b*(x[8]*y[5] + y[8]*x[5]);
         Data[44] += a*x[9]*x[5] + c*y[9]*y[5] +  b*(x[9]*y[5] + y[9]*x[5]);
 
-
         Data[45] += a*x[6]*x[6] + c*y[6]*y[6] +  b*(x[6]*y[6] + y[6]*x[6]);
         Data[46] += a*x[7]*x[6] + c*y[7]*y[6] +  b*(x[7]*y[6] + y[7]*x[6]);
         Data[47] += a*x[8]*x[6] + c*y[8]*y[6] +  b*(x[8]*y[6] + y[8]*x[6]);
         Data[48] += a*x[9]*x[6] + c*y[9]*y[6] +  b*(x[9]*y[6] + y[9]*x[6]);
 
-
         Data[49] += a*x[7]*x[7] + c*y[7]*y[7] +  b*(x[7]*y[7] + y[7]*x[7]);
         Data[50] += a*x[8]*x[7] + c*y[8]*y[7] +  b*(x[8]*y[7] + y[8]*x[7]);
         Data[51] += a*x[9]*x[7] + c*y[9]*y[7] +  b*(x[9]*y[7] + y[9]*x[7]);
-
 
         Data[52] += a*x[8]*x[8] + c*y[8]*y[8] +  b*(x[8]*y[8] + y[8]*x[8]);
         Data[53] += a*x[9]*x[8] + c*y[9]*y[8] +  b*(x[9]*y[8] + y[9]*x[8]);
 
         Data[54] += a*x[9]*x[9] + c*y[9]*y[9] +  b*(x[9]*y[9] + y[9]*x[9]);
 
-
         num++;
         numIn1++;
         shiftUp(false);
     }
-
-
-
 
     /*
      * same as other method, just that x/y are composed of two parts, the first 4 elements are in x4/y4, the last 6 in x6/y6.
@@ -992,9 +945,6 @@ public:
         Data[8] += a*x6[4]*x4[0] + c*y6[4]*y4[0] +  b*(x6[4]*y4[0] + y6[4]*x4[0]);
         Data[9] += a*x6[5]*x4[0] + c*y6[5]*y4[0] +  b*(x6[5]*y4[0] + y6[5]*x4[0]);
 
-
-
-
         Data[10] += a*x4[1]*x4[1] + c*y4[1]*y4[1] +  b*(x4[1]*y4[1] + y4[1]*x4[1]);
         Data[11] += a*x4[2]*x4[1] + c*y4[2]*y4[1] +  b*(x4[2]*y4[1] + y4[2]*x4[1]);
         Data[12] += a*x4[3]*x4[1] + c*y4[3]*y4[1] +  b*(x4[3]*y4[1] + y4[3]*x4[1]);
@@ -1005,8 +955,6 @@ public:
         Data[17] += a*x6[4]*x4[1] + c*y6[4]*y4[1] +  b*(x6[4]*y4[1] + y6[4]*x4[1]);
         Data[18] += a*x6[5]*x4[1] + c*y6[5]*y4[1] +  b*(x6[5]*y4[1] + y6[5]*x4[1]);
 
-
-
         Data[19] += a*x4[2]*x4[2] + c*y4[2]*y4[2] +  b*(x4[2]*y4[2] + y4[2]*x4[2]);
         Data[20] += a*x4[3]*x4[2] + c*y4[3]*y4[2] +  b*(x4[3]*y4[2] + y4[3]*x4[2]);
         Data[21] += a*x6[0]*x4[2] + c*y6[0]*y4[2] +  b*(x6[0]*y4[2] + y6[0]*x4[2]);
@@ -1016,8 +964,6 @@ public:
         Data[25] += a*x6[4]*x4[2] + c*y6[4]*y4[2] +  b*(x6[4]*y4[2] + y6[4]*x4[2]);
         Data[26] += a*x6[5]*x4[2] + c*y6[5]*y4[2] +  b*(x6[5]*y4[2] + y6[5]*x4[2]);
 
-
-
         Data[27] += a*x4[3]*x4[3] + c*y4[3]*y4[3] +  b*(x4[3]*y4[3] + y4[3]*x4[3]);
         Data[28] += a*x6[0]*x4[3] + c*y6[0]*y4[3] +  b*(x6[0]*y4[3] + y6[0]*x4[3]);
         Data[29] += a*x6[1]*x4[3] + c*y6[1]*y4[3] +  b*(x6[1]*y4[3] + y6[1]*x4[3]);
@@ -1026,8 +972,6 @@ public:
         Data[32] += a*x6[4]*x4[3] + c*y6[4]*y4[3] +  b*(x6[4]*y4[3] + y6[4]*x4[3]);
         Data[33] += a*x6[5]*x4[3] + c*y6[5]*y4[3] +  b*(x6[5]*y4[3] + y6[5]*x4[3]);
 
-
-
         Data[34] += a*x6[0]*x6[0] + c*y6[0]*y6[0] +  b*(x6[0]*y6[0] + y6[0]*x6[0]);
         Data[35] += a*x6[1]*x6[0] + c*y6[1]*y6[0] +  b*(x6[1]*y6[0] + y6[1]*x6[0]);
         Data[36] += a*x6[2]*x6[0] + c*y6[2]*y6[0] +  b*(x6[2]*y6[0] + y6[2]*x6[0]);
@@ -1035,37 +979,30 @@ public:
         Data[38] += a*x6[4]*x6[0] + c*y6[4]*y6[0] +  b*(x6[4]*y6[0] + y6[4]*x6[0]);
         Data[39] += a*x6[5]*x6[0] + c*y6[5]*y6[0] +  b*(x6[5]*y6[0] + y6[5]*x6[0]);
 
-
-
         Data[40] += a*x6[1]*x6[1] + c*y6[1]*y6[1] +  b*(x6[1]*y6[1] + y6[1]*x6[1]);
         Data[41] += a*x6[2]*x6[1] + c*y6[2]*y6[1] +  b*(x6[2]*y6[1] + y6[2]*x6[1]);
         Data[42] += a*x6[3]*x6[1] + c*y6[3]*y6[1] +  b*(x6[3]*y6[1] + y6[3]*x6[1]);
         Data[43] += a*x6[4]*x6[1] + c*y6[4]*y6[1] +  b*(x6[4]*y6[1] + y6[4]*x6[1]);
         Data[44] += a*x6[5]*x6[1] + c*y6[5]*y6[1] +  b*(x6[5]*y6[1] + y6[5]*x6[1]);
 
-
         Data[45] += a*x6[2]*x6[2] + c*y6[2]*y6[2] +  b*(x6[2]*y6[2] + y6[2]*x6[2]);
         Data[46] += a*x6[3]*x6[2] + c*y6[3]*y6[2] +  b*(x6[3]*y6[2] + y6[3]*x6[2]);
         Data[47] += a*x6[4]*x6[2] + c*y6[4]*y6[2] +  b*(x6[4]*y6[2] + y6[4]*x6[2]);
         Data[48] += a*x6[5]*x6[2] + c*y6[5]*y6[2] +  b*(x6[5]*y6[2] + y6[5]*x6[2]);
 
-
         Data[49] += a*x6[3]*x6[3] + c*y6[3]*y6[3] +  b*(x6[3]*y6[3] + y6[3]*x6[3]);
         Data[50] += a*x6[4]*x6[3] + c*y6[4]*y6[3] +  b*(x6[4]*y6[3] + y6[4]*x6[3]);
         Data[51] += a*x6[5]*x6[3] + c*y6[5]*y6[3] +  b*(x6[5]*y6[3] + y6[5]*x6[3]);
-
 
         Data[52] += a*x6[4]*x6[4] + c*y6[4]*y6[4] +  b*(x6[4]*y6[4] + y6[4]*x6[4]);
         Data[53] += a*x6[5]*x6[4] + c*y6[5]*y6[4] +  b*(x6[5]*y6[4] + y6[5]*x6[4]);
 
         Data[54] += a*x6[5]*x6[5] + c*y6[5]*y6[5] +  b*(x6[5]*y6[5] + y6[5]*x6[5]);
 
-
         num++;
         numIn1++;
         shiftUp(false);
     }
-
 
     inline void updateTopRight(
         const float* const x4,
@@ -1134,8 +1071,6 @@ public:
         BotRight_Data[5] += a22;
     }
 
-
-
 private:
     EIGEN_ALIGN16 float Data[60];
     EIGEN_ALIGN16 float Data1k[60];
@@ -1149,10 +1084,7 @@ private:
     EIGEN_ALIGN16 float BotRight_Data1k[8];
     EIGEN_ALIGN16 float BotRight_Data1m[8];
 
-
     float numIn1, numIn1k, numIn1m;
-
-
 
     void shiftUp(bool force)
     {
@@ -1166,7 +1098,6 @@ private:
             for(int i=0; i<8; i+=4)
                 _mm_store_ps(BotRight_Data1k+i, _mm_add_ps(_mm_load_ps(BotRight_Data+i),
                              _mm_load_ps(BotRight_Data1k+i)));
-
 
             numIn1k+=numIn1;
             numIn1=0;
@@ -1195,14 +1126,6 @@ private:
         }
     }
 };
-
-
-
-
-
-
-
-
 
 class Accumulator9
 {
@@ -1241,7 +1164,6 @@ public:
             }
         assert(idx==4*45);
     }
-
 
     inline void updateSSE(
         const __m128 J0,const __m128 J1,
@@ -1354,10 +1276,6 @@ public:
         numIn1++;
         shiftUp(false);
     }
-
-
-
-
 
     inline void updateSSE_eighted(
         const __m128 J0,const __m128 J1,
@@ -1481,7 +1399,6 @@ public:
         shiftUp(false);
     }
 
-
     inline void updateSingle(
         const float J0,const float J1,
         const float J2,const float J3,
@@ -1509,7 +1426,6 @@ public:
         *pt += J8*J0;
         pt+=4;
 
-
         *pt += J1*J1;
         pt+=4;
         *pt += J2*J1;
@@ -1527,7 +1443,6 @@ public:
         *pt += J8*J1;
         pt+=4;
 
-
         *pt += J2*J2;
         pt+=4;
         *pt += J3*J2;
@@ -1543,7 +1458,6 @@ public:
         *pt += J8*J2;
         pt+=4;
 
-
         *pt += J3*J3;
         pt+=4;
         *pt += J4*J3;
@@ -1556,7 +1470,6 @@ public:
         pt+=4;
         *pt += J8*J3;
         pt+=4;
-
 
         *pt += J4*J4;
         pt+=4;
@@ -1578,14 +1491,12 @@ public:
         *pt += J8*J5;
         pt+=4;
 
-
         *pt += J6*J6;
         pt+=4;
         *pt += J7*J6;
         pt+=4;
         *pt += J8*J6;
         pt+=4;
-
 
         *pt += J7*J7;
         pt+=4;
@@ -1630,7 +1541,6 @@ public:
         *pt += J8*J0;
         pt+=4;
 
-
         *pt += J1*J1*w;
         pt+=4;
         J1*=w;
@@ -1649,7 +1559,6 @@ public:
         *pt += J8*J1;
         pt+=4;
 
-
         *pt += J2*J2*w;
         pt+=4;
         J2*=w;
@@ -1666,7 +1575,6 @@ public:
         *pt += J8*J2;
         pt+=4;
 
-
         *pt += J3*J3*w;
         pt+=4;
         J3*=w;
@@ -1680,7 +1588,6 @@ public:
         pt+=4;
         *pt += J8*J3;
         pt+=4;
-
 
         *pt += J4*J4*w;
         pt+=4;
@@ -1704,7 +1611,6 @@ public:
         *pt += J8*J5;
         pt+=4;
 
-
         *pt += J6*J6*w;
         pt+=4;
         J6*=w;
@@ -1712,7 +1618,6 @@ public:
         pt+=4;
         *pt += J8*J6;
         pt+=4;
-
 
         *pt += J7*J7*w;
         pt+=4;
@@ -1728,13 +1633,11 @@ public:
         shiftUp(false);
     }
 
-
 private:
     EIGEN_ALIGN16 float SSEData[4*45];
     EIGEN_ALIGN16 float SSEData1k[4*45];
     EIGEN_ALIGN16 float SSEData1m[4*45];
     float numIn1, numIn1k, numIn1m;
-
 
     void shiftUp(bool force)
     {

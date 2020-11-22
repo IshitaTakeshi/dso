@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #pragma once
 #include "util/NumType.h"
 #include "util/MinimalImage.h"
@@ -35,7 +33,6 @@ namespace IOWrap
 MinimalImageB* readImageBW_8U(std::string filename);
 MinimalImageB3* readImageRGB_8U(std::string filename);
 MinimalImage<unsigned short>* readImageBW_16U(std::string filename);
-
 
 MinimalImageB* readStreamBW_8U(char* data, int numBytes);
 

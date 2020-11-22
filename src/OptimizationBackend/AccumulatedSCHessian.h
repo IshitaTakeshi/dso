@@ -21,9 +21,7 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
@@ -36,7 +34,6 @@ namespace dso
 
 class EFPoint;
 class EnergyFunctional;
-
 
 class AccumulatedSCHessianSSE
 {
@@ -90,7 +87,6 @@ public:
                       int tid=0);
     void addPoint(EFPoint* p, bool shiftPriorToZero, int tid=0);
 
-
     void stitchDoubleMT(IndexThreadReduce<Vec10>* red, MatXX &H, VecX &b,
                         EnergyFunctional const * const EF, bool MT)
     {
@@ -134,14 +130,12 @@ public:
         }
     }
 
-
     AccumulatorXX<8,CPARS>* accE[NUM_THREADS];
     AccumulatorX<8>* accEB[NUM_THREADS];
     AccumulatorXX<8,8>* accD[NUM_THREADS];
     AccumulatorXX<CPARS,CPARS> accHcc[NUM_THREADS];
     AccumulatorX<CPARS> accbc[NUM_THREADS];
     int nframes[NUM_THREADS];
-
 
     void addPointsInternal(
         std::vector<EFPoint*>* points, bool shiftPriorToZero,

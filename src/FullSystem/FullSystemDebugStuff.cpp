@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*
  * KFBuffer.cpp
  *
@@ -44,10 +43,8 @@
 
 #include "FullSystem/ImmaturePoint.h"
 
-
 namespace dso
 {
-
 
 void FullSystem::debugPlotTracking()
 {
@@ -84,7 +81,6 @@ void FullSystem::debugPlotTracking()
             }
         }
 
-
         for(PointHessian* ph : f->pointHessians)
         {
             assert(ph->status == PointHessian::ACTIVE);
@@ -98,7 +94,6 @@ void FullSystem::debugPlotTracking()
             }
         }
 
-
         char buf[100];
         snprintf(buf, 100, "IMG %d", idx);
         IOWrap::displayImageStitch(buf, images);
@@ -109,15 +104,11 @@ void FullSystem::debugPlotTracking()
 
 }
 
-
 void FullSystem::debugPlot(std::string name)
 {
     if(disableAllDisplay) return;
     if(!setting_render_renderWindowFrames) return;
     std::vector<MinimalImageB3* > images;
-
-
-
 
     float minID=0, maxID=0;
     if((int)(freeDebugParam5+0.5f) == 7 || (debugSaveImages&&false))
@@ -139,17 +130,14 @@ void FullSystem::debugPlot(std::string name)
         minID = allID[(int)(n*0.05)];
         maxID = allID[(int)(n*0.95)];
 
-
         // slowly adapt: change by maximum 10% of old span.
         float maxChange = 0.1*(maxIdJetVisDebug - minIdJetVisDebug);
         if(maxIdJetVisDebug < 0  || minIdJetVisDebug < 0 ) maxChange = 1e5;
-
 
         if(minID < minIdJetVisDebug - maxChange)
             minID = minIdJetVisDebug - maxChange;
         if(minID > minIdJetVisDebug + maxChange)
             minID = minIdJetVisDebug + maxChange;
-
 
         if(maxID < maxIdJetVisDebug - maxChange)
             maxID = maxIdJetVisDebug - maxChange;
@@ -161,17 +149,6 @@ void FullSystem::debugPlot(std::string name)
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
     int wh = hG[0]*wG[0];
     for(unsigned int f=0; f<frameHessians.size(); f++)
     {
@@ -179,7 +156,6 @@ void FullSystem::debugPlot(std::string name)
         images.push_back(img);
         //float* fd = frameHessians[f]->I;
         Eigen::Vector3f* fd = frameHessians[f]->dI;
-
 
         for(int i=0; i<wh; i++)
         {
@@ -323,8 +299,6 @@ void FullSystem::debugPlot(std::string name)
     for(unsigned int i=0; i<images.size(); i++)
         delete images[i];
 
-
-
     if((debugSaveImages&&false))
     {
         for(unsigned int f=0; f<frameHessians.size(); f++)
@@ -359,14 +333,6 @@ void FullSystem::debugPlot(std::string name)
         }
     }
 
-
-
-
 }
-
-
-
-
-
 
 }

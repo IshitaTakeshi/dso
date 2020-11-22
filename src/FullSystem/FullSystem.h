@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #define MAX_ACTIVE_FRAMES 100
 
@@ -107,7 +106,6 @@ template<typename T> inline void deleteOutOrder(std::vector<T*> &v,
     delete element;
 }
 
-
 inline bool eigenTestNan(const MatXX &m, std::string msg)
 {
     bool foundNan = false;
@@ -123,13 +121,8 @@ inline bool eigenTestNan(const MatXX &m, std::string msg)
         std::cout << m << "\n\n";
     }
 
-
     return foundNan;
 }
-
-
-
-
 
 class FullSystem {
 public:
@@ -160,7 +153,6 @@ public:
     bool initialized;
     bool linearizeOperation;
 
-
     void setGammaFunction(float* BInv);
     void setOriginalCalib(const VecXf &originalCalib, int originalW,
                           int originalH);
@@ -168,9 +160,6 @@ public:
 private:
 
     CalibHessian Hcalib;
-
-
-
 
     // opt single point
     int optimizePoint(PointHessian* point, int minObs, bool flagOOB);
@@ -190,13 +179,10 @@ private:
     void initializeFromInitializer(FrameHessian* newFrame);
     void flagFramesForMarginalization(FrameHessian* newFH);
 
-
     void removeOutliers();
-
 
     // set precalc values.
     void setPrecalcValues();
-
 
     // solce. eventually migrate to ef.
     void solveSystem(int iteration, double lambda);
@@ -229,7 +215,6 @@ private:
 
     void setNewFrameEnergyTH();
 
-
     void printLogLine();
     void printEvalLine();
     void printEigenValLine();
@@ -256,18 +241,11 @@ private:
     long int statistics_numMargResBwd;
     float statistics_lastFineTrackRMSE;
 
-
-
-
-
-
-
     // =================== changed by tracker-thread. protected by trackMutex ============
     boost::mutex trackMutex;
     std::vector<FrameShell*> allFrameHistory;
     CoarseInitializer* coarseInitializer;
     Vec5 lastCoarseRMSE;
-
 
     // ================== changed by mapper-thread. protected by mapMutex ===============
     boost::mutex mapMutex;
@@ -285,10 +263,7 @@ private:
     std::vector<PointFrameResidual*> activeResiduals;
     float currentMinActDist;
 
-
     std::vector<float> allResVec;
-
-
 
     // mutex etc. for tracker exchange.
     boost::mutex
@@ -300,14 +275,8 @@ private:
     float minIdJetVisTracker, maxIdJetVisTracker;
     float minIdJetVisDebug, maxIdJetVisDebug;
 
-
-
-
-
     // mutex for camToWorl's in shells (these are always in a good configuration).
     boost::mutex shellPoseMutex;
-
-
 
     /*
      * tracking always uses the newest KF as reference.

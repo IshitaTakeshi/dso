@@ -21,13 +21,10 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #include "boost/thread.hpp"
 #include "util/MinimalImage.h"
 #include "IOWrapper/Output3DWrapper.h"
-
-
 
 #include "FullSystem/HessianBlocks.h"
 #include "util/FrameShell.h"
@@ -38,7 +35,6 @@ namespace dso
 class FrameHessian;
 class CalibHessian;
 class FrameShell;
-
 
 namespace IOWrap
 {
@@ -75,8 +71,6 @@ public:
         }
     }
 
-
-
     virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final,
                                    CalibHessian* HCalib) override
     {
@@ -90,7 +84,6 @@ public:
                    (int)f->pointHessians.size(), (int)f->pointHessiansMarginalized.size(),
                    (int)f->immaturePoints.size());
             std::cout << f->shell->camToWorld.matrix3x4() << "\n";
-
 
             int maxWrite = 5;
             for(PointHessian* p : f->pointHessians)
@@ -112,7 +105,6 @@ public:
                frame->id);
         std::cout << frame->camToWorld.matrix3x4() << "\n";
     }
-
 
     virtual void pushLiveFrame(FrameHessian* image) override
     {
@@ -153,13 +145,8 @@ public:
         }
     }
 
-
 };
 
-
-
 }
-
-
 
 }

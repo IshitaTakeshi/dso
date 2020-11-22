@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #include <pangolin/pangolin.h>
 #include "boost/thread.hpp"
@@ -30,14 +29,12 @@
 #include <map>
 #include <deque>
 
-
 namespace dso
 {
 
 class FrameHessian;
 class CalibHessian;
 class FrameShell;
-
 
 namespace IOWrap
 {
@@ -50,7 +47,6 @@ struct GraphConnection
     KeyFrameDisplay* to;
     int fwdMarg, bwdMarg, fwdAct, bwdAct;
 };
-
 
 class PangolinDSOViewer : public Output3DWrapper
 {
@@ -65,7 +61,6 @@ public:
     void addImageToDisplay(std::string name, MinimalImageB3* image);
     void clearAllImagesToDisplay();
 
-
     // ==================== Output3DWrapper Functionality ======================
     virtual void publishGraph(const
                               std::map<uint64_t, Eigen::Vector2i, std::less<uint64_t>, Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>>
@@ -73,7 +68,6 @@ public:
     virtual void publishKeyframes( std::vector<FrameHessian*> &frames, bool final,
                                    CalibHessian* HCalib) override;
     virtual void publishCamPose(FrameShell* frame, CalibHessian* HCalib) override;
-
 
     virtual void pushLiveFrame(FrameHessian* image) override;
     virtual void pushDepthImage(MinimalImageB3* image) override;
@@ -92,16 +86,12 @@ private:
     bool running;
     int w,h;
 
-
-
     // images rendering
     boost::mutex openImagesMutex;
     MinimalImageB3* internalVideoImg;
     MinimalImageB3* internalKFImg;
     MinimalImageB3* internalResImg;
     bool videoImgChanged, kfImgChanged, resImgChanged;
-
-
 
     // 3D model rendering
     boost::mutex model3DMutex;
@@ -111,8 +101,6 @@ private:
     std::map<int, KeyFrameDisplay*> keyframesByKFID;
     std::vector<GraphConnection,Eigen::aligned_allocator<GraphConnection>>
             connections;
-
-
 
     // render settings
     bool settings_showKFCameras;
@@ -128,20 +116,14 @@ private:
     float settings_minRelBS;
     int settings_sparsity;
 
-
     // timings
     struct timeval last_track;
     struct timeval last_map;
-
 
     std::deque<float> lastNTrackingMs;
     std::deque<float> lastNMappingMs;
 };
 
-
-
 }
-
-
 
 }

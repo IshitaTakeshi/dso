@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*
  * KFBuffer.cpp
  *
@@ -62,8 +61,6 @@ int FrameHessian::instanceCounter=0;
 int PointHessian::instanceCounter=0;
 int CalibHessian::instanceCounter=0;
 
-
-
 FullSystem::FullSystem()
 {
 
@@ -78,8 +75,6 @@ FullSystem::FullSystem()
     calibLog=0;
 
     assert(retstat!=293847);
-
-
 
     selectionMap = new float[wG[0]*hG[0]];
 
@@ -103,13 +98,11 @@ FullSystem::FullSystem()
     currentMinActDist=2;
     initialized=false;
 
-
     ef = new EnergyFunctional();
     ef->red = &this->treadReduce;
 
     isLost=false;
     initFailed=false;
-
 
     needNewKFAfter = -1;
 
@@ -117,8 +110,6 @@ FullSystem::FullSystem()
     runMapping=true;
     mappingThread = boost::thread(&FullSystem::mappingLoop, this);
     lastRefStopID=0;
-
-
 
     minIdJetVisDebug = -1;
     maxIdJetVisDebug = -1;
@@ -158,7 +149,6 @@ void FullSystem::setGammaFunction(float* BInv)
     // copy BInv.
     memcpy(Hcalib.Binv, BInv, sizeof(float)*256);
 
-
     // invert.
     for(int i=1; i<255; i++)
     {
@@ -177,8 +167,6 @@ void FullSystem::setGammaFunction(float* BInv)
     Hcalib.B[0] = 0;
     Hcalib.B[255] = 255;
 }
-
-
 
 void FullSystem::printResult(std::string file)
 {
@@ -210,7 +198,6 @@ void FullSystem::printResult(std::string file)
     myfile.close();
 }
 
-
 Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
 {
 
@@ -219,8 +206,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
 
     for(IOWrap::Output3DWrapper* ow : outputWrapper)
         ow->pushLiveFrame(fh);
-
-
 
     FrameHessian* lastF = coarseTracker->lastRef;
 
@@ -244,7 +229,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
         }
         SE3 fh_2_slast = slast_2_sprelast;// assumed to be the same as fh_2_slast.
 
-
         // get last delta-movement.
         lastF_2_fh_tries.push_back(fh_2_slast.inverse() *
                                    lastF_2_slast);	// assume constant motion.
@@ -254,7 +238,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
                                    lastF_2_slast); // assume half motion.
         lastF_2_fh_tries.push_back(lastF_2_slast); // assume zero motion.
         lastF_2_fh_tries.push_back(SE3()); // assume zero motion FROM KF.
-
 
         // just try a TON of different initializations (all rotations). In the end,
         // if they don't work they will only be tried on the coarsest level, which is super fast anyway.
@@ -348,16 +331,13 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
         }
     }
 
-
     Vec3 flowVecs = Vec3(100,100,100);
     SE3 lastF_2_fh = SE3();
     AffLight aff_g2l = AffLight(0,0);
 
-
     // as long as maxResForImmediateAccept is not reached, I'll continue through the options.
     // I'll keep track of the so-far best achieved residual for each level in achievedRes.
     // If on a coarse level, tracking is WORSE than achievedRes, we will not continue to save time.
-
 
     Vec5 achievedRes = Vec5::Constant(NAN);
     bool haveOneGood = false;
@@ -390,7 +370,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
                    coarseTracker->lastResiduals[4]);
         }
 
-
         // do we have a new winner?
         if(trackingIsGood && std::isfinite((float)coarseTracker->lastResiduals[0])
                 && !(coarseTracker->lastResiduals[0] >=  achievedRes[0]))
@@ -414,7 +393,6 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
             }
         }
 
-
         if(haveOneGood &&  achievedRes[0] < lastCoarseRMSE[0]*setting_reTrackThreshold)
             break;
 
@@ -437,14 +415,12 @@ Vec4 FullSystem::trackNewCoarse(FrameHessian* fh)
     fh->shell->camToWorld = fh->shell->trackingRef->camToWorld *
                             fh->shell->camToTrackingRef;
 
-
     if(coarseTracker->firstCoarseRMSE < 0)
         coarseTracker->firstCoarseRMSE = achievedRes[0];
 
     if(!setting_debugout_runquiet)
         printf("Coarse Tracker tracked ab = %f %f (exp %f). Res %f!\n", aff_g2l.a,
                aff_g2l.b, fh->ab_exposure, achievedRes[0]);
-
 
     return Vec4(achievedRes[0], flowVecs[0], flowVecs[1], flowVecs[2]);
 }
@@ -497,9 +473,6 @@ void FullSystem::traceNewCoarse(FrameHessian* fh)
 //			trace_uninitialized, 100*trace_uninitialized/(float)trace_total);
 }
 
-
-
-
 void FullSystem::activatePointsMT_Reductor(
     std::vector<PointHessian*>* optimized,
     std::vector<ImmaturePoint*>* toOptimize,
@@ -513,8 +486,6 @@ void FullSystem::activatePointsMT_Reductor(
     }
     delete[] tr;
 }
-
-
 
 void FullSystem::activatePointsMT()
 {
@@ -544,8 +515,6 @@ void FullSystem::activatePointsMT()
         printf("SPARSITY:  MinActDist %f (need %d points, have %d points)!\n",
                currentMinActDist, (int)(setting_desiredPointDensity), ef->nPoints);
 
-
-
     FrameHessian* newestHs = frameHessians.back();
 
     // make dist map.
@@ -557,7 +526,6 @@ void FullSystem::activatePointsMT()
     std::vector<ImmaturePoint*> toOptimize;
     toOptimize.reserve(20000);
 
-
     for(FrameHessian* host : frameHessians)		// go through all active frames
     {
         if(host == newestHs) continue;
@@ -566,7 +534,6 @@ void FullSystem::activatePointsMT()
         Mat33f KRKi = (coarseDistanceMap->K[1] * fhToNew.rotationMatrix().cast<float>()
                        * coarseDistanceMap->Ki[0]);
         Vec3f Kt = (coarseDistanceMap->K[1] * fhToNew.translation().cast<float>());
-
 
         for(unsigned int i=0; i<host->immaturePoints.size(); i+=1)
         {
@@ -592,7 +559,6 @@ void FullSystem::activatePointsMT()
                                && ph->quality > setting_minTraceQuality
                                && (ph->idepth_max+ph->idepth_min) > 0;
 
-
             // if I cannot activate the point, skip it. Maybe also delete it.
             if(!canActivate)
             {
@@ -606,7 +572,6 @@ void FullSystem::activatePointsMT()
 //				immature_notReady_skipped++;
                 continue;
             }
-
 
             // see if we need to activate point due to distance map.
             Vec3f ptp = KRKi * Vec3f(ph->u, ph->v,
@@ -634,7 +599,6 @@ void FullSystem::activatePointsMT()
         }
     }
 
-
 //	printf("ACTIVATE: %d. (del %d, notReady %d, marg %d, good %d, marg-skip %d)\n",
 //			(int)toOptimize.size(), immature_deleted, immature_notReady, immature_needMarg, immature_want, immature_margskip);
 
@@ -647,7 +611,6 @@ void FullSystem::activatePointsMT()
 
     else
         activatePointsMT_Reductor(&optimized, &toOptimize, 0, toOptimize.size(), 0, 0);
-
 
     for(unsigned k=0; k<toOptimize.size(); k++)
     {
@@ -676,7 +639,6 @@ void FullSystem::activatePointsMT()
         }
     }
 
-
     for(FrameHessian* host : frameHessians)
     {
         for(int i=0; i<(int)host->immaturePoints.size(); i++)
@@ -690,13 +652,7 @@ void FullSystem::activatePointsMT()
         }
     }
 
-
 }
-
-
-
-
-
 
 void FullSystem::activatePointsOldFirst()
 {
@@ -721,8 +677,6 @@ void FullSystem::flagPointsForRemoval()
             if(frameHessians[i]->flaggedForMarginalization) fhsToMargPoints.push_back(
                     frameHessians[i]);
     }
-
-
 
     //ef->setAdjointsF();
     //ef->setDeltaF(&Hcalib);
@@ -774,13 +728,11 @@ void FullSystem::flagPointsForRemoval()
                         host->pointHessiansOut.push_back(ph);
                     }
 
-
                 }
                 else
                 {
                     host->pointHessiansOut.push_back(ph);
                     ph->efPoint->stateFlag = EFPointStatus::PS_DROP;
-
 
                     //printf("drop point in frame %d (%d goodRes, %d activeRes)\n", ph->host->idx, ph->numGoodResiduals, (int)ph->residuals.size());
                 }
@@ -788,7 +740,6 @@ void FullSystem::flagPointsForRemoval()
                 host->pointHessians[i]=0;
             }
         }
-
 
         for(int i=0; i<(int)host->pointHessians.size(); i++)
         {
@@ -803,13 +754,11 @@ void FullSystem::flagPointsForRemoval()
 
 }
 
-
 void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
 {
 
     if(isLost) return;
     boost::unique_lock<boost::mutex> lock(trackMutex);
-
 
     // =========================== add into allFrameHistory =========================
     FrameHessian* fh = new FrameHessian();
@@ -823,13 +772,9 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
     fh->shell = shell;
     allFrameHistory.push_back(shell);
 
-
     // =========================== make Images / derivatives etc. =========================
     fh->ab_exposure = image->exposure_time;
     fh->makeImages(image->image, &Hcalib);
-
-
-
 
     if(!initialized)
     {
@@ -864,7 +809,6 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
             coarseTracker=coarseTracker_forNewKF;
             coarseTracker_forNewKF=tmp;
         }
-
 
         Vec4 tres = trackNewCoarse(fh);
         if(!std::isfinite((double)tres[0]) || !std::isfinite((double)tres[1])
@@ -902,14 +846,8 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
 
         }
 
-
-
-
         for(IOWrap::Output3DWrapper* ow : outputWrapper)
             ow->publishCamPose(fh->shell, &Hcalib);
-
-
-
 
         lock.unlock();
         deliverTrackedFrame(fh, needToMakeKF);
@@ -918,7 +856,6 @@ void FullSystem::addActiveFrame( ImageAndExposure* image, int id )
 }
 void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF)
 {
-
 
     if(linearizeOperation)
     {
@@ -935,8 +872,6 @@ void FullSystem::deliverTrackedFrame(FrameHessian* fh, bool needKF)
             lastRefStopID = coarseTracker->refFrameID;
         }
         else handleKey( IOWrap::waitKey(1) );
-
-
 
         if(needKF) makeKeyFrame(fh);
         else makeNonKeyFrame(fh);
@@ -973,7 +908,6 @@ void FullSystem::mappingLoop()
         FrameHessian* fh = unmappedTrackedFrames.front();
         unmappedTrackedFrames.pop_front();
 
-
         // guaranteed to make a KF for the very first two tracked frames.
         if(allKeyFramesHistory.size() <= 2)
         {
@@ -986,7 +920,6 @@ void FullSystem::mappingLoop()
 
         if(unmappedTrackedFrames.size() > 3)
             needToKetchupMapping=true;
-
 
         if(unmappedTrackedFrames.size() >
                 0) // if there are other frames to tracke, do that first.
@@ -1075,7 +1008,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     // =========================== Flag Frames to be Marginalized. =========================
     flagFramesForMarginalization(fh);
 
-
     // =========================== add New Frame to Hessian Struct. =========================
     fh->idx = frameHessians.size();
     frameHessians.push_back(fh);
@@ -1084,8 +1016,6 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
     ef->insertFrame(fh, &Hcalib);
 
     setPrecalcValues();
-
-
 
     // =========================== add new residuals for old points =========================
     int numFwdResAdde=0;
@@ -1105,24 +1035,14 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
         }
     }
 
-
-
-
     // =========================== Activate Points (& flag for marginalization). =========================
     activatePointsMT();
     ef->makeIDX();
-
-
-
 
     // =========================== OPTIMIZE ALL =========================
 
     fh->frameEnergyTH = frameHessians.back()->frameEnergyTH;
     float rmse = optimize(setting_maxOptIterations);
-
-
-
-
 
     // =========================== Figure Out if INITIALIZATION FAILED =========================
     if(allKeyFramesHistory.size() <= 4)
@@ -1144,38 +1064,22 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
         }
     }
 
-
-
     if(isLost) return;
-
-
-
 
     // =========================== REMOVE OUTLIER =========================
     removeOutliers();
-
-
-
 
     {
         boost::unique_lock<boost::mutex> crlock(coarseTrackerSwapMutex);
         coarseTracker_forNewKF->makeK(&Hcalib);
         coarseTracker_forNewKF->setCoarseTrackingRef(frameHessians);
 
-
-
         coarseTracker_forNewKF->debugPlotIDepthMap(&minIdJetVisTracker,
                 &maxIdJetVisTracker, outputWrapper);
         coarseTracker_forNewKF->debugPlotIDepthMapFloat(outputWrapper);
     }
 
-
     debugPlot("post Optimize");
-
-
-
-
-
 
     // =========================== (Activate-)Marginalize Points =========================
     flagPointsForRemoval();
@@ -1187,22 +1091,14 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
         ef->lastNullspaces_affB);
     ef->marginalizePointsF();
 
-
-
     // =========================== add new Immature points & new residuals =========================
     makeNewTraces(fh, 0);
-
-
-
-
 
     for(IOWrap::Output3DWrapper* ow : outputWrapper)
     {
         ow->publishGraph(ef->connectivityMap);
         ow->publishKeyframes(frameHessians, false, &Hcalib);
     }
-
-
 
     // =========================== Marginalize Frames =========================
 
@@ -1213,13 +1109,10 @@ void FullSystem::makeKeyFrame( FrameHessian* fh)
             i=0;
         }
 
-
-
     printLogLine();
     //printEigenValLine();
 
 }
-
 
 void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
 {
@@ -1240,7 +1133,6 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
     firstFrame->pointHessians.reserve(wG[0]*hG[0]*0.2f);
     firstFrame->pointHessiansMarginalized.reserve(wG[0]*hG[0]*0.2f);
     firstFrame->pointHessiansOut.reserve(wG[0]*hG[0]*0.2f);
-
 
     float sumID=1e-5, numID=1e-5;
     for(int i=0; i<coarseInitializer->numPoints[0]; i++)
@@ -1271,7 +1163,6 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
             continue;
         }
 
-
         pt->idepth_max=pt->idepth_min=1;
         PointHessian* ph = new PointHessian(pt, &Hcalib);
         delete pt;
@@ -1289,11 +1180,8 @@ void FullSystem::initializeFromInitializer(FrameHessian* newFrame)
         ef->insertPoint(ph);
     }
 
-
-
     SE3 firstToNew = coarseInitializer->thisToNext;
     firstToNew.translation() /= rescaleFactor;
-
 
     // really no lock required, as we are initializing.
     {
@@ -1331,7 +1219,6 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth)
     newFrame->pointHessiansMarginalized.reserve(numPointsTotal*1.2f);
     newFrame->pointHessiansOut.reserve(numPointsTotal*1.2f);
 
-
     for(int y=patternPadding+1; y<hG[0]-patternPadding-2; y++)
         for(int x=patternPadding+1; x<wG[0]-patternPadding-2; x++)
         {
@@ -1348,8 +1235,6 @@ void FullSystem::makeNewTraces(FrameHessian* newFrame, float* gtDepth)
 
 }
 
-
-
 void FullSystem::setPrecalcValues()
 {
     for(FrameHessian* fh : frameHessians)
@@ -1361,7 +1246,6 @@ void FullSystem::setPrecalcValues()
 
     ef->setDeltaF(&Hcalib);
 }
-
 
 void FullSystem::printLogLine()
 {
@@ -1403,15 +1287,11 @@ void FullSystem::printLogLine()
         numsLog->flush();
     }
 
-
 }
-
-
 
 void FullSystem::printEigenValLine()
 {
     if(ef->lastHS.rows() < 12) return;
-
 
     MatXX Hp = ef->lastHS.bottomRightCorner(ef->lastHS.cols()-CPARS,
                                             ef->lastHS.cols()-CPARS);
@@ -1518,28 +1398,17 @@ void FullSystem::printFrameLifetimes()
               << " " << s->statistics_outlierResOnThis
               << " " << s->movedByOpt;
 
-
-
         (*lg) << "\n";
     }
-
-
-
-
 
     lg->close();
     delete lg;
 
 }
 
-
 void FullSystem::printEvalLine()
 {
     return;
 }
-
-
-
-
 
 }

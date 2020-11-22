@@ -21,9 +21,7 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 #include "vector"
@@ -42,11 +40,6 @@ class EFResidual;
 class EFPoint;
 class EFFrame;
 class EnergyFunctional;
-
-
-
-
-
 
 class EFResidual
 {
@@ -68,12 +61,9 @@ public:
         delete J;
     }
 
-
     void takeDataF();
 
-
     void fixLinearizationF(EnergyFunctional* ef);
-
 
     // structural pointers
     PointFrameResidual* data;
@@ -88,7 +78,6 @@ public:
     VecNRf res_toZeroF;
     Vec8f JpJdF;
 
-
     // status.
     bool isLinearized;
 
@@ -98,7 +87,6 @@ public:
         return isActiveAndIsGoodNEW;
     }
 };
-
 
 enum EFPointStatus {PS_GOOD=0, PS_MARGINALIZE, PS_DROP};
 
@@ -115,11 +103,8 @@ public:
 
     PointHessian* data;
 
-
-
     float priorF;
     float deltaF;
-
 
     // constant info (never changes in-between).
     int idxInPoints;
@@ -137,11 +122,8 @@ public:
     VecCf Hcd_accAF;
     float bd_accAF;
 
-
     EFPointStatus stateFlag;
 };
-
-
 
 class EFFrame
 {
@@ -153,12 +135,9 @@ public:
     }
     void takeData();
 
-
     Vec8 prior;				// prior hessian (diagonal)
     Vec8 delta_prior;		// = state-state_prior (E_prior = (delta_prior)' * diag(prior) * (delta_prior)
     Vec8 delta;				// state - state_zero.
-
-
 
     std::vector<EFPoint*> points;
     FrameHessian* data;

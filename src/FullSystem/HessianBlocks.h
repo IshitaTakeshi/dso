@@ -21,10 +21,8 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #define MAX_ACTIVE_FRAMES 100
-
 
 #include "util/globalCalib.h"
 #include "vector"
@@ -35,17 +33,14 @@
 #include "FullSystem/Residuals.h"
 #include "util/ImageAndExposure.h"
 
-
 namespace dso
 {
-
 
 inline Vec2 affFromTo(const Vec2 &from,
                       const Vec2 &to)	// contains affine parameters as XtoWorld.
 {
     return Vec2(from[0] / to[0], (from[1] - to[1]) / to[0]);
 }
-
 
 struct FrameHessian;
 struct PointHessian;
@@ -74,7 +69,6 @@ class EFPoint;
 #define SCALE_A_INVERSE (1.0f / SCALE_A)
 #define SCALE_B_INVERSE (1.0f / SCALE_B)
 
-
 struct FrameFramePrecalc
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -98,17 +92,12 @@ struct FrameFramePrecalc
 
     float distanceLL;
 
-
     inline ~FrameFramePrecalc() {}
     inline FrameFramePrecalc() {
         host=target=0;
     }
     void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
 };
-
-
-
-
 
 struct FrameHessian
 {
@@ -124,11 +113,6 @@ struct FrameHessian
     Eigen::Vector3f*
     dIp[PYR_LEVELS];	 // coarse tracking / coarse initializer. NAN in [0] only.
     float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms etc.). no NAN.
-
-
-
-
-
 
     int frameID;						// incremental ID for keyframes only!
     static int instanceCounter;
@@ -148,7 +132,6 @@ struct FrameHessian
     std::vector<ImmaturePoint*>
     immaturePoints;		// contains all OUTLIER points (= discarded.).
 
-
     Mat66 nullspaces_pose;
     Mat42 nullspaces_affine;
     Vec6 nullspaces_scale;
@@ -161,7 +144,6 @@ struct FrameHessian
     Vec10 step;
     Vec10 step_backup;
     Vec10 state_backup;
-
 
     EIGEN_STRONG_INLINE const SE3 &get_worldToCam_evalPT() const {
         return worldToCam_evalPT;
@@ -179,14 +161,12 @@ struct FrameHessian
         return get_state() - get_state_zero();
     }
 
-
     // precalc values
     SE3 PRE_worldToCam;
     SE3 PRE_camToWorld;
     std::vector<FrameFramePrecalc,Eigen::aligned_allocator<FrameFramePrecalc>>
             targetPrecalc;
     MinimalImageB3* debugImage;
-
 
     inline Vec6 w2c_leftEps() const {
         return get_state_scaled().head<6>();
@@ -197,8 +177,6 @@ struct FrameHessian
     inline AffLight aff_g2l_0() const {
         return AffLight(get_state_zero()[6]*SCALE_A, get_state_zero()[7]*SCALE_B);
     }
-
-
 
     void setStateZero(const Vec10 &state_zero);
     inline void setState(const Vec10 &state)
@@ -239,8 +217,6 @@ struct FrameHessian
         setStateZero(state);
     };
 
-
-
     inline void setEvalPT_scaled(const SE3 &worldToCam_evalPT,
                                  const AffLight &aff_g2l)
     {
@@ -266,8 +242,6 @@ struct FrameHessian
 
         }
 
-
-
         if(debugImage != 0) delete debugImage;
     };
     inline FrameHessian()
@@ -278,11 +252,8 @@ struct FrameHessian
         efFrame = 0;
         frameEnergyTH = 8*8*patternNum;
 
-
-
         debugImage=0;
     };
-
 
     void makeImages(float* color, CalibHessian* HCalib);
 
@@ -314,7 +285,6 @@ struct FrameHessian
         p[9] = setting_initialAffBPrior;
         return p;
     }
-
 
     inline Vec10 getPriorZero()
     {
@@ -359,7 +329,6 @@ struct CalibHessian
             Binv[i] = B[i] = i;		// set gamma function to identity
     };
 
-
     // normal mode: use the optimized parameters everywhere!
     inline float& fxl() {
         return value_scaledf[0];
@@ -385,8 +354,6 @@ struct CalibHessian
     inline float& cyli() {
         return value_scaledi[3];
     }
-
-
 
     inline void setValue(const VecC &value)
     {
@@ -421,10 +388,8 @@ struct CalibHessian
         this->value_scaledi[3] = - this->value_scaledf[3] / this->value_scaledf[1];
     };
 
-
     float Binv[256];
     float B[256];
-
 
     EIGEN_STRONG_INLINE float getBGradOnly(float color)
     {
@@ -443,7 +408,6 @@ struct CalibHessian
     }
 };
 
-
 // hessian component associated with one point.
 struct PointHessian
 {
@@ -454,8 +418,6 @@ struct PointHessian
     // static values
     float color[MAX_RES_PER_POINT];			// colors in host frame
     float weights[MAX_RES_PER_POINT];		// host-weights for respective residuals.
-
-
 
     float u,v;
     int idx;
@@ -485,7 +447,6 @@ struct PointHessian
         status=s;
     }
 
-
     inline void setIdepth(float idepth) {
         this->idepth = idepth;
         this->idepth_scaled = SCALE_IDEPTH * idepth;
@@ -500,12 +461,10 @@ struct PointHessian
         nullspaces_scale = -(idepth*1.001 - idepth/1.001)*500;
     }
 
-
     std::vector<PointFrameResidual*>
     residuals;					// only contains good residuals (not OOB and not OUTLIER). Arbitrary order.
     std::pair<PointFrameResidual*, ResState>
     lastResiduals[2]; 	// contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
-
 
     void release();
     PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hcalib);
@@ -514,7 +473,6 @@ struct PointHessian
         release();
         instanceCounter--;
     }
-
 
     inline bool isOOB(const std::vector<FrameHessian*>& toKeep,
                       const std::vector<FrameHessian*>& toMarg) const
@@ -532,17 +490,12 @@ struct PointHessian
                 (int)residuals.size()-visInToMarg < setting_minGoodActiveResForMarg)
             return true;
 
-
-
-
-
         if(lastResiduals[0].second == ResState::OOB) return true;
         if(residuals.size() < 2) return false;
         if(lastResiduals[0].second == ResState::OUTLIER
                 && lastResiduals[1].second == ResState::OUTLIER) return true;
         return false;
     }
-
 
     inline bool isInlierNew()
     {
@@ -551,10 +504,6 @@ struct PointHessian
     }
 
 };
-
-
-
-
 
 }
 

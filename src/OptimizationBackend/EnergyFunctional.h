@@ -21,16 +21,13 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 #include "util/IndexThreadReduce.h"
 #include "vector"
 #include <math.h>
 #include "map"
-
 
 namespace dso
 {
@@ -39,7 +36,6 @@ class PointFrameResidual;
 class CalibHessian;
 class FrameHessian;
 class PointHessian;
-
 
 class EFResidual;
 class EFPoint;
@@ -50,12 +46,9 @@ class AccumulatedTopHessianSSE;
 class AccumulatedSCHessian;
 class AccumulatedSCHessianSSE;
 
-
 extern bool EFAdjointsValid;
 extern bool EFIndicesValid;
 extern bool EFDeltaValid;
-
-
 
 class EnergyFunctional {
 public:
@@ -71,7 +64,6 @@ public:
     EnergyFunctional();
     ~EnergyFunctional();
 
-
     EFResidual* insertResidual(PointFrameResidual* r);
     EFFrame* insertFrame(FrameHessian* fh, CalibHessian* Hcalib);
     EFPoint* insertPoint(PointHessian* ph);
@@ -80,14 +72,11 @@ public:
     void marginalizeFrame(EFFrame* fh);
     void removePoint(EFPoint* ph);
 
-
-
     void marginalizePointsF();
     void dropPointsF();
     void solveSystemF(int iteration, double lambda, CalibHessian* HCalib);
     double calcMEnergyF();
     double calcLEnergyF_MT();
-
 
     void makeIDX();
 
@@ -112,7 +101,6 @@ public:
     std::vector<VecX> lastNullspaces_affB;
 
     IndexThreadReduce<Vec10>* red;
-
 
     std::map<uint64_t,
         Eigen::Vector2i,
@@ -143,14 +131,12 @@ private:
     Mat88f* adHostF;
     Mat88f* adTargetF;
 
-
     VecC cPrior;
     VecCf cDeltaF;
     VecCf cPriorF;
 
     AccumulatedTopHessianSSE* accSSE_top_L;
     AccumulatedTopHessianSSE* accSSE_top_A;
-
 
     AccumulatedSCHessianSSE* accSSE_bot;
 

@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #undef Success
@@ -94,7 +93,6 @@ public:
         return (id < other.id);
     }
 
-
 private:
     float fx,fy,cx,cy;
     float fxi,fyi,cxi,cyi;
@@ -106,11 +104,9 @@ private:
     float my_minRelBS;
     bool needRefresh;
 
-
     int numSparsePoints;
     int numSparseBufferSize;
     InputPointSparse<MAX_RES_PER_POINT>* originalInputSparse;
-
 
     bool bufferValid;
     int numGLBufferPoints;

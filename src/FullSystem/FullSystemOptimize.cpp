@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "FullSystem/FullSystem.h"
 
 #include "stdio.h"
@@ -44,10 +42,6 @@
 
 namespace dso
 {
-
-
-
-
 
 void FullSystem::linearizeAll_Reductor(bool fixLinearization,
                                        std::vector<PointFrameResidual*>* toRemove, int min, int max, Vec10* stats,
@@ -74,7 +68,6 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
                     float relBS = 0.01*((ptp_inf.head<2>() / ptp_inf[2])-(ptp.head<2>() /
                                         ptp[2])).norm();	// 0.01 = one pixel.
 
-
                     if(relBS > p->maxRelBaseline)
                         p->maxRelBaseline = relBS;
 
@@ -88,7 +81,6 @@ void FullSystem::linearizeAll_Reductor(bool fixLinearization,
         }
     }
 }
-
 
 void FullSystem::applyRes_Reductor(bool copyJacobians, int min, int max,
                                    Vec10* stats, int tid)
@@ -117,7 +109,6 @@ void FullSystem::setNewFrameEnergyTH()
         return;		// should never happen, but lets make sure.
     }
 
-
     int nthIdx = setting_frameEnergyTHN*allResVec.size();
 
     assert(nthIdx < (int)allResVec.size());
@@ -126,19 +117,12 @@ void FullSystem::setNewFrameEnergyTH()
     std::nth_element(allResVec.begin(), allResVec.begin()+nthIdx, allResVec.end());
     float nthElement = sqrtf(allResVec[nthIdx]);
 
-
-
-
-
-
     newFrame->frameEnergyTH = nthElement*setting_frameEnergyTHFacMedian;
     newFrame->frameEnergyTH = 26.0f*setting_frameEnergyTHConstWeight +
                               newFrame->frameEnergyTH*(1-setting_frameEnergyTHConstWeight);
     newFrame->frameEnergyTH = newFrame->frameEnergyTH*newFrame->frameEnergyTH;
     newFrame->frameEnergyTH *=
         setting_overallEnergyTHWeight*setting_overallEnergyTHWeight;
-
-
 
 //
 //	int good=0,bad=0;
@@ -152,7 +136,6 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
     double lastEnergyP = 0;
     double lastEnergyR = 0;
     double num = 0;
-
 
     std::vector<PointFrameResidual*> toRemove[NUM_THREADS];
     for(int i=0; i<NUM_THREADS; i++) toRemove[i].clear();
@@ -171,9 +154,7 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
         lastEnergyP = stats[0];
     }
 
-
     setNewFrameEnergyTH();
-
 
     if(fixLinearization)
     {
@@ -185,8 +166,6 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
                 ph->lastResiduals[0].second = r->state_state;
             else if(ph->lastResiduals[1].first == r)
                 ph->lastResiduals[1].second = r->state_state;
-
-
 
         }
 
@@ -219,9 +198,6 @@ Vec3 FullSystem::linearizeAll(bool fixLinearization)
     return Vec3(lastEnergyP, lastEnergyR, num);
 }
 
-
-
-
 // applies step to linearization point.
 bool FullSystem::doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
                                   float stepfacA,float stepfacD)
@@ -233,7 +209,6 @@ bool FullSystem::doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
     pstepfac.segment<3>(0).setConstant(stepfacT);
     pstepfac.segment<3>(3).setConstant(stepfacR);
     pstepfac.segment<4>(6).setConstant(stepfacA);
-
 
     float sumA=0, sumB=0, sumT=0, sumR=0, sumID=0, numID=0;
 
@@ -295,8 +270,6 @@ bool FullSystem::doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
     sumID /= numID;
     sumNID /= numID;
 
-
-
     if(!setting_debugout_runquiet)
         printf("STEPS: A %.1f; B %.1f; R %.1f; T %.1f. \t",
                sqrtf(sumA) / (0.0005*setting_thOptIterations),
@@ -304,11 +277,8 @@ bool FullSystem::doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
                sqrtf(sumR) / (0.00005*setting_thOptIterations),
                sqrtf(sumT)*sumNID / (0.00005*setting_thOptIterations));
 
-
     EFDeltaValid=false;
     setPrecalcValues();
-
-
 
     return sqrtf(sumA) < 0.0005*setting_thOptIterations &&
            sqrtf(sumB) < 0.00005*setting_thOptIterations &&
@@ -318,8 +288,6 @@ bool FullSystem::doStepFromBackup(float stepfacC,float stepfacT,float stepfacR,
 //	printf("mean steps: %f %f %f!\n",
 //			meanStepC, meanStepP, meanStepD);
 }
-
-
 
 // sets linearization point.
 void FullSystem::backupState(bool backupLastStep)
@@ -385,11 +353,9 @@ void FullSystem::loadSateBackup()
 
     }
 
-
     EFDeltaValid=false;
     setPrecalcValues();
 }
-
 
 double FullSystem::calcMEnergy()
 {
@@ -400,7 +366,6 @@ double FullSystem::calcMEnergy()
     return ef->calcMEnergyF();
 
 }
-
 
 void FullSystem::printOptRes(const Vec3 &res, double resL, double resM,
                              double resPrior, double LExact, float a, float b)
@@ -416,18 +381,12 @@ void FullSystem::printOptRes(const Vec3 &res, double resL, double resM,
 
 }
 
-
 float FullSystem::optimize(int mnumOptIts)
 {
 
     if(frameHessians.size() < 2) return 0;
     if(frameHessians.size() < 3) mnumOptIts = 20;
     if(frameHessians.size() < 4) mnumOptIts = 15;
-
-
-
-
-
 
     // get statistics and active residuals.
 
@@ -454,21 +413,15 @@ float FullSystem::optimize(int mnumOptIts)
         printf("OPTIMIZE %d pts, %d active res, %d lin res!\n",ef->nPoints,
                (int)activeResiduals.size(), numLRes);
 
-
     Vec3 lastEnergy = linearizeAll(false);
     double lastEnergyL = calcLEnergy();
     double lastEnergyM = calcMEnergy();
-
-
-
-
 
     if(multiThreading)
         treadReduce.reduce(boost::bind(&FullSystem::applyRes_Reductor, this, true, _1,
                                        _2, _3, _4), 0, activeResiduals.size(), 50);
     else
         applyRes_Reductor(true,0,activeResiduals.size(),0,0);
-
 
     if(!setting_debugout_runquiet)
     {
@@ -478,8 +431,6 @@ float FullSystem::optimize(int mnumOptIts)
     }
 
     debugPlotTracking();
-
-
 
     double lambda = 1e-1;
     float stepsize=1;
@@ -494,7 +445,6 @@ float FullSystem::optimize(int mnumOptIts)
                               (1e-20 + previousX.norm() * ef->lastX.norm());
         previousX = ef->lastX;
 
-
         if(std::isfinite(incDirChange) && (setting_solverMode & SOLVER_STEPMOMENTUM))
         {
             float newStepsize = exp(incDirChange*1.4);
@@ -507,19 +457,10 @@ float FullSystem::optimize(int mnumOptIts)
 
         bool canbreak = doStepFromBackup(stepsize,stepsize,stepsize,stepsize,stepsize);
 
-
-
-
-
-
-
         // eval new energy!
         Vec3 newEnergy = linearizeAll(false);
         double newEnergyL = calcLEnergy();
         double newEnergyM = calcMEnergy();
-
-
-
 
         if(!setting_debugout_runquiet)
         {
@@ -561,11 +502,8 @@ float FullSystem::optimize(int mnumOptIts)
             lambda *= 1e2;
         }
 
-
         if(canbreak && iteration >= setting_minOptIterations) break;
     }
-
-
 
     Vec10 newStateZero = Vec10::Zero();
     newStateZero.segment<2>(6) = frameHessians.back()->get_state().segment<2>(6);
@@ -577,13 +515,7 @@ float FullSystem::optimize(int mnumOptIts)
     ef->setAdjointsF(&Hcalib);
     setPrecalcValues();
 
-
-
-
     lastEnergy = linearizeAll(true);
-
-
-
 
     if(!std::isfinite((double)lastEnergy[0])
             || !std::isfinite((double)lastEnergy[1])
@@ -592,7 +524,6 @@ float FullSystem::optimize(int mnumOptIts)
         printf("KF Tracking failed: LOST!\n");
         isLost=true;
     }
-
 
     statistics_lastFineTrackRMSE = sqrtf((float)(lastEnergy[0] /
                                          (patternNum*ef->resInA)));
@@ -615,18 +546,11 @@ float FullSystem::optimize(int mnumOptIts)
         }
     }
 
-
-
-
     debugPlotTracking();
 
     return sqrtf((float)(lastEnergy[0] / (patternNum*ef->resInA)));
 
 }
-
-
-
-
 
 void FullSystem::solveSystem(int iteration, double lambda)
 {
@@ -639,8 +563,6 @@ void FullSystem::solveSystem(int iteration, double lambda)
     ef->solveSystemF(iteration, lambda,&Hcalib);
 }
 
-
-
 double FullSystem::calcLEnergy()
 {
     if(setting_forceAceptStep) return 0;
@@ -649,7 +571,6 @@ double FullSystem::calcLEnergy()
     return Ef;
 
 }
-
 
 void FullSystem::removeOutliers()
 {
@@ -675,9 +596,6 @@ void FullSystem::removeOutliers()
     ef->dropPointsF();
 }
 
-
-
-
 std::vector<VecX> FullSystem::getNullspaces(
     std::vector<VecX> &nullspaces_pose,
     std::vector<VecX> &nullspaces_scale,
@@ -688,7 +606,6 @@ std::vector<VecX> FullSystem::getNullspaces(
     nullspaces_scale.clear();
     nullspaces_affA.clear();
     nullspaces_affB.clear();
-
 
     int n=CPARS+frameHessians.size()*8;
     std::vector<VecX> nullspaces_x0_pre;

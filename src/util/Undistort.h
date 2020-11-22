@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include "util/ImageAndExposure.h"
@@ -29,13 +28,8 @@
 #include "util/NumType.h"
 #include "Eigen/Core"
 
-
-
-
-
 namespace dso
 {
-
 
 class PhotometricUndistorter
 {
@@ -68,7 +62,6 @@ private:
     bool valid;
 };
 
-
 class Undistort
 {
 public:
@@ -77,7 +70,6 @@ public:
 
     virtual void distortCoordinates(float* in_x, float* in_y, float* out_x,
                                     float* out_y, int n) const = 0;
-
 
     inline const Mat33 getK() const {
         return K;

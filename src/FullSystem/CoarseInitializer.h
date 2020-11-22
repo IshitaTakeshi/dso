@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include "util/NumType.h"
@@ -31,14 +30,10 @@
 #include "vector"
 #include <math.h>
 
-
-
-
 namespace dso
 {
 struct CalibHessian;
 struct FrameHessian;
-
 
 struct Pnt
 {
@@ -82,7 +77,6 @@ public:
     CoarseInitializer(int w, int h);
     ~CoarseInitializer();
 
-
     void setFirst(	CalibHessian* HCalib, FrameHessian* newFrameHessian);
     bool trackFrame(FrameHessian* newFrameHessian,
                     std::vector<IOWrap::Output3DWrapper*> &wraps);
@@ -96,7 +90,6 @@ public:
     int numPoints[PYR_LEVELS];
     AffLight thisToNext_aff;
     SE3 thisToNext;
-
 
     FrameHessian* firstFrame;
     FrameHessian* newFrame;
@@ -131,7 +124,6 @@ private:
     Accumulator9 acc9;
     Accumulator9 acc9SC;
 
-
     Vec3f dGrads[PYR_LEVELS];
 
     float alphaK;
@@ -161,9 +153,6 @@ private:
     void debugPlot(int lvl, std::vector<IOWrap::Output3DWrapper*> &wraps);
     void makeNN();
 };
-
-
-
 
 struct FLANNPointcloud
 {
@@ -197,5 +186,4 @@ struct FLANNPointcloud
 };
 
 }
-
 

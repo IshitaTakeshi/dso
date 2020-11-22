@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include "util/NumType.h"
@@ -29,7 +28,6 @@
 
 namespace dso
 {
-
 
 class FrameShell
 {
@@ -54,7 +52,6 @@ public:
     int marginalizedAt;
     double movedByOpt;
 
-
     inline FrameShell()
     {
         id=0;
@@ -68,7 +65,6 @@ public:
         camToTrackingRef = SE3();
     }
 };
-
 
 }
 

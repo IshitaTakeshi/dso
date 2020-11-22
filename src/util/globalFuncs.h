@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #pragma once
 #include "util/settings.h"
 #include "util/NumType.h"
@@ -31,8 +29,6 @@
 
 namespace dso
 {
-
-
 
 // reads interpolated element from a uchar* array
 // SSE2 optimization possible
@@ -47,7 +43,6 @@ EIGEN_ALWAYS_INLINE float getInterpolatedElement(const float* const mat,
     float dy = y - iy;
     float dxdy = dx*dy;
     const float* bp = mat +ix+iy*width;
-
 
     float res =   dxdy * bp[1+width]
                   + (dy-dxdy) * bp[width]
@@ -68,7 +63,6 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement43(
     float dxdy = dx*dy;
     const Eigen::Vector4f* bp = mat +ix+iy*width;
 
-
     return dxdy * *(const Eigen::Vector3f*)(bp+1+width)
            + (dy-dxdy) * *(const Eigen::Vector3f*)(bp+width)
            + (dx-dxdy) * *(const Eigen::Vector3f*)(bp+1)
@@ -85,7 +79,6 @@ EIGEN_ALWAYS_INLINE Eigen::Vector3f getInterpolatedElement33(
     float dy = y - iy;
     float dxdy = dx*dy;
     const Eigen::Vector3f* bp = mat +ix+iy*width;
-
 
     return dxdy * *(const Eigen::Vector3f*)(bp+1+width)
            + (dy-dxdy) * *(const Eigen::Vector3f*)(bp+width)
@@ -141,7 +134,6 @@ EIGEN_ALWAYS_INLINE float getInterpolatedElement31(const Eigen::Vector3f* const
     float dy = y - iy;
     float dxdy = dx*dy;
     const Eigen::Vector3f* bp = mat +ix+iy*width;
-
 
     return dxdy * (*(const Eigen::Vector3f*)(bp+1+width))[0]
            + (dy-dxdy) * (*(const Eigen::Vector3f*)(bp+width))[0]
@@ -322,7 +314,6 @@ EIGEN_ALWAYS_INLINE Eigen::Vector4f getInterpolatedElement44(
     float dxdy = dx*dy;
     const Eigen::Vector4f* bp = mat +ix+iy*width;
 
-
     return dxdy * *(bp+1+width)
            + (dy-dxdy) * *(bp+width)
            + (dx-dxdy) * *(bp+1)
@@ -340,14 +331,11 @@ EIGEN_ALWAYS_INLINE Eigen::Vector2f getInterpolatedElement42(
     float dxdy = dx*dy;
     const Eigen::Vector4f* bp = mat +ix+iy*width;
 
-
     return dxdy * *(const Eigen::Vector2f*)(bp+1+width)
            + (dy-dxdy) * *(const Eigen::Vector2f*)(bp+width)
            + (dx-dxdy) * *(const Eigen::Vector2f*)(bp+1)
            + (1-dx-dy+dxdy) * *(const Eigen::Vector2f*)(bp);
 }
-
-
 
 inline Vec3f makeRainbowf3F(float id)
 {
@@ -410,9 +398,5 @@ inline Vec3b makeRedGreen3B(float val)	// 0 = red, 1=green, 0.5=yellow.
     else return Vec3b(0,255,0);
 
 }
-
-
-
-
 
 }

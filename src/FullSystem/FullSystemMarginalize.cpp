@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*
  * KFBuffer.cpp
  *
@@ -53,8 +52,6 @@
 namespace dso
 {
 
-
-
 void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 {
     if(setting_minFrameAge > setting_maxFrames)
@@ -67,7 +64,6 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
         return;
     }
 
-
     int flagged = 0;
     // marginalize all frames that have not enough points.
     for(int i=0; i<(int)frameHessians.size(); i++)
@@ -76,11 +72,9 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
         int in = fh->pointHessians.size() + fh->immaturePoints.size();
         int out = fh->pointHessiansMarginalized.size() + fh->pointHessiansOut.size();
 
-
         Vec2 refToFh=AffLight::fromToVecExposure(frameHessians.back()->ab_exposure,
                      fh->ab_exposure,
                      frameHessians.back()->aff_g2l(), fh->aff_g2l());
-
 
         if( (in < setting_minPointsRemaining *(in+out)
                 || fabs(logf((float)refToFh[0])) > setting_maxLogAffFacInWindow)
@@ -113,7 +107,6 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
         FrameHessian* toMarginalize=0;
         FrameHessian* latest = frameHessians.back();
 
-
         for(FrameHessian* fh : frameHessians)
         {
             if(fh->frameID > latest->frameID-setting_minFrameAge
@@ -129,7 +122,6 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 
             }
             distScore *= -sqrtf(fh->targetPrecalc.back().distanceLL);
-
 
             if(distScore < smallestScore)
             {
@@ -150,15 +142,11 @@ void FullSystem::flagFramesForMarginalization(FrameHessian* newFH)
 //	printf("\n");
 }
 
-
-
-
 void FullSystem::marginalizeFrame(FrameHessian* frame)
 {
     // marginalize or remove all this frames points.
 
     assert((int)frame->pointHessians.size()==0);
-
 
     ef->marginalizeFrame(frame->efFrame);
 
@@ -180,7 +168,6 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
                     else if(ph->lastResiduals[1].first == r)
                         ph->lastResiduals[1].first=0;
 
-
                     if(r->host->frameID < r->target->frameID)
                         statistics_numForceDroppedResFwd++;
                     else
@@ -194,15 +181,12 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
         }
     }
 
-
-
     {
         std::vector<FrameHessian*> v;
         v.push_back(frame);
         for(IOWrap::Output3DWrapper* ow : outputWrapper)
             ow->publishKeyframes(v, true, &Hcalib);
     }
-
 
     frame->shell->marginalizedAt = frameHessians.back()->shell->id;
     frame->shell->movedByOpt = frame->w2c_leftEps().norm();
@@ -211,14 +195,8 @@ void FullSystem::marginalizeFrame(FrameHessian* frame)
     for(unsigned int i=0; i<frameHessians.size(); i++)
         frameHessians[i]->idx = i;
 
-
-
-
     setPrecalcValues();
     ef->setAdjointsF(&Hcalib);
 }
-
-
-
 
 }

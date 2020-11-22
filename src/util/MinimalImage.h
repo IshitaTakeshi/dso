@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include "util/NumType.h"
@@ -68,7 +67,6 @@ public:
         memcpy(clone->data, data, sizeof(T)*w*h);
         return clone;
     }
-
 
     inline T& at(int x, int y) {
         return data[(int)x+((int)y)*w];
@@ -128,33 +126,6 @@ public:
             at(u+i,v+2) = val;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 private:
     bool ownData;

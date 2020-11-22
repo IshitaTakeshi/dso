@@ -21,9 +21,7 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
 
 #include "util/NumType.h"
 #include "vector"
@@ -31,9 +29,6 @@
 #include "util/settings.h"
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "IOWrapper/Output3DWrapper.h"
-
-
-
 
 namespace dso
 {
@@ -90,12 +85,10 @@ public:
     double firstCoarseRMSE;
 private:
 
-
     void makeCoarseDepthL0(std::vector<FrameHessian*> frameHessians);
     float* idepth[PYR_LEVELS];
     float* weightSums[PYR_LEVELS];
     float* weightSums_bak[PYR_LEVELS];
-
 
     Vec6 calcResAndGS(int lvl, Mat88 &H_out, Vec8 &b_out, const SE3 &refToNew,
                       AffLight aff_g2l, float cutoffTH);
@@ -123,13 +116,10 @@ private:
     float* buf_warped_refColor;
     int buf_warped_n;
 
-
     std::vector<float*> ptrToDelete;
-
 
     Accumulator9 acc;
 };
-
 
 class CoarseDistanceMap {
 public:
@@ -147,7 +137,6 @@ public:
 
     void makeK( CalibHessian* HCalib);
 
-
     float* fwdWarpedIDDistFinal;
 
     Mat33f K[PYR_LEVELS];
@@ -164,7 +153,6 @@ public:
     int h[PYR_LEVELS];
 
     void addIntoDistFinal(int u, int v);
-
 
 private:
 

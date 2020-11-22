@@ -21,7 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 #include "util/settings.h"
 #include "util/globalFuncs.h"
@@ -43,8 +42,6 @@
 
 using namespace dso;
 
-
-
 inline int getdir (std::string dir, std::vector<std::string> &files)
 {
     DIR *dp;
@@ -62,7 +59,6 @@ inline int getdir (std::string dir, std::vector<std::string> &files)
     }
     closedir(dp);
 
-
     std::sort(files.begin(), files.end());
 
     if(dir.at( dir.length() - 1 ) != '/') dir = dir+"/";
@@ -74,7 +70,6 @@ inline int getdir (std::string dir, std::vector<std::string> &files)
 
     return files.size();
 }
-
 
 struct PrepImageItem
 {
@@ -95,9 +90,6 @@ struct PrepImageItem
         pt=0;
     }
 };
-
-
-
 
 class ImageFolderReader
 {
@@ -146,16 +138,13 @@ public:
         else
             getdir (path, files);
 
-
         undistort = Undistort::getUndistorterForFile(
                         calibFile, gammaFile, vignetteFile);
-
 
         widthOrg = undistort->getOriginalSize()[0];
         heightOrg = undistort->getOriginalSize()[1];
         width=undistort->getSize()[0];
         height=undistort->getSize()[1];
-
 
         // load timestamps if possible.
         loadTimestamps();
@@ -169,7 +158,6 @@ public:
         if(ziparchive!=0) zip_close(ziparchive);
         if(databuffer!=0) delete databuffer;
 #endif
-
 
         delete undistort;
     };
@@ -211,12 +199,10 @@ public:
         return timestamps[id];
     }
 
-
     void prepImage(int id, bool as8U=false)
     {
 
     }
-
 
     MinimalImageB* getImageRaw(int id)
     {
@@ -228,18 +214,15 @@ public:
         return getImage_internal(id, 0);
     }
 
-
     inline float* getPhotometricGamma()
     {
         if(undistort==0 || undistort->photometricUndist==0) return 0;
         return undistort->photometricUndist->getG();
     }
 
-
     // undistorter. [0] always exists, [1-2] only when MT is enabled.
     Undistort* undistort;
 private:
-
 
     MinimalImageB* getImageRaw_internal(int id, int unused)
     {
@@ -279,7 +262,6 @@ private:
 #endif
         }
     }
-
 
     ImageAndExposure* getImage_internal(int id, int unused)
     {
@@ -345,7 +327,6 @@ private:
             if(exposures[i] == 0) exposuresGood=false;
         }
 
-
         if((int)getNumImages() != (int)timestamps.size())
         {
             printf("set timestamps and exposures to zero!\n");
@@ -362,9 +343,6 @@ private:
         printf("got %d images and %d timestamps and %d exposures.!\n",
                (int)getNumImages(), (int)timestamps.size(), (int)exposures.size());
     }
-
-
-
 
     std::vector<ImageAndExposure*> preloadedImages;
     std::vector<std::string> files;

@@ -21,16 +21,12 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "util/settings.h"
 #include <boost/bind.hpp>
-
 
 namespace dso
 {
 int pyrLevelsUsed = PYR_LEVELS;
-
 
 /* Parameters controlling when KF's are taken */
 float setting_keyframesPerSecond =
@@ -44,7 +40,6 @@ float setting_kfGlobalWeight =
     1;   // general weight on threshold, the larger the more KF's are taken (e.g., 2 = double the amount of KF's).
 float setting_maxAffineWeight= 2;
 
-
 /* initial hessian values to fix unobservable dimensions / priors on affine lighting parameters.
  */
 float setting_idepthFixPrior = 50*50;
@@ -55,22 +50,14 @@ float setting_initialAffBPrior = 1e14;
 float setting_initialAffAPrior = 1e14;
 float setting_initialCalibHessian = 5e9;
 
-
-
-
-
 /* some modes for solving the resulting linear system (e.g. orthogonalize wrt. unobservable dimensions) */
 int setting_solverMode = SOLVER_FIX_LAMBDA | SOLVER_ORTHOGONALIZE_X_LATER;
 double setting_solverModeDelta = 0.00001;
 bool setting_forceAceptStep = true;
 
-
-
 /* some thresholds on when to activate / marginalize points */
 float setting_minIdepthH_act = 100;
 float setting_minIdepthH_marg = 50;
-
-
 
 float setting_desiredImmatureDensity = 1500; // immature points per frame
 float setting_desiredPointDensity =
@@ -80,7 +67,6 @@ float setting_minPointsRemaining =
 float setting_maxLogAffFacInWindow =
     0.7; // marg a frame if factor between intensities to current frame is larger than 1/X or X.
 
-
 int   setting_minFrames = 5; // min frames in window.
 int   setting_maxFrames = 7; // max frames in window.
 int   setting_minFrameAge = 1;
@@ -89,36 +75,21 @@ int   setting_minOptIterations=1; // min GN iterations.
 float setting_thOptIterations=
     1.2; // factor on break threshold for GN iteration (larger = break earlier)
 
-
-
-
-
 /* Outlier Threshold on photometric energy */
 float setting_outlierTH = 12*12;					// higher -> less strict
 float setting_outlierTHSumComponent =
     50*50; 		// higher -> less strong gradient-based reweighting .
 
-
-
-
 int setting_pattern = 8;						// point pattern used. DISABLED.
 float setting_margWeightFac =
     0.5*0.5;          // factor on hessian when marginalizing, to account for inaccurate linearization points.
 
-
 /* when to re-track a frame */
 float setting_reTrackThreshold = 1.5; // (larger = re-track more often)
-
-
 
 /* require some minimum number of residuals for a point to become valid */
 int   setting_minGoodActiveResForMarg=3;
 int   setting_minGoodResForMarg=4;
-
-
-
-
-
 
 // 0 = nothing.
 // 1 = apply inv. response.
@@ -134,14 +105,7 @@ float setting_affineOptModeB =
 int setting_gammaWeightsPixelSelect =
     1; // 1 = use original intensity for pixel selection; 0 = use gamma-corrected intensity.
 
-
-
-
 float setting_huberTH = 9; // Huber Threshold
-
-
-
-
 
 // parameters controlling adaptive energy threshold computation.
 float setting_frameEnergyTHConstWeight = 0.5;
@@ -150,20 +114,11 @@ float setting_frameEnergyTHFacMedian = 1.5;
 float setting_overallEnergyTHWeight = 1;
 float setting_coarseCutoffTH = 20;
 
-
-
-
-
 // parameters controlling pixel selection
 float setting_minGradHistCut = 0.5;
 float setting_minGradHistAdd = 7;
 float setting_gradDownweightPerLevel = 0.75;
 bool  setting_selectDirectionDistribution = true;
-
-
-
-
-
 
 /* settings controling initial immature point tracking */
 float setting_maxPixSearch =
@@ -181,22 +136,16 @@ float setting_trace_slackInterval =
 float setting_trace_minImprovementFactor =
     2;		// if pixel-interval is smaller than this, leave it be.
 
-
-
-
 // for benchmarking different undistortion settings
 float benchmark_varBlurNoise = 0;
 float benchmark_initializerSlackFactor = 1;
 int benchmark_noiseGridsize = 3;
-
 
 float freeDebugParam1 = 1;
 float freeDebugParam2 = 1;
 float freeDebugParam3 = 1;
 float freeDebugParam4 = 1;
 float freeDebugParam5 = 1;
-
-
 
 bool disableReconfigure=false;
 bool debugSaveImages = false;
@@ -221,7 +170,6 @@ bool setting_debugout_runquiet = false;
 int sparsityFactor =
     5;	// not actually a setting, only some legacy stuff for coarse initializer.
 
-
 void handleKey(char k)
 {
     char kkk = k;
@@ -240,9 +188,6 @@ void handleKey(char k)
     }
 
 }
-
-
-
 
 int staticPattern[10][40][2] = {
     {   {0,0}, 	  {-100,-100}, {-100,-100}, {-100,-100}, {-100,-100}, {-100,-100}, {-100,-100}, {-100,-100}, {-100,-100}, {-100,-100},	// .
@@ -331,6 +276,5 @@ int staticPatternPadding[10] = {
     2,
     4
 };
-
 
 }

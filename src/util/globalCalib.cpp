@@ -21,8 +21,6 @@
 * along with DSO. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "util/globalCalib.h"
 #include "stdio.h"
 #include <iostream>
@@ -37,7 +35,6 @@ float fxiG[PYR_LEVELS], fyiG[PYR_LEVELS],
       cxiG[PYR_LEVELS], cyiG[PYR_LEVELS];
 
 Eigen::Matrix3f KG[PYR_LEVELS], KiG[PYR_LEVELS];
-
 
 float wM3G;
 float hM3G;
@@ -104,6 +101,5 @@ void setGlobalCalib(int w, int h,const Eigen::Matrix3f &K)
         cyiG[level] = KiG[level](1,2);
     }
 }
-
 
 }
