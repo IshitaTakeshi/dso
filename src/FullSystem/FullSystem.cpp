@@ -136,12 +136,6 @@ FullSystem::~FullSystem()
     delete ef;
 }
 
-void FullSystem::setOriginalCalib(const VecXf &originalCalib, int originalW,
-                                  int originalH)
-{
-
-}
-
 void FullSystem::setGammaFunction(float* BInv)
 {
     if(BInv==0) return;
